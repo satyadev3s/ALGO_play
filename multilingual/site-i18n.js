@@ -1,3 +1,13 @@
+/**
+ * AlgoPlay Universal Multilingual Translation Engine (site-i18n.js)
+ * Features:
+ * - Seamless global language persistence across ALL pages and contexts (localStorage + sessionStorage + storage events)
+ * - Deep text node translation that handles icons, emojis, buttons, links, inputs, and placeholders
+ * - Intelligent prefix/suffix peeling preserving symbols, emojis, and punctuation
+ * - Dynamic pattern matching for Levels, XP counters, Authors, and Copyright
+ * - Auto-translates dynamic DOM content with MutationObserver
+ * - Floating language pill widget available on every page
+ */
 (function () {
   "use strict";
 
@@ -5,159 +15,1786 @@
   const CODES = ["en", "te", "hi", "ta", "or", "ml"];
   const NAMES = {
     en: "English",
-    te: "తెలుగు",
-    hi: "हिन्दी",
-    ta: "தமிழ்",
-    or: "ଓଡ଼ିଆ",
-    ml: "മലയാളം"
+    te: "తెలుగు (Telugu)",
+    hi: "हिन्दी (Hindi)",
+    ta: "தமிழ் (Tamil)",
+    or: "ଓଡ଼ିଆ (Odia)",
+    ml: "മലയാളം (Malayalam)"
   };
-  let dictionaries = {};
-  let activeLanguage = "en";
-  let englishValues = new Map();
-  const originalText = new WeakMap();
+
+  // Comprehensive core platform dictionaries across all pages
+  const CORE_TRANSLATIONS = {
+  "te": {
+    "nav_features": "ఫీచర్లు",
+    "nav_tracks": "సబ్జెక్ట్ విభాగాలు",
+    "nav_how": "ఎలా పనిచేస్తుంది",
+    "nav_educators": "ఉపాధ్యాయ కేంద్రం",
+    "nav_teacher_hub": "👩‍🏫 ఉపాధ్యాయ హబ్",
+    "nav_sign_in": "సైన్ ఇన్",
+    "nav_get_started": "ప్రారంభించండి",
+    "hero_badge": "ఇంటరాక్టివ్ STEM & కోడింగ్ మిషన్లు — ఆడుతూ నేర్చుకోండి",
+    "hero_title": "ఆడుతూ నేర్చుకోండి, <br><span class=\"text-gradient\">ప్రతి దశలో నైపుణ్యం సాధించండి</span>",
+    "hero_subtitle": "పాఠశాల పాఠ్యాంశాలను చిన్న మిషన్లుగా, దృశ్యరూప సమస్య పరిష్కారాలుగా మార్చండి. విద్యార్థులకు ఆనందం, ఉపాధ్యాయులకు ప్రేరణ.",
+    "btn_start_quest": "🚀 ప్రారంభించండి (విద్యార్థి)",
+    "btn_educator_portal": "👩‍🏫 ఉపాధ్యాయ పోర్టల్",
+    "btn_quick_demo": "🎮 క్విక్ డెమో",
+    "stat_active_students": "క్రియాశీల విద్యార్థులు",
+    "stat_missions": "పూర్తయిన మిషన్లు",
+    "stat_concept_mastery": "భావన ప్రావీణ్యం",
+    "stat_interactive_labs": "ఇంటరాక్టివ్ ల్యాబ్‌లు",
+    "features_title": "ఆల్గోప్లే ఎందుకు ప్రభావవంతం",
+    "features_subtitle": "గేమ్ మెకానిక్స్ మరియు అభ్యాస శాస్త్రం కలయికతో శాశ్వత అవగాహన.",
+    "feat_1_title": "చిన్న మిషన్లు",
+    "feat_1_desc": "ఒకే ప్రాథమిక భావనపై దృష్టి సారించే 5 నుండి 10 నిమిషాల మైక్రో-ఛాలెంజ్‌లు.",
+    "feat_2_title": "XP, బ్యాడ్జ్‌లు & రివార్డులు",
+    "feat_2_desc": "అనుభవ పాయింట్లను సంపాదించండి, ప్రత్యేక అవతార్‌లను అన్‌లాక్ చేయండి.",
+    "feat_3_title": "తక్షణ దృశ్య ఫీడ్‌బ్యాక్",
+    "feat_3_desc": "దశలవారీ దృశ్య సూచనలు ప్రతి పరిష్కారం వెనుక ఉన్న లాజిక్‌ను నేర్పుతాయి.",
+    "feat_4_title": "రోగనిర్ధారణ ప్రావీణ్యం",
+    "feat_4_desc": "విద్యార్థులకు ఎక్కడ మార్గదర్శకత్వం అవసరమో సూచించే వ్యక్తిగత గణాంకాలు.",
+    "tracks_title": "సబ్జెక్ట్ విభాగాలను అన్వేషించండి",
+    "tracks_subtitle": "ఇప్పుడే ఆడటానికి సిద్ధంగా ఉన్న ఇంటరాక్టివ్ పాఠ్యాంశాల మాడ్యూల్స్",
+    "track_math_title": "గణితం (Mathematics)",
+    "track_math_sub": "స్మార్ట్ బజార్ & దృశ్య భిన్నాలు",
+    "track_math_badge": "ఇంటరాక్టివ్",
+    "track_math_desc": "మార్కెట్ సిమ్యులేటర్‌లో సుగంధ ద్రవ్యాల వర్తకం మరియు భిన్నాల భాగాలను లెక్కించండి.",
+    "track_math_dur": "⏱️ మిషన్‌కు 5–8 నిమిషాలు",
+    "track_play_btn": "మిషన్ ఆడండి →",
+    "track_tech_title": "సాంకేతికత (Technology)",
+    "track_tech_sub": "లాజిక్, ఫ్లో & కోడ్ రన్నర్",
+    "track_tech_badge": "క్రియాశీల",
+    "track_tech_desc": "దృశ్యరూప గేమిఫైడ్ స్టెప్పింగ్ ద్వారా కండిషనల్ లాజిక్, లూప్‌లు మరియు డేటా స్ట్రక్చర్లను అర్థం చేసుకోండి.",
+    "track_tech_dur": "⏱️ మిషన్‌కు 6–10 నిమిషాలు",
+    "track_phy_title": "భౌతిక శాస్త్రం (Physical Science)",
+    "track_phy_sub": "బలాలు, కాంతి & శక్తి",
+    "track_phy_badge": "ప్రజాదరణ",
+    "track_phy_desc": "భౌతిక శాస్త్ర ప్రయోగాలు, కాంతి పరావర్తనం మరియు డైనమిక్ గతిశీల వ్యవస్థలను అనుకరించండి.",
+    "track_phy_dur": "⏱️ మిషన్‌కు 7–12 నిమిషాలు",
+    "track_bio_title": "జీవ శాస్త్రం (Living Science)",
+    "track_bio_sub": "కణాలు, పర్యావరణ వ్యవస్థలు & జన్యుశాస్త్రం",
+    "track_bio_badge": "ప్రధానం",
+    "track_bio_desc": "ఇంటరాక్టివ్ గైడెడ్ పజిల్స్ ద్వారా కణ జీవశాస్త్రం మరియు సహజ పర్యావరణ వ్యవస్థలను అన్వేషించండి.",
+    "track_bio_dur": "⏱️ మిషన్‌కు 5–8 నిమిషాలు",
+    "track_lang_title": "భాషా నైపుణ్యం (Language Mastery)",
+    "track_lang_sub": "వ్యాకరణం, పదజాలం & వాక్యనిర్మాణం",
+    "track_lang_badge": "కొత్తది",
+    "track_lang_desc": "పజిల్ ఛాలెంజ్‌లతో పఠన అవగాహన మరియు వాక్య నిర్మాణాన్ని బలోపేతం చేయండి.",
+    "track_lang_dur": "⏱️ మిషన్‌కు 5–7 నిమిషాలు",
+    "track_vid_title": "వీడియో క్వెస్ట్ అరేనా",
+    "track_vid_sub": "ఇంటరాక్టివ్ STEM వీడియో ఛాలెంజ్‌లు",
+    "track_vid_badge": "ఫీచర్డ్",
+    "track_vid_desc": "సందర్భోచిత సైన్స్ ట్యుటోరియల్‌లను వీక్షించండి మరియు చెక్‌పాయింట్ సవాళ్లను పరిష్కరించండి.",
+    "track_vid_dur": "⏱️ క్లిప్‌కు 4–6 నిమిషాలు",
+    "track_watch_btn": "చూసి ఆడండి →",
+    "teacher_badge": "👩‍🏫 ఉపాధ్యాయులు & పాఠశాలల కోసం",
+    "teacher_title": "స్మార్ట్ తరగతి గది హబ్ & పరీక్షల రూపకల్పన",
+    "teacher_desc": "మా స్మార్ట్ బ్యాచ్ ప్రశ్నల జనరేటర్‌తో సెకన్లలో పాఠ్యాంశాలకు అనుగుణంగా పరీక్షలను సృష్టించండి. హోమ్‌వర్క్ పంపిణీ చేయండి, విద్యార్థుల పురోగతిని పర్యవేక్షించండి.",
+    "teacher_bullet_1": "<strong>తక్షణ బ్యాచ్ పరీక్షల బిల్డర్:</strong> 3, 5, 10 లేదా కావలసిన సంఖ్యలో ప్రశ్నలను ఎంచుకోండి.",
+    "teacher_bullet_2": "<strong>అసైన్‌మెంట్ స్టూడియో:</strong> విద్యార్థులకు ఆటోమేటిక్ హోమ్‌వర్క్ పంపిణీ.",
+    "teacher_bullet_3": "<strong>రోగనిర్ధారణ అంతర్దృష్టులు:</strong> రియల్-టైమ్ విద్యార్థుల పురోగతి మరియు ప్రత్యేక శిక్షణ జాబితాలు.",
+    "teacher_btn_login": "ఉపాధ్యాయ లాగిన్",
+    "teacher_btn_dash": "ఉపాధ్యాయ డ్యాష్‌బోర్డ్",
+    "teacher_btn_builder": "పరీక్షల బిల్డర్ →",
+    "teacher_card_head": "8వ తరగతి — రియల్-టైమ్ డయాగ్నోస్టిక్",
+    "teacher_card_live": "ప్రత్యక్ష యాక్టివ్",
+    "teacher_card_subj1": "భిన్నాలు & నిష్పత్తుల ప్రావీణ్యం",
+    "teacher_card_avg1": "92% సగటు",
+    "teacher_card_subj2": "బీజగణిత సమీకరణాలు",
+    "teacher_card_avg2": "78% సగటు",
+    "teacher_card_exam_ready": "💡 పరీక్ష సిద్ధంగా ఉంది: మిడ్-టర్మ్ టెస్ట్",
+    "teacher_card_edit": "ప్రశ్నలను సవరించండి",
+    "how_title": "ఇది ఎలా పనిచేస్తుంది",
+    "how_subtitle": "చదువుకునే సమయాన్ని ఆట సమయంగా మార్చే నాలుగు సులభమైన దశలు",
+    "how_step1_badge": "దశ 01",
+    "how_step1_title": "సబ్జెక్ట్ విభాగాన్ని ఎంచుకోండి",
+    "how_step1_desc": "గణితం, సైన్స్, సాంకేతికత లేదా కేటాయించిన క్లాస్ హోమ్‌వర్క్‌ను ఎంచుకోండి.",
+    "how_step2_badge": "దశ 02",
+    "how_step2_title": "దృశ్య మిషన్లను ఆడండి",
+    "how_step2_desc": "ప్రత్యక్ష విజువల్ సిమ్యులేషన్ మరియు గైడెడ్ సూచనలతో పజిల్‌లను పరిష్కరించండి.",
+    "how_step3_badge": "దశ 03",
+    "how_step3_title": "XP & బ్యాడ్జ్‌లను సంపాదించండి",
+    "how_step3_desc": "మీ ప్రొఫైల్‌ను స్థాయి పెంచండి, బ్యాడ్జ్‌లను అన్‌లాక్ చేయండి మరియు మైలురాళ్లను సాధించండి.",
+    "how_step4_badge": "దశ 04",
+    "how_step4_title": "ప్రధాన నైపుణ్యాలలో ప్రావీణ్యం",
+    "how_step4_desc": "ధృవీకరించబడిన విశ్లేషణలు మరియు ఉపాధ్యాయుల ఫీడ్‌బ్యాక్‌తో మీ అవగాహనను పెంచుకోండి.",
+    "cta_title": "మీ అభ్యాస స్థాయిని పెంచడానికి సిద్ధంగా ఉన్నారా?",
+    "cta_subtitle": "ఈరోజే మీ ఖాతాను సృష్టించుకోండి మరియు సంక్లిష్ట భావనలను సులభతరం చేసే గేమిఫైడ్ అభ్యాసాన్ని అనుభవించండి.",
+    "cta_btn_student": "విద్యార్థి ఖాతాను సృష్టించండి",
+    "cta_btn_teacher": "ఉపాధ్యాయ సైన్ ఇన్",
+    "footer_tagline": "ఇంటరాక్టివ్ సమస్య పరిష్కారం మరియు కొలవగల నైపుణ్యం ద్వారా విద్యార్థులు మరియు ఉపాధ్యాయులను కలిపే గేమిఫైడ్ STEM విద్య.",
+    "footer_head_platform": "ప్లాట్‌ఫామ్",
+    "footer_link_fractions": "స్మార్ట్ బజార్ భిన్నాలు",
+    "footer_link_video": "STEM వీడియో అరేనా",
+    "footer_link_student_dash": "విద్యార్థి డ్యాష్‌బోర్డ్",
+    "footer_head_educators": "ఉపాధ్యాయులు",
+    "footer_link_teacher_dash": "ఉపాధ్యాయ డ్యాష్‌బోర్డ్",
+    "footer_link_exam_studio": "పరీక్షల బిల్డర్ స్టూడియో",
+    "footer_link_assignments": "అసైన్‌మెంట్ డ్రాప్‌జోన్",
+    "footer_head_quick": "త్వరిత యాక్సెస్",
+    "footer_link_student_login": "విద్యార్థి లాగిన్",
+    "footer_link_create_acc": "ఖాతాను సృష్టించండి",
+    "footer_link_teacher_portal": "ఉపాధ్యాయ పోర్టల్",
+    "footer_copyright": "© 2026 ఆల్గోప్లే ఎడ్యుకేషన్. సర్వహక్కులు ప్రత్యేకించబడ్డాయి.",
+    "footer_tech_stack": "Node.js • Express • MongoDB బ్యాకెండ్ ప్రారంభించబడింది",
+    "auth_student_login_title": "విద్యార్థి లాగిన్",
+    "auth_student_login_subtitle": "తిరిగి స్వాగతం! మీ ఆల్గోప్లే వివరాలను నమోదు చేయండి",
+    "auth_teacher_login_title": "ఉపాధ్యాయ పోర్టల్",
+    "auth_teacher_login_subtitle": "ఉపాధ్యాయులు మరియు నిర్వాహకుల కోసం సురక్షిత ప్రవేశం",
+    "auth_student_signup_title": "విద్యార్థి నమోదు",
+    "auth_student_signup_subtitle": "ఆల్గోప్లేలో చేరండి మరియు మీ అభ్యాస ప్రయాణాన్ని ప్రారంభించండి 🚀",
+    "auth_teacher_signup_title": "ఉపాధ్యాయ నమోదు",
+    "auth_teacher_signup_subtitle": "పరీక్షలు రూపొందించడానికి మరియు తరగతులను పర్యవేక్షించడానికి నమోదు చేసుకోండి",
+    "auth_username_label": "యూజర్‌నేమ్",
+    "auth_username_placeholder": "మీ యూజర్‌నేమ్ నమోదు చేయండి",
+    "auth_password_label": "పాస్‌వర్డ్",
+    "auth_password_placeholder": "మీ పాస్‌వర్డ్ నమోదు చేయండి",
+    "auth_school_label": "పాఠశాల పేరు",
+    "auth_school_placeholder": "మీ పాఠశాల లేదా కళాశాల",
+    "auth_age_label": "వయస్సు",
+    "auth_age_placeholder": "ఉదా: 12",
+    "auth_grade_label": "తరగతి",
+    "auth_grade_placeholder": "ఉదా: 6వ తరగతి",
+    "auth_dept_label": "విషయం / విభాగం",
+    "auth_dept_placeholder": "ఉదా: గణితం",
+    "auth_btn_login": "లాగిన్ అవ్వండి",
+    "auth_btn_signup": "ఖాతాను సృష్టించండి",
+    "auth_btn_quick_demo": "🚀 త్వరిత డెమో లాగిన్",
+    "auth_no_account": "ఖాతా లేదా?",
+    "auth_create_account": "ఖాతాను సృష్టించండి",
+    "auth_already_account": "ఇప్పటికే ఖాతా ఉందా?",
+    "auth_teacher_link": "ఉపాధ్యాయ లాగిన్",
+    "auth_student_link": "విద్యార్థి లాగిన్",
+    "auth_are_you_teacher": "మీరు ఉపాధ్యాయులా?",
+    "auth_are_you_student": "మీరు విద్యార్థినా?",
+    "auth_back_home": "← హోమ్‌కి తిరిగి వెళ్లండి",
+    "dash_welcome": "తిరిగి స్వాగతం, విద్యార్థి!",
+    "dash_subtitle": "మీ రోజువారీ అభ్యాస కేంద్రం: ఇంటరాక్టివ్ సవాళ్ల ద్వారా భావనలను నేర్చుకోండి",
+    "dash_nav_home": "హోమ్",
+    "dash_nav_tracks": "సబ్జెక్ట్ విభాగాలు",
+    "dash_nav_exams": "పరీక్షలు",
+    "dash_nav_resources": "వనరులు",
+    "dash_nav_leaderboard": "లీడర్‌బోర్డ్",
+    "dash_nav_achievements": "విజయాలు",
+    "dash_nav_logout": "లాగౌట్",
+    "dash_nav_tech": "సాంకేతిక వివరాలు",
+    "dash_track_math": "గణితం",
+    "dash_track_math_desc": "స్మార్ట్ బజార్, భిన్నాలు, జ్యామితి & బీజగణితం",
+    "dash_track_science": "భౌతిక శాస్త్రం",
+    "dash_track_science_desc": "బలాలు, ఆప్టిక్స్, శక్తి & ప్రయోగాలు",
+    "dash_track_tech": "సాంకేతికత & కోడింగ్",
+    "dash_track_tech_desc": "అల్గారిథమ్స్, లాజిక్ ఫ్లో & కోడ్ రన్నర్",
+    "dash_track_bio": "జీవ శాస్త్రం",
+    "dash_track_bio_desc": "కణ జీవశాస్త్రం, పర్యావరణ వ్యవస్థలు & జన్యుశాస్త్రం",
+    "dash_daily_streak": "రోజువారీ స్ట్రీక్",
+    "dash_coins": "నాణేలు",
+    "dash_xp": "అనుభవ పాయింట్లు",
+    "dash_continue_learning": "అభ్యాసం కొనసాగించండి →",
+    "dash_start_mission": "మిషన్ ప్రారంభించండి →",
+    "tdash_title": "ఆల్గోప్లే — ఉపాధ్యాయ పోర్టల్",
+    "tdash_nav_overview": "అవలోకనం",
+    "tdash_nav_exams": "పరీక్షల స్టూడియో",
+    "tdash_nav_resources": "హోమ్‌వర్క్ అప్‌లోడ్",
+    "tdash_stat_students": "క్రియాశీల విద్యార్థులు",
+    "tdash_stat_avg_mastery": "సగటు ప్రావీణ్యం",
+    "tdash_stat_learning_gain": "అభ్యాస పెరుగుదల",
+    "tdash_stat_misconceptions": "గుర్తించిన అపోహలు",
+    "tdash_remediation_queue": "ప్రత్యేక శిక్షణ జాబితా",
+    "tdash_recent_attempts": "ఇటీవలి పరీక్షా ఫలితాలు",
+    "tdash_export_csv": "CSV నివేదిక డౌన్‌లోడ్",
+    "exam_portal_title": "విద్యార్థి ఆన్‌లైన్ పరీక్ష",
+    "exam_submit_btn": "పరీక్షను సమర్పించండి",
+    "exam_back_btn": "← పరీక్షలకు తిరిగి వెళ్లండి",
+    "exam_time_left": "మిగిలిన సమయం",
+    "exam_question": "ప్రశ్న",
+    "exam_completed": "పరీక్ష విజయవంతంగా సమర్పించబడింది!",
+    "exam_your_score": "మీ స్కోరు",
+    "frac_title": "ఆల్గోప్లే: స్మార్ట్ బజార్",
+    "frac_subtitle": "6వ తరగతి గణితం — అసమాన భిన్నాల సాహసం",
+    "frac_stage1": "దశ 1: సమాన భాగాలు",
+    "frac_stage2": "దశ 2: ఉమ్మడి ఆధారం",
+    "frac_stage3": "దశ 3: బజార్ వ్యాపారం",
+    "frac_submit": "సమాధానం సమర్పించండి",
+    "frac_next": "తదుపరి సవాలు →",
+    "frac_hint_title": "ఉపయోగకరమైన సూచన",
+    "frac_misconception_title": "భావనాత్మక రోగనిర్ధారణ",
+    "tech_title": "ఆల్గోప్లే ఆర్కిటెక్చర్ & సాంకేతిక వివరాలు",
+    "tech_subtitle": "పూర్తి డెవలపర్ డాక్యుమెంటేషన్, ఇన్‌స్టాల్ చేసిన ప్యాకేజీలు మరియు కోడ్ మ్యాప్",
+    "tech_tab_overview": "సిస్టమ్ ఆర్కిటెక్చర్",
+    "tech_tab_packages": "ఇన్‌స్టాల్ చేసిన ప్యాకేజీలు",
+    "tech_tab_codemap": "కోడ్ ఎక్కడ ఉంది",
+    "tech_frontend_head": "ఫ్రంటెండ్ టెక్నాలజీలు",
+    "tech_backend_head": "బ్యాకెండ్ & డేటాబేస్",
+    "tech_packages_head": "NPM ప్యాకేజీలు & డిపెండెన్సీలు",
+    "tech_codemap_head": "కోడ్‌బేస్ డైరెక్టరీ మ్యాప్",
+    "tech_btn_home": "← హోమ్‌కి తిరిగి వెళ్లండి",
+    "tech_btn_dash": "విద్యార్థి డ్యాష్‌బోర్డ్",
+    "tech_btn_teacher": "ఉపాధ్యాయ పోర్టల్",
+    "dashboard": "డ్యాష్‌బోర్డ్",
+    "student_portal": "విద్యార్థి పోర్టల్",
+    "teacher_portal": "ఉపాధ్యాయ పోర్టల్",
+    "leaderboard": "లీడర్‌బోర్డ్",
+    "logout": "లాగ్ అవుట్",
+    "login": "లాగిన్",
+    "signup": "సైన్ అప్",
+    "profile": "ప్రొఫైల్",
+    "assignments": "అసైన్‌మెంట్లు",
+    "exams": "పరీక్షలు",
+    "take_exam": "పరీక్ష రాయండి",
+    "mathematics": "గణితం",
+    "science": "సైన్స్",
+    "technology": "సాంకేతికత",
+    "biology": "జీవ శాస్త్రం",
+    "physics": "భౌతిక శాస్త్రం",
+    "english": "ఆంగ్లం",
+    "ai_tutor": "AI ట్యూటర్",
+    "ask_anything": "ఏదైనా అడగండి",
+    "send": "పంపు",
+    "clear_chat": "చాట్ క్లియర్ చేయండి",
+    "explore_subjects": "సబ్జెక్టులను అన్వేషించండి",
+    "boost_skills": "మీ నైపుణ్యాలను మెరుగుపరుచుకోండి",
+    "play_mission": "మిషన్ ఆడండి",
+    "games": "ఆటలు",
+    "welcome": "స్వాగతం",
+    "gamified learning 6-10": "గేమిఫైడ్ లెర్నింగ్ 6–10",
+    "gamified learning 6–10": "గేమిఫైడ్ లెర్నింగ్ 6–10",
+    "explorer": "అన్వేషకుడు",
+    "level up your education": "మీ విద్య స్థాయిని పెంచండి",
+    "transform your syllabus into an epic quest. master subjects, earn xp, and unlock real-world knowledge through play": "మీ పాఠ్యాంశాలను ఒక అద్భుతమైన సాహసయాత్రగా మార్చుకోండి. ఆటల ద్వారా సబ్జెక్టులను నేర్చుకోండి, XP సంపాదించండి మరియు వాస్తవ విజ్ఞానాన్ని అన్‌లాక్ చేయండి",
+    "smart bazaar: fractions quest": "స్మార్ట్ బజార్: భిన్నాల అన్వేషణ",
+    "learn to add unlike fractions through indian marketplace trade, interactive visual strips, and real-time guidance": "భారతీయ మార్కెట్ వ్యాపారం, ఇంటరాక్టివ్ విజువల్ స్ట్రిప్స్ మరియు రియల్-టైమ్ మార్గదర్శకత్వం ద్వారా విభిన్న భిన్నాలను కూడటం నేర్చుకోండి",
+    "diagnostic quiz": "రోగనిర్ధారణ క్విజ్",
+    "visual strips": "దృశ్య స్ట్రిప్స్",
+    "step-by-step hints": "దశలవారీ సూచనలు",
+    "start quest": "మిషన్ ప్రారంభించండి",
+    "your universe": "మీ విశ్వం",
+    "master each domain to earn unique badges": "ప్రత్యేక బ్యాడ్జ్‌లను సంపాదించడానికి ప్రతి విభాగాన్ని నేర్చుకోండి",
+    "physics & chemistry": "భౌతిక & రసాయన శాస్త్రం",
+    "algebra & geometry": "బీజగణితం & రేఖాగణితం",
+    "coding & ai": "కోడింగ్ & AI",
+    "grammar & prose": "వ్యాకరణం & గద్యం",
+    "human body & life": "మానవ శరీరం & జీవం",
+    "mastery": "ప్రావీణ్యం",
+    "enter domain": "విభాగంలోకి ప్రవేశించండి",
+    "open file": "ఫైల్ తెరవండి",
+    "download": "డౌన్‌లోడ్ చేయండి",
+    "watch video": "వీడియో చూడండి",
+    "class assignment": "తరగతి అసైన్‌మెంట్",
+    "today": "ఈరోజు",
+    "no assignments posted yet": "ఇంకా అసైన్‌మెంట్లు ఏవీ పోస్ట్ చేయలేదు",
+    "loading assignments": "అసైన్‌మెంట్లు లోడ్ అవుతున్నాయి...",
+    "daily quests": "రోజువారీ సవాళ్లు",
+    "view all": "అన్నీ చూడండి",
+    "play now": "ఇప్పుడే ఆడండి",
+    "mario math runner": "మారియో మ్యాథ్ రన్నర్",
+    "mathematics • speed arcade": "గణితం • స్పీడ్ ఆర్కేడ్",
+    "smart bazaar: market quest": "స్మార్ట్ బజార్: మార్కెట్ క్వెస్ట్",
+    "fractions • visual trade": "భిన్నాలు • దృశ్య వ్యాపారం",
+    "continuous chase quiz": "కంటిన్యూయస్ చేజ్ క్విజ్",
+    "logic • speed challenge": "లాజిక్ • స్పీడ్ ఛాలెంజ్",
+    "physics engine lab": "ఫిజిక్స్ ఇంజిన్ ల్యాబ్",
+    "physics • interactive simulator": "భౌతిక శాస్త్రం • ఇంటరాక్టివ్ సిమ్యులేటర్",
+    "chemistry lab reactions": "కెమిస్ట్రీ ల్యాబ్ ప్రతిచర్యలు",
+    "chemistry • atom & matter lab": "రసాయన శాస్త్రం • పరమాణు & పదార్థ ల్యాబ్",
+    "anatomy pin explorer": "శరీర నిర్మాణ పిన్ అన్వేషకుడు",
+    "biology • visual step-by-step": "జీవ శాస్త్రం • దశలవారీ విజువల్స్",
+    "interactive video arena": "ఇంటరాక్టివ్ వీడియో అరేనా",
+    "stem • video challenge": "STEM • వీడియో సవాలు",
+    "subject arcade hub": "సబ్జెక్ట్ ఆర్కేడ్ హబ్",
+    "all subjects • multi-game arcade": "అన్ని సబ్జెక్టులు • మల్టీ-గేమ్ ఆర్కేడ్",
+    "sutra math cannon": "సూత్ర మ్యాథ్ ఫిరంగి",
+    "mathematics • bubble shooter": "గణితం • బబుల్ షూటర్",
+    "adaptive challenges": "అడాప్టివ్ సవాళ్లు",
+    "the game gets smarter as you do. problems adjust in real-time to your skill level": "మీరు నేర్చుకునే కొద్దీ గేమ్ మరింత తెలివైనదిగా మారుతుంది. సమస్యలు మీ నైపుణ్య స్థాయికి అనుగుణంగా మారతాయి",
+    "streak rewards": "స్ట్రీక్ బహుమతులు",
+    "maintain your daily learning streak to unlock rare profile icons and coin multipliers": "అరుదైన ప్రొఫైల్ చిహ్నాలు మరియు కాయిన్ మల్టిప్లైయర్‌లను అన్‌లాక్ చేయడానికి మీ రోజువారీ అభ్యాస స్ట్రీక్‌ను కొనసాగించండి",
+    "safe social": "సురక్షిత సామాజిక వాతావరణం",
+    "collaborate with classmates in a secure, moderated environment": "సురక్షితమైన, పర్యవేక్షించబడే వాతావరణంలో సహచరులతో కలిసి పని చేయండి",
+    "active players": "క్రియాశీల ఆటగాళ్ళు",
+    "score improve": "స్కోరు మెరుగుదల",
+    "quests done": "పూర్తయిన మిషన్లు",
+    "industry standard": "పరిశ్రమ ప్రమాణం",
+    "gold": "గోల్డ్",
+    "safe. secure. fun": "సురక్షితం. భద్రం. వినోదం"
+  },
+  "hi": {
+    "nav_features": "सुविधाएँ",
+    "nav_tracks": "विषय पाठ्यक्रम",
+    "nav_how": "यह कैसे काम करता है",
+    "nav_educators": "शिक्षक केंद्र",
+    "nav_teacher_hub": "👩‍🏫 शिक्षक हब",
+    "nav_sign_in": "साइन इन",
+    "nav_get_started": "शुरू करें",
+    "hero_badge": "इंटरैक्टिव STEM और कोडिंग मिशन — खेल-खेल में सीखें",
+    "hero_title": "खेलते हुए सीखें, <br><span class=\"text-gradient\">एक समय में एक इंटरैक्टिव मिशन</span>",
+    "hero_subtitle": "स्कूली पाठ्यक्रम को मजेदार मिशनों, विज़ुअल समाधान और त्वरित फीडबैक में बदलें। छात्रों और शिक्षकों दोनों के लिए प्रेरित करने वाला मंच।",
+    "btn_start_quest": "🚀 शुरू करें (छात्र)",
+    "btn_educator_portal": "👩‍🏫 शिक्षक पोर्टल",
+    "btn_quick_demo": "🎮 त्वरित डेमो",
+    "stat_active_students": "सक्रिय छात्र",
+    "stat_missions": "हल किए गए मिशन",
+    "stat_concept_mastery": "अवधारणा महारत",
+    "stat_interactive_labs": "इंटरैक्टिव लैब्स",
+    "features_title": "एल्गोप्ले क्यों काम करता है",
+    "features_subtitle": "गेमिंग तकनीकों और शिक्षण विज्ञान का अनोखा संगम जो समझ को हमेशा के लिए पक्का बनाता है।",
+    "feat_1_title": "छोटे-छोटे मिशन",
+    "feat_1_desc": "5 से 10 मिनट की चुनौतियाँ जो एक समय में एक मुख्य अवधारणा पर ध्यान केंद्रित करती हैं।",
+    "feat_2_title": "XP, बैज और पुरस्कार",
+    "feat_2_desc": "अनुभव अंक अर्जित करें, अवतार अनलॉक करें और सफलता प्राप्त करें।",
+    "feat_3_title": "त्वरित दृश्य प्रतिक्रिया",
+    "feat_3_desc": "कदम-दर-कदम दृश्य संकेत छात्रों को हर समाधान का कारण समझाते हैं।",
+    "feat_4_title": "सटीक मूल्यांकन",
+    "feat_4_desc": "व्यक्तिगत मेट्रिक्स जो बताते हैं कि छात्रों को कहाँ अधिक अभ्यास की आवश्यकता है।",
+    "tracks_title": "विषय पाठ्यक्रमों का अन्वेषण करें",
+    "tracks_subtitle": "तुरंत खेलने और सीखने के लिए तैयार इंटरैक्टिव पाठ्यक्रम मॉड्यूल",
+    "track_math_title": "गणित (Mathematics)",
+    "track_math_sub": "स्मार्ट बाज़ार और दृश्य भिन्न",
+    "track_math_badge": "इंटरैक्टिव",
+    "track_math_desc": "मार्केटप्लेस सिम्युलेटर में मसालों का व्यापार करें और भिन्न भागों की गणना करें।",
+    "track_math_dur": "⏱️ 5–8 मिनट प्रति मिशन",
+    "track_play_btn": "मिशन खेलें →",
+    "track_tech_title": "प्रौद्योगिकी (Technology)",
+    "track_tech_sub": "लॉजिक, फ्लो और कोड रनर",
+    "track_tech_badge": "सक्रिय",
+    "track_tech_desc": "विज़ुअल गेमिफाइड स्टेपिंग के साथ कंडीशनल लॉजिक, लूप और डेटा स्ट्रक्चर को समझें।",
+    "track_tech_dur": "⏱️ 6–10 मिनट प्रति मिशन",
+    "track_phy_title": "भौतिक विज्ञान (Physical Science)",
+    "track_phy_sub": "बल, प्रकाशिकी और ऊर्जा",
+    "track_phy_badge": "लोकप्रिय",
+    "track_phy_desc": "भौतिक विज्ञान प्रयोगों, प्रकाश परावर्तन और गतिज प्रणालियों का अनुकरण करें।",
+    "track_phy_dur": "⏱️ 7–12 मिनट प्रति मिशन",
+    "track_bio_title": "जीव विज्ञान (Living Science)",
+    "track_bio_sub": "कोशिकाएं, पारिस्थितिकी तंत्र और आनुवंशिकी",
+    "track_bio_badge": "मुख्य",
+    "track_bio_desc": "इंटरैक्टिव गाइडेड पहेलियों के माध्यम से सेल बायोलॉजी और प्राकृतिक पारिस्थितिकी तंत्र का अन्वेषण करें।",
+    "track_bio_dur": "⏱️ 5–8 मिनट प्रति मिशन",
+    "track_lang_title": "भाषा प्रवीणता (Language Mastery)",
+    "track_lang_sub": "व्याकरण, शब्दावली और वाक्य रचना",
+    "track_lang_badge": "नया",
+    "track_lang_desc": "पहेली चुनौतियों के साथ पढ़ने की समझ और वाक्य संरचना को मजबूत करें।",
+    "track_lang_dur": "⏱️ 5–7 मिनट प्रति मिशन",
+    "track_vid_title": "वीडियो क्वेस्ट एरिना",
+    "track_vid_sub": "इंटरैक्टिव STEM वीडियो चुनौतियाँ",
+    "track_vid_badge": "विशेष",
+    "track_vid_desc": "प्रासंगिक विज्ञान ट्यूटोरियल देखें और इनलाइन चेकपॉइंट चुनौतियों को हल करें।",
+    "track_vid_dur": "⏱️ 4–6 मिनट प्रति क्लिप",
+    "track_watch_btn": "देखें और खेलें →",
+    "teacher_badge": "👩‍🏫 शिक्षकों और स्कूलों के लिए निर्मित",
+    "teacher_title": "स्मार्ट क्लासरूम हब और परीक्षा निर्माता",
+    "teacher_desc": "हमारे स्मार्ट बैच प्रश्न जनरेटर के साथ सेकंड में पाठ्यक्रम-संरेखित बहुविकल्पीय परीक्षाएं बनाएं। होमवर्क वितरित करें, छात्र महारत को ट्रैक करें।",
+    "teacher_bullet_1": "<strong>त्वरित बैच परीक्षा निर्माता:</strong> 3, 5, 10 या कस्टम प्रश्न संख्या चुनें।",
+    "teacher_bullet_2": "<strong>असाइनमेंट स्टूडियो:</strong> स्वचालित छात्र वितरण के साथ आसान फ़ाइल अपलोड।",
+    "teacher_bullet_3": "<strong>मूल्यांकन अंतर्दृष्टि:</strong> रीयल-टाइम छात्र प्रगति और प्राथमिकता उपचारात्मक सूचियाँ।",
+    "teacher_btn_login": "शिक्षक लॉगिन",
+    "teacher_btn_dash": "शिक्षक डैशबोर्ड",
+    "teacher_btn_builder": "परीक्षा निर्माता →",
+    "teacher_card_head": "कक्षा 8 — रीयल-टाइम डायग्नोस्टिक",
+    "teacher_card_live": "लाइव सक्रिय",
+    "teacher_card_subj1": "भिन्न और अनुपात में महारत",
+    "teacher_card_avg1": "92% औसत",
+    "teacher_card_subj2": "बीजगणितीय समीकरण",
+    "teacher_card_avg2": "78% औसत",
+    "teacher_card_exam_ready": "💡 परीक्षा तैयार: मध्यावधि परीक्षा",
+    "teacher_card_edit": "प्रश्न संपादित करें",
+    "how_title": "यह कैसे काम करता है",
+    "how_subtitle": "पढ़ाई के समय को खेल के समय में बदलने वाले चार सरल कदम",
+    "how_step1_badge": "कदम 01",
+    "how_step1_title": "एक विषय चुनें",
+    "how_step1_desc": "गणित, विज्ञान, प्रौद्योगिकी या अपना सौंपा गया कक्षा गृहकार्य चुनें।",
+    "how_step2_badge": "कदम 02",
+    "how_step2_title": "विज़ुअल मिशन खेलें",
+    "how_step2_desc": "लाइव विज़ुअल सिमुलेशन और निर्देशित संकेतों के साथ इंटरैक्टिव पहेलियों को हल करें।",
+    "how_step3_badge": "कदम 03",
+    "how_step3_title": "XP और बैज अर्जित करें",
+    "how_step3_desc": "अपनी प्रोफ़ाइल का स्तर बढ़ाएं, बैज अनलॉक करें और मील के पत्थर हासिल करें।",
+    "how_step4_badge": "कदम 04",
+    "how_step4_title": "मूल कौशल में महारत हासिल करें",
+    "how_step4_desc": "सत्यापित एनालिटिक्स और शिक्षक प्रतिक्रिया के साथ अपनी समझ को बढ़ते हुए देखें।",
+    "cta_title": "अपने सीखने के स्तर को बढ़ाने के लिए तैयार हैं?",
+    "cta_subtitle": "आज ही अपना खाता बनाएं और गेमिफाइड लर्निंग का अनुभव करें जो जटिल अवधारणाओं को आसान बनाती है।",
+    "cta_btn_student": "छात्र खाता बनाएं",
+    "cta_btn_teacher": "शिक्षक साइन इन",
+    "footer_tagline": "इंटरैक्टिव समस्या-समाधान और मापने योग्य महारत के माध्यम से छात्रों और शिक्षकों को जोड़ने वाली गेमिफाइड STEM शिक्षा।",
+    "footer_head_platform": "प्लेटफ़ॉर्म",
+    "footer_link_fractions": "स्मार्ट बाज़ार भिन्न",
+    "footer_link_video": "STEM वीडियो एरिना",
+    "footer_link_student_dash": "छात्र डैशबोर्ड",
+    "footer_head_educators": "शिक्षक",
+    "footer_link_teacher_dash": "शिक्षक डैशबोर्ड",
+    "footer_link_exam_studio": "परीक्षा निर्माता स्टूडियो",
+    "footer_link_assignments": "असाइनमेंट ड्रॉपज़ोन",
+    "footer_head_quick": "त्वरित पहुँच",
+    "footer_link_student_login": "छात्र लॉगिन",
+    "footer_link_create_acc": "खाता बनाएं",
+    "footer_link_teacher_portal": "शिक्षक पोर्टल",
+    "footer_copyright": "© 2026 एल्गोप्ले एजुकेशन। सर्वाधिकार सुरक्षित।",
+    "footer_tech_stack": "Node.js • Express • MongoDB बैकएंड सक्षम",
+    "auth_student_login_title": "छात्र लॉगिन",
+    "auth_student_login_subtitle": "वापसी पर स्वागत है! अपने एल्गोप्ले क्रेडेंशियल दर्ज करें",
+    "auth_teacher_login_title": "शिक्षक पोर्टल",
+    "auth_teacher_login_subtitle": "शिक्षकों और प्रशासकों के लिए सुरक्षित लॉगिन",
+    "auth_student_signup_title": "छात्र पंजीकरण",
+    "auth_student_signup_subtitle": "एल्गोप्ले में शामिल हों और अपनी सीखने की खोज शुरू करें 🚀",
+    "auth_teacher_signup_title": "शिक्षक पंजीकरण",
+    "auth_teacher_signup_subtitle": "परीक्षाएं बनाने और कक्षाओं की निगरानी के लिए पंजीकरण करें",
+    "auth_username_label": "उपयोगकर्ता नाम",
+    "auth_username_placeholder": "अपना उपयोगकर्ता नाम दर्ज करें",
+    "auth_password_label": "पासवर्ड",
+    "auth_password_placeholder": "अपना पासवर्ड दर्ज करें",
+    "auth_school_label": "स्कूल का नाम",
+    "auth_school_placeholder": "आपका स्कूल या संस्थान",
+    "auth_age_label": "आयु",
+    "auth_age_placeholder": "उदा: 12",
+    "auth_grade_label": "कक्षा",
+    "auth_grade_placeholder": "उदा: कक्षा 6",
+    "auth_dept_label": "विषय / विभाग",
+    "auth_dept_placeholder": "उदा: गणित",
+    "auth_btn_login": "लॉगिन करें",
+    "auth_btn_signup": "खाता बनाएं",
+    "auth_btn_quick_demo": "🚀 त्वरित डेमो लॉगिन",
+    "auth_no_account": "खाता नहीं है?",
+    "auth_create_account": "खाता बनाएं",
+    "auth_already_account": "क्या आपके पास पहले से एक खाता मौजूद है?",
+    "auth_teacher_link": "शिक्षक लॉगिन",
+    "auth_student_link": "छात्र लॉगिन",
+    "auth_are_you_teacher": "क्या आप शिक्षक हैं?",
+    "auth_are_you_student": "क्या आप छात्र हैं?",
+    "auth_back_home": "← मुख्य पृष्ठ पर वापस जाएं",
+    "dash_welcome": "वापसी पर स्वागत है, शिक्षार्थी!",
+    "dash_subtitle": "आपका दैनिक मिशन केंद्र: इंटरैक्टिव चुनौतियों के माध्यम से अवधारणाओं में महारत हासिल करें",
+    "dash_nav_home": "होम",
+    "dash_nav_tracks": "विषय पाठ्यक्रम",
+    "dash_nav_exams": "परीक्षाएं",
+    "dash_nav_resources": "संसाधन",
+    "dash_nav_leaderboard": "लीडरबोर्ड",
+    "dash_nav_achievements": "उपलब्धियां",
+    "dash_nav_logout": "लॉगआउट",
+    "dash_nav_tech": "तकनीकी संरचना",
+    "dash_track_math": "गणित",
+    "dash_track_math_desc": "स्मार्ट बाज़ार, भिन्न, ज्यामिति और बीजगणित",
+    "dash_track_science": "भौतिक विज्ञान",
+    "dash_track_science_desc": "बल, प्रकाशिकी, ऊर्जा और प्रयोग",
+    "dash_track_tech": "प्रौद्योगिकी और कोडिंग",
+    "dash_track_tech_desc": "एल्गोरिदम, लॉजिक फ्लो और कोड रनर",
+    "dash_track_bio": "जीव विज्ञान",
+    "dash_track_bio_desc": "कोशिका जीव विज्ञान, पारिस्थितिकी तंत्र और आनुवंशिकी",
+    "dash_daily_streak": "दैनिक स्ट्रीक",
+    "dash_coins": "सिक्के",
+    "dash_xp": "अनुभव अंक",
+    "dash_continue_learning": "सीखना जारी रखें →",
+    "dash_start_mission": "मिशन शुरू करें →",
+    "tdash_title": "एल्गोप्ले — शिक्षक पोर्टल",
+    "tdash_nav_overview": "अवलोकन",
+    "tdash_nav_exams": "परीक्षा स्टूडियो",
+    "tdash_nav_resources": "असाइनमेंट अपलोड",
+    "tdash_stat_students": "सक्रिय छात्र",
+    "tdash_stat_avg_mastery": "औसत महारत",
+    "tdash_stat_learning_gain": "अधिगम सुधार",
+    "tdash_stat_misconceptions": "पहचानी गई गलतफहमियां",
+    "tdash_remediation_queue": "प्राथमिकता उपचारात्मक कतार",
+    "tdash_recent_attempts": "हाल के छात्र परीक्षा प्रयास",
+    "tdash_export_csv": "CSV रिपोर्ट निर्यात करें",
+    "exam_portal_title": "छात्र ऑनलाइन परीक्षा",
+    "exam_submit_btn": "परीक्षा सबमिट करें",
+    "exam_back_btn": "← परीक्षाओं पर वापस जाएं",
+    "exam_time_left": "शेष समय",
+    "exam_question": "प्रश्न",
+    "exam_completed": "परीक्षा सफलतापूर्वक सबमिट की गई!",
+    "exam_your_score": "आपका स्कोर",
+    "frac_title": "एल्गोप्ले: स्मार्ट बाज़ार",
+    "frac_subtitle": "कक्षा 6 गणित — असमान भिन्न रोमांच",
+    "frac_stage1": "चरण 1: समान हिस्से",
+    "frac_stage2": "चरण 2: समान हर बनाना",
+    "frac_stage3": "चरण 3: बाज़ार व्यापार",
+    "frac_submit": "उत्तर सबमिट करें",
+    "frac_next": "अगली चुनौती →",
+    "frac_hint_title": "उपयोगी संकेत",
+    "frac_misconception_title": "अवधारणात्मक निदान",
+    "tech_title": "एल्गोप्ले आर्किटेक्चर और तकनीकी स्टैक",
+    "tech_subtitle": "पूर्ण डेवलपर दस्तावेज़, स्थापित पैकेज और कोड संरचना मानचित्र",
+    "tech_tab_overview": "सिस्टम आर्किटेक्चर",
+    "tech_tab_packages": "स्थापित पैकेज",
+    "tech_tab_codemap": "कौन सा कोड कहाँ है",
+    "tech_frontend_head": "फ्रंटएंड तकनीकें",
+    "tech_backend_head": "बैकएंड और डेटाबेस",
+    "tech_packages_head": "NPM पैकेज और निर्भरताएं",
+    "tech_codemap_head": "कोडबेस डायरेक्टरी मैप",
+    "tech_btn_home": "← होम पर वापस जाएं",
+    "tech_btn_dash": "छात्र डैशबोर्ड",
+    "tech_btn_teacher": "शिक्षक पोर्टल",
+    "dashboard": "डैशबोर्ड",
+    "student_portal": "छात्र पोर्टल",
+    "teacher_portal": "शिक्षक पोर्टल",
+    "leaderboard": "लीडरबोर्ड",
+    "logout": "लॉग आउट",
+    "login": "लॉग इन",
+    "signup": "साइन अप",
+    "profile": "प्रोफ़ाइल",
+    "assignments": "असाइनमेंट",
+    "exams": "परीक्षाएं",
+    "take_exam": "परीक्षा दें",
+    "mathematics": "गणित",
+    "science": "विज्ञान",
+    "technology": "प्रौद्योगिकी",
+    "biology": "जीव विज्ञान",
+    "physics": "भौतिक विज्ञान",
+    "english": "अंग्रेज़ी",
+    "ai_tutor": "AI ट्यूटर",
+    "ask_anything": "कुछ भी पूछें",
+    "send": "भेजें",
+    "clear_chat": "चैट साफ़ करें",
+    "explore_subjects": "विषयों का अन्वेषण करें",
+    "boost_skills": "अपने कौशल को बढ़ाएं",
+    "play_mission": "मिशन खेलें",
+    "games": "गेम्स",
+    "welcome": "स्वागत है",
+    "gamified learning 6-10": "गेमिफाइड लर्निंग 6–10",
+    "gamified learning 6–10": "गेमिफाइड लर्निंग 6–10",
+    "explorer": "अन्वेषक",
+    "level up your education": "अपनी शिक्षा को नई ऊंचाई दें",
+    "transform your syllabus into an epic quest. master subjects, earn xp, and unlock real-world knowledge through play": "अपने पाठ्यक्रम को एक रोमांचक खोज में बदलें। खेल-खेल में विषयों पर महारत हासिल करें, XP अर्जित करें और वास्तविक ज्ञान प्राप्त करें",
+    "smart bazaar: fractions quest": "स्मार्ट बाज़ार: भिन्न खोज",
+    "learn to add unlike fractions through indian marketplace trade, interactive visual strips, and real-time guidance": "भारतीय बाज़ार व्यापार, इंटरैक्टिव विज़ुअल स्ट्रिप्स और रियल-टाइम मार्गदर्शन के माध्यम से असमान भिन्नों को जोड़ना सीखें",
+    "diagnostic quiz": "निदानात्मक प्रश्नोत्तरी",
+    "visual strips": "विज़ुअल स्ट्रिप्स",
+    "step-by-step hints": "कदम दर कदम संकेत",
+    "start quest": "खोज शुरू करें",
+    "your universe": "आपका ब्रह्मांड",
+    "master each domain to earn unique badges": "अनोखे बैज अर्जित करने के लिए प्रत्येक डोमेन में महारत हासिल करें",
+    "physics & chemistry": "भौतिकी और रसायन विज्ञान",
+    "algebra & geometry": "बीजगणित और ज्यामिति",
+    "coding & ai": "कोडिंग और एआई",
+    "grammar & prose": "व्याकरण और गद्य",
+    "human body & life": "मानव शरीर और जीवन",
+    "mastery": "महारत",
+    "enter domain": "डोमेन में प्रवेश करें",
+    "open file": "फ़ाइल खोलें",
+    "download": "डाउनलोड करें",
+    "watch video": "वीडियो देखें",
+    "class assignment": "कक्षा असाइनमेंट",
+    "today": "आज",
+    "no assignments posted yet": "अभी तक कोई असाइनमेंट पोस्ट नहीं किया गया",
+    "loading assignments": "असाइनमेंट लोड हो रहे हैं...",
+    "daily quests": "दैनिक चुनौतियां",
+    "view all": "सभी देखें",
+    "play now": "अभी खेलें",
+    "mario math runner": "मारियो मैथ रनर",
+    "mathematics • speed arcade": "गणित • स्पीड आर्केड",
+    "smart bazaar: market quest": "स्मार्ट बाज़ार: मार्केट क्वेस्ट",
+    "fractions • visual trade": "भिन्न • विज़ुअल व्यापार",
+    "continuous chase quiz": "कंटीन्यूअस चेज़ क्विज़",
+    "logic • speed challenge": "तर्क • स्पीड चैलेंज",
+    "physics engine lab": "भौतिकी इंजन प्रयोगशाला",
+    "physics • interactive simulator": "भौतिकी • इंटरैक्टिव सिम्युलेटर",
+    "chemistry lab reactions": "रसायन विज्ञान लैब प्रतिक्रियाएं",
+    "chemistry • atom & matter lab": "रसायन विज्ञान • परमाणु और पदार्थ लैब",
+    "anatomy pin explorer": "एनाटॉमी पिन एक्सप्लोरर",
+    "biology • visual step-by-step": "जीव विज्ञान • चरण-दर-चरण विज़ुअल्स",
+    "interactive video arena": "इंटरैक्टिव वीडियो एरीना",
+    "stem • video challenge": "STEM • वीडियो चुनौती",
+    "subject arcade hub": "विषय आर्केड हब",
+    "all subjects • multi-game arcade": "सभी विषय • मल्टी-गेम आर्केड",
+    "sutra math cannon": "सूत्र गणित तोप",
+    "mathematics • bubble shooter": "गणित • बबल शूटर",
+    "adaptive challenges": "अनुकूली चुनौतियां",
+    "the game gets smarter as you do. problems adjust in real-time to your skill level": "जैसे-जैसे आप सीखते हैं, खेल और अधिक स्मार्ट होता जाता है। प्रश्न आपके कौशल स्तर के अनुसार वास्तविक समय में समायोजित होते हैं",
+    "streak rewards": "स्ट्रीक पुरस्कार",
+    "maintain your daily learning streak to unlock rare profile icons and coin multipliers": "दुर्लभ प्रोफ़ाइल आइकन और सिक्का मल्टीप्लायरों को अनलॉक करने के लिए अपनी दैनिक सीखने की लकीर बनाए रखें",
+    "safe social": "सुरक्षित सामाजिक वातावरण",
+    "collaborate with classmates in a secure, moderated environment": "एक सुरक्षित, संचालित वातावरण में सहपाठियों के साथ सहयोग करें",
+    "active players": "सक्रिय खिलाड़ी",
+    "score improve": "स्कोर सुधार",
+    "quests done": "पूरी की गई खोजें",
+    "industry standard": "उद्योग मानक",
+    "gold": "स्वर्ण",
+    "safe. secure. fun": "सुरक्षित। संरक्षित। मनोरंजक"
+  },
+  "ta": {
+    "nav_features": "அம்சங்கள்",
+    "nav_tracks": "பாடப் பிரிவுகள்",
+    "nav_how": "எப்படி செயல்படுகிறது",
+    "nav_educators": "ஆசிரியர் மையம்",
+    "nav_teacher_hub": "👩‍🏫 ஆசிரியர் மையம்",
+    "nav_sign_in": "உள்நுழைக",
+    "nav_get_started": "தொடங்குங்கள்",
+    "hero_badge": "ஊடாடும் STEM & கோடிங் பணிகள் — விளையாடி கற்போம்",
+    "hero_title": "விளையாடி கற்போம், <br><span class=\"text-gradient\">ஒவ்வொரு ஊடாடும் பணியிலும் வெற்றி</span>",
+    "hero_subtitle": "பள்ளி பாடத்திட்டங்களை எளிய பணிகள், காட்சி வழி தீர்வுகள் மற்றும் உடனடி கருத்துக்களாக மாற்றுகிறோம்.",
+    "btn_start_quest": "🚀 தொடங்குங்கள் (மாணவர்)",
+    "btn_educator_portal": "👩‍🏫 ஆசிரியர் தளம்",
+    "btn_quick_demo": "🎮 மாதிரி பார்க்க",
+    "stat_active_students": "செயலில் உள்ள மாணவர்கள்",
+    "stat_missions": "தீர்க்கப்பட்ட பணிகள்",
+    "stat_concept_mastery": "கருத்து தேர்ச்சி",
+    "stat_interactive_labs": "ஊடாடும் ஆய்வகங்கள்",
+    "features_title": "ஏன் அல்கோபிளே சிறந்தது",
+    "features_subtitle": "விளையாட்டு இயக்கவியல் மற்றும் கற்றல் அறிவியல் மூலம் ஆழமான புரிதல்.",
+    "feat_1_title": "சிறிய பணிகள்",
+    "feat_1_desc": "ஒரு நேரத்தில் ஒரு கருத்தில் கவனம் செலுத்தும் 5 முதல் 10 நிமிட சவால்கள்.",
+    "feat_2_title": "XP, பேட்ஜ்கள் & வெகுமதிகள்",
+    "feat_2_desc": "புள்ளிகளைப் பெறுங்கள், புதிய சுயவிவரங்களை திறக்கவும்.",
+    "feat_3_title": "உடனடி காட்சி வழிகாட்டுதல்",
+    "feat_3_desc": "படிப்படியான காட்சி குறிப்புகள் கற்றலை எளிமையாக்குகின்றன.",
+    "feat_4_title": "துல்லியமான கற்றல் பகுப்பாய்வு",
+    "feat_4_desc": "மாணவர்களுக்கு எங்கு உதவி தேவை என்பதை கண்டறியும் திறன்.",
+    "tracks_title": "பாடப் பிரிவுகளை ஆராயுங்கள்",
+    "tracks_subtitle": "இப்போதே விளையாடி கற்கக்கூடிய ஊடாடும் பாடத் தொகுதிகள்",
+    "track_math_title": "கணிதம் (Mathematics)",
+    "track_math_sub": "ஸ்மார்ட் பஜார் & காட்சி பின்னங்கள்",
+    "track_math_badge": "ஊடாடும்",
+    "track_math_desc": "சந்தையில் மசாலாப் பொருட்களை வர்த்தகம் செய்து பின்னப் பகுதிகளைக் கணக்கிடுங்கள்.",
+    "track_math_dur": "⏱️ ஒரு பணிக்கு 5–8 நிமிடம்",
+    "track_play_btn": "பணியை விளையாடு →",
+    "track_tech_title": "தொழில்நுட்பம் (Technology)",
+    "track_tech_sub": "லாஜிக், ஃப்ளோ & கோட் ரன்னர்",
+    "track_tech_badge": "செயலில்",
+    "track_tech_desc": "நிபந்தனை தர்க்கம், லூப்கள் மற்றும் தரவுக் கட்டமைப்புகளை காட்சி வழியில் புரிந்து கொள்ளுங்கள்.",
+    "track_tech_dur": "⏱️ ஒரு பணிக்கு 6–10 நிமிடம்",
+    "track_phy_title": "இயற்பியல் (Physical Science)",
+    "track_phy_sub": "விசைகள், ஒளியியல் & ஆற்றல்",
+    "track_phy_badge": "பிரபலம்",
+    "track_phy_desc": "இயற்பியல் சோதனைகள், ஒளி பிரதிபலிப்பு மற்றும் இயக்க அமைப்புகளை உருவகப்படுத்துங்கள்.",
+    "track_phy_dur": "⏱️ ஒரு பணிக்கு 7–12 நிமிடம்",
+    "track_bio_title": "உயிரியல் (Living Science)",
+    "track_bio_sub": "செல்கள், சுற்றுச்சூழல் & மரபியல்",
+    "track_bio_badge": "முக்கியமானது",
+    "track_bio_desc": "ஊடாடும் புதிர்கள் மூலம் செல் உயிரியல் மற்றும் இயற்கை சூழல்களை ஆராயுங்கள்.",
+    "track_bio_dur": "⏱️ ஒரு பணிக்கு 5–8 நிமிடம்",
+    "track_lang_title": "மொழி ஆளுமை (Language Mastery)",
+    "track_lang_sub": "இலக்கணம், சொல்லகராதி & தொடரியல்",
+    "track_lang_badge": "புதியது",
+    "track_lang_desc": "புதிர் சவால்கள் மூலம் வாசிப்பு புரிதலையும் வாக்கிய அமைப்பையும் வலுப்படுத்துங்கள்.",
+    "track_lang_dur": "⏱️ ஒரு பணிக்கு 5–7 நிமிடம்",
+    "track_vid_title": "வீடியோ குவெஸ்ட் அரங்கம்",
+    "track_vid_sub": "ஊடாடும் STEM வீடியோ சவால்கள்",
+    "track_vid_badge": "சிறப்பானது",
+    "track_vid_desc": "அறிவியல் பயிற்சிகளைப் பார்த்து சோதனைச் சாவடி சவால்களைத் தீர்க்கவும்.",
+    "track_vid_dur": "⏱️ ஒரு பதிவுக்கு 4–6 நிமிடம்",
+    "track_watch_btn": "பார்த்து விளையாடு →",
+    "teacher_badge": "👩‍🏫 ஆசிரியர்கள் & பள்ளிகளுக்காக",
+    "teacher_title": "ஸ்மார்ட் வகுப்பறை மையம் & தேர்வு உருவாக்குநர்",
+    "teacher_desc": "எங்கள் ஸ்மார்ட் ஜெனரேட்டர் மூலம் நொடிகளில் பாடத்திட்ட தேர்வுகளை உருவாக்குங்கள். வீட்டுப்பாடங்களை விநியோகிக்கவும், மாணவர் தேர்ச்சியை கண்காணிக்கவும்.",
+    "teacher_bullet_1": "<strong>உடனடி தேர்வு உருவாக்குநர்:</strong> 3, 5, 10 அல்லது தனிப்பயன் கேள்விகளைத் தேர்ந்தெடுக்கவும்.",
+    "teacher_bullet_2": "<strong>அசைன்மென்ட் ஸ்டுடியோ:</strong> தானியங்கி மாணவர் விநியோகத்துடன் எளிய கோப்பு பதிவேற்றம்.",
+    "teacher_bullet_3": "<strong>கற்றல் பகுப்பாய்வு:</strong> நிகழ்நேர மாணவர் முன்னேற்றம் மற்றும் முன்னுரிமைப் பட்டியல்.",
+    "teacher_btn_login": "ஆசிரியர் உள்நுழைவு",
+    "teacher_btn_dash": "ஆசிரியர் தளம்",
+    "teacher_btn_builder": "தேர்வு உருவாக்குநர் →",
+    "teacher_card_head": "வகுப்பு 8 — நிகழ்நேர ஆய்வு",
+    "teacher_card_live": "நேரலை",
+    "teacher_card_subj1": "பின்னங்கள் & விகிதங்கள் தேர்ச்சி",
+    "teacher_card_avg1": "92% சராசரி",
+    "teacher_card_subj2": "இயற்கணித சமன்பாடுகள்",
+    "teacher_card_avg2": "78% சராசரி",
+    "teacher_card_exam_ready": "💡 தேர்வு தயார்: இடைக்காலத் தேர்வு",
+    "teacher_card_edit": "கேள்விகளைத் திருத்து",
+    "how_title": "எப்படி செயல்படுகிறது",
+    "how_subtitle": "படிப்பு நேரத்தை விளையாட்டு நேரமாக மாற்றும் நான்கு எளிய படிகள்",
+    "how_step1_badge": "படி 01",
+    "how_step1_title": "ஒரு பாடத்தைத் தேர்வுசெய்க",
+    "how_step1_desc": "கணிதம், அறிவியல், தொழில்நுட்பம் அல்லது உங்கள் வகுப்பறை வீட்டுப்பாடத்தைத் தேர்ந்தெடுக்கவும்.",
+    "how_step2_badge": "படி 02",
+    "how_step2_title": "காட்சி பணிகளை விளையாடுங்கள்",
+    "how_step2_desc": "நேரடி காட்சி உருவகப்படுத்துதல் மற்றும் வழிகாட்டப்பட்ட குறிப்புகளுடன் புதிர்களைத் தீர்க்கவும்.",
+    "how_step3_badge": "படி 03",
+    "how_step3_title": "XP & பேட்ஜ்களைப் பெறுங்கள்",
+    "how_step3_desc": "உங்கள் சுயவிவரத்தை உயர்த்துங்கள், பேட்ஜ்களைத் திறக்கவும், மைல்கற்களை எட்டவும்.",
+    "how_step4_badge": "படி 04",
+    "how_step4_title": "முக்கிய திறன்களில் தேர்ச்சி",
+    "how_step4_desc": "சரிபார்க்கப்பட்ட பகுப்பாய்வு மற்றும் ஆசிரியர் கருத்துக்களுடன் உங்கள் அறிவை வளர்த்துக் கொள்ளுங்கள்.",
+    "cta_title": "உங்கள் கற்றலை உயர்த்த தயாரா?",
+    "cta_subtitle": "இன்றே உங்கள் கணக்கை உருவாக்கி, கடினமான கருத்துக்களை எளிதாக்கும் விளையாட்டுக் கற்றலை அனுபவியுங்கள்.",
+    "cta_btn_student": "மாணவர் கணக்கை உருவாக்கவும்",
+    "cta_btn_teacher": "ஆசிரியர் உள்நுழைக",
+    "footer_tagline": "ஊடாடும் சிக்கல் தீர்க்கும் திறன் மற்றும் அளவிடக்கூடிய தேர்ச்சி மூலம் மாணவர்கள் மற்றும் ஆசிரியர்களை இணைக்கும் STEM கல்வி.",
+    "footer_head_platform": "தளம்",
+    "footer_link_fractions": "ஸ்மார்ட் பஜார் பின்னங்கள்",
+    "footer_link_video": "STEM வீடியோ அரங்கம்",
+    "footer_link_student_dash": "மாணவர் தளம்",
+    "footer_head_educators": "ஆசிரியர்கள்",
+    "footer_link_teacher_dash": "ஆசிரியர் தளம்",
+    "footer_link_exam_studio": "தேர்வு தயாரிப்பு ஸ்டுடியோ",
+    "footer_link_assignments": "அசைன்மென்ட் பகிர்வு",
+    "footer_head_quick": "விரைவு அணுகல்",
+    "footer_link_student_login": "மாணவர் உள்நுழைவு",
+    "footer_link_create_acc": "கணக்கை உருவாக்கவும்",
+    "footer_link_teacher_portal": "ஆசிரியர் தளம்",
+    "footer_copyright": "© 2026 அல்கோபிளே கல்வி. அனைத்து உரிமைகளும் பாதுகாக்கப்பட்டவை.",
+    "footer_tech_stack": "Node.js • Express • MongoDB இயக்கப்பட்டது",
+    "auth_student_login_title": "மாணவர் உள்நுழைவு",
+    "auth_student_login_subtitle": "மீண்டும் வருக! உங்கள் அல்கோபிளே விவரங்களை உள்ளிடவும்",
+    "auth_teacher_login_title": "ஆசிரியர் தளம்",
+    "auth_teacher_login_subtitle": "ஆசிரியர்களுக்கான பாதுகாப்பான உள்நுழைவு",
+    "auth_student_signup_title": "மாணவர் பதிவு",
+    "auth_student_signup_subtitle": "அல்கோபிளேயில் இணைந்து கற்றல் பயணத்தைத் தொடங்குங்கள் 🚀",
+    "auth_teacher_signup_title": "ஆசிரியர் பதிவு",
+    "auth_teacher_signup_subtitle": "தேர்வுகளை உருவாக்கவும் வகுப்புகளைக் கண்காணிக்கவும் பதிவு செய்யுங்கள்",
+    "auth_username_label": "பயனர்பெயர்",
+    "auth_username_placeholder": "பயனர்பெயரை உள்ளிடவும்",
+    "auth_password_label": "கடவுச்சொல்",
+    "auth_password_placeholder": "கடவுச்சொல்லை உள்ளிடவும்",
+    "auth_school_label": "பள்ளி பெயர்",
+    "auth_school_placeholder": "உங்கள் பள்ளி அல்லது நிறுவனம்",
+    "auth_age_label": "வயது",
+    "auth_age_placeholder": "எ.கா: 12",
+    "auth_grade_label": "வகுப்பு",
+    "auth_grade_placeholder": "எ.கா: வகுப்பு 6",
+    "auth_dept_label": "பாடம் / துறை",
+    "auth_dept_placeholder": "எ.கா: கணிதம்",
+    "auth_btn_login": "உள்நுழைக",
+    "auth_btn_signup": "கணக்கை உருவாக்கவும்",
+    "auth_btn_quick_demo": "🚀 விரைவு டெமோ உள்நுழைவு",
+    "auth_no_account": "கணக்கு இல்லையா?",
+    "auth_create_account": "கணக்கை உருவாக்கவும்",
+    "auth_already_account": "ஏற்கனவே கணக்கு உள்ளதா?",
+    "auth_teacher_link": "ஆசிரியர் உள்நுழைவு",
+    "auth_student_link": "மாணவர் உள்நுழைவு",
+    "auth_are_you_teacher": "நீங்கள் ஆசிரியரா?",
+    "auth_are_you_student": "நீங்கள் மாணவரா?",
+    "auth_back_home": "← முகப்புக்குத் திரும்பு",
+    "dash_welcome": "மீண்டும் வருக, மாணவரே!",
+    "dash_subtitle": "உங்கள் கற்றல் தளம்: ஊடாடும் சவால்கள் மூலம் கருத்துக்களைக் கற்றுக்கொள்ளுங்கள்",
+    "dash_nav_home": "முகப்பு",
+    "dash_nav_tracks": "பாடப் பிரிவுகள்",
+    "dash_nav_exams": "தேர்வுகள்",
+    "dash_nav_resources": "வளங்கள்",
+    "dash_nav_leaderboard": "மதிப்பெண் பலகை",
+    "dash_nav_achievements": "சாதனைகள்",
+    "dash_nav_logout": "வெளியேறு",
+    "dash_nav_tech": "தொழில்நுட்ப கட்டமைப்பு",
+    "dash_track_math": "கணிதம்",
+    "dash_track_math_desc": "ஸ்மார்ட் பஜார், பின்னங்கள், வடிவியல் & இயற்கணிதம்",
+    "dash_track_science": "இயற்பியல் அறிவியல்",
+    "dash_track_science_desc": "விசைகள், ஒளியியல், ஆற்றல் & சோதனைகள்",
+    "dash_track_tech": "தொழில்நுட்பம் & கோடிங்",
+    "dash_track_tech_desc": "அல்காரிதம்கள், தர்க்கம் & குறியீடு இயக்கி",
+    "dash_track_bio": "உயிர் அறிவியல்",
+    "dash_track_bio_desc": "செல் உயிரியல், சுற்றுச்சூழல் அமைப்புகள் & மரபியல்",
+    "dash_daily_streak": "தினசரி தொடர்",
+    "dash_coins": "நாணயங்கள்",
+    "dash_xp": "அனுபவ புள்ளிகள்",
+    "dash_continue_learning": "கற்றலைத் தொடரவும் →",
+    "dash_start_mission": "பணியைத் தொடங்குங்கள் →",
+    "tdash_title": "அல்கோபிளே — ஆசிரியர் தளம்",
+    "tdash_nav_overview": "கண்ணோட்டம்",
+    "tdash_nav_exams": "தேர்வு அரங்கம்",
+    "tdash_nav_resources": "வீட்டுப்பாடம் பதிவேற்றம்",
+    "tdash_stat_students": "செயலில் உள்ள மாணவர்கள்",
+    "tdash_stat_avg_mastery": "சராசரி தேர்ச்சி",
+    "tdash_stat_learning_gain": "கற்றல் முன்னேற்றம்",
+    "tdash_stat_misconceptions": "கண்டறியப்பட்ட தவறான புரிதல்கள்",
+    "tdash_remediation_queue": "சிறப்புப் பயிற்சிப் பட்டியல்",
+    "tdash_recent_attempts": "சமீபத்திய தேர்வு முடிவுகள்",
+    "tdash_export_csv": "CSV அறிக்கையை ஏற்றுமதி செய்",
+    "exam_portal_title": "மாணவர் ஆன்லைன் தேர்வு",
+    "exam_submit_btn": "தேர்வை சமர்ப்பிக்கவும்",
+    "exam_back_btn": "← தேர்வுகளுக்குத் திரும்பு",
+    "exam_time_left": "மீதமுள்ள நேரம்",
+    "exam_question": "கேள்வி",
+    "exam_completed": "தேர்வு வெற்றிகரமாக சமர்ப்பிக்கப்பட்டது!",
+    "exam_your_score": "உங்கள் மதிப்பெண்",
+    "frac_title": "அல்கோபிளே: ஸ்மார்ட் பஜார்",
+    "frac_subtitle": "வகுப்பு 6 கணிதம் — மாறுபட்ட பின்ன சாகசம்",
+    "frac_stage1": "நிலை 1: சம பங்குகள்",
+    "frac_stage2": "நிலை 2: பொதுவான பகுதி",
+    "frac_stage3": "நிலை 3: பஜார் வர்த்தகம்",
+    "frac_submit": "பதிலை சமர்ப்பிக்கவும்",
+    "frac_next": "அடுத்த சவால் →",
+    "frac_hint_title": "பயனுள்ள குறிப்பு",
+    "frac_misconception_title": "கருத்து விளக்கம்",
+    "tech_title": "அல்கோபிளே கட்டமைப்பு & தொழில்நுட்ப அடுக்கு",
+    "tech_subtitle": "முழு டெவலப்பர் ஆவணங்கள், தொகுப்புகள் மற்றும் குறியீட்டு வரைபடம்",
+    "tech_tab_overview": "கணினி கட்டமைப்பு",
+    "tech_tab_packages": "நிறுவப்பட்ட தொகுப்புகள்",
+    "tech_tab_codemap": "குறியீடு எங்குள்ளது",
+    "tech_frontend_head": "முகப்பு தொழில்நுட்பங்கள்",
+    "tech_backend_head": "பின்தளம் & தரவுத்தளம்",
+    "tech_packages_head": "NPM தொகுப்புகள் & சார்புகள்",
+    "tech_codemap_head": "கோப்பக வரைபடம்",
+    "tech_btn_home": "← முகப்புக்குத் திரும்பு",
+    "tech_btn_dash": "மாணவர் தளம்",
+    "tech_btn_teacher": "ஆசிரியர் தளம்",
+    "dashboard": "டாஷ்போர்டு",
+    "student_portal": "மாணவர் போர்டல்",
+    "teacher_portal": "ஆசிரியர் போர்டல்",
+    "leaderboard": "லீடர்போர்டு",
+    "logout": "வெளியேறு",
+    "login": "உள்நுழைக",
+    "signup": "பதிவு செய்க",
+    "profile": "சுயவிவரம்",
+    "assignments": "பணிகள்",
+    "exams": "தேர்வுகள்",
+    "mathematics": "கணிதம்",
+    "science": "அறிவியல்",
+    "technology": "தொழில்நுட்பம்",
+    "ai_tutor": "AI ஆசிரியர்",
+    "ask_anything": "எதையும் கேளுங்கள்",
+    "send": "அனுப்பு",
+    "clear_chat": "அரட்டையை அழிக்கவும்",
+    "welcome": "வரவேற்கிறோம்",
+    "gamified learning 6-10": "கேமிஃபைட் கற்றல் 6–10",
+    "gamified learning 6–10": "கேமிஃபைட் கற்றல் 6–10",
+    "explorer": "ஆய்வாளர்",
+    "level up your education": "உங்கள் கல்வியை அடுத்த நிலைக்கு கொண்டு செல்லுங்கள்",
+    "transform your syllabus into an epic quest. master subjects, earn xp, and unlock real-world knowledge through play": "உங்கள் பாடத்திட்டத்தை ஒரு வீர சாகசமாக மாற்றுங்கள். பாடங்களில் தேர்ச்சி பெறுங்கள், XP ஈட்டுங்கள் மற்றும் விளையாட்டின் மூலம் அறிவை பெறுங்கள்",
+    "smart bazaar: fractions quest": "ஸ்மார்ட் பஜார்: பின்னங்கள் வேட்டை",
+    "learn to add unlike fractions through indian marketplace trade, interactive visual strips, and real-time guidance": "இந்திய சந்தை வர்த்தகம், ஊடாடும் காட்சி பட்டைகள் மற்றும் வழிகாட்டுதல் மூலம் வெவ்வேறு பின்னங்களை கூட்ட கற்றுக்கொள்ளுங்கள்",
+    "diagnostic quiz": "கண்டறியும் வினாடி வினா",
+    "visual strips": "காட்சி பட்டைகள்",
+    "step-by-step hints": "படிப்படியான குறிப்புகள்",
+    "start quest": "வேட்டையை தொடங்குங்கள்",
+    "your universe": "உங்கள் பிரபஞ்சம்",
+    "master each domain to earn unique badges": "தனித்துவமான பேட்ஜ்களைப் பெற ஒவ்வொரு துறையிலும் தேர்ச்சி பெறுங்கள்",
+    "physics & chemistry": "இயற்பியல் & வேதியியல்",
+    "algebra & geometry": "இயற்கணிதம் & வடிவியல்",
+    "coding & ai": "குறியீட்டு முறை & ஏஐ",
+    "grammar & prose": "இலக்கணம் & உரைநடை",
+    "human body & life": "மனித உடலும் வாழ்க்கையும்",
+    "mastery": "தேர்ச்சி",
+    "enter domain": "துறையில் நுழையுங்கள்",
+    "open file": "கோப்பை திறக்கவும்",
+    "download": "பதிவிறக்கவும்",
+    "watch video": "வீடியோ பார்க்கவும்",
+    "class assignment": "வகுப்பு பணி",
+    "today": "இன்று",
+    "no assignments posted yet": "இன்னும் எந்த பணிகளும் பதிவிடப்படவில்லை",
+    "loading assignments": "பணிகள் ஏற்றப்படுகின்றன...",
+    "daily quests": "தினசரி தேடல்கள்",
+    "view all": "அனைத்தையும் காண்க",
+    "play now": "இப்போது விளையாடுங்கள்",
+    "mario math runner": "மரியோ கணித ரன்னர்",
+    "mathematics • speed arcade": "கணிதம் • ஸ்பீட் ஆர்கேட்",
+    "smart bazaar: market quest": "ஸ்மார்ட் பஜார்: சந்தை வேட்டை",
+    "fractions • visual trade": "பின்னங்கள் • காட்சி வர்த்தகம்",
+    "continuous chase quiz": "தொடர் சேஸ் வினாடி வினா",
+    "logic • speed challenge": "தர்க்கம் • வேக சவால்",
+    "physics engine lab": "இயற்பியல் எஞ்சின் ஆய்வகம்",
+    "physics • interactive simulator": "இயற்பியல் • ஊடாடும் சிமுலேட்டர்",
+    "chemistry lab reactions": "வேதியியல் ஆய்வக வினைகள்",
+    "chemistry • atom & matter lab": "வேதியியல் • அணு மற்றும் பொருள் ஆய்வகம்",
+    "anatomy pin explorer": "உடற்கூறியல் பின் ஆய்வாளர்",
+    "biology • visual step-by-step": "உயிரியல் • படிப்படியான காட்சிகள்",
+    "interactive video arena": "ஊடாடும் வீடியோ அரங்கம்",
+    "stem • video challenge": "STEM • வீடியோ சவால்",
+    "subject arcade hub": "பாடம் ஆர்கேட் மையம்",
+    "all subjects • multi-game arcade": "அனைத்து பாடங்கள் • மல்டி-கேம் ஆர்கேட்",
+    "sutra math cannon": "சூத்ரா கணித பீரங்கி",
+    "mathematics • bubble shooter": "கணிதம் • குமிழி சுடும் விளையாட்டு",
+    "adaptive challenges": "தகவமைக்கும் சவால்கள்",
+    "the game gets smarter as you do. problems adjust in real-time to your skill level": "நீங்கள் முன்னேறும்போது விளையாட்டு புத்திசாலித்தனமாக மாறும். சிக்கல்கள் உங்கள் திறன் நிலைக்கு ஏற்ப சரிசெய்யப்படும்",
+    "streak rewards": "ஸ்ட்ரீக் வெகுமதிகள்",
+    "maintain your daily learning streak to unlock rare profile icons and coin multipliers": "அரிய சுயவிவர சின்னங்கள் மற்றும் நாணய பெருக்கிகளை திறக்க உங்கள் தினசரி கற்றல் தொடர்ச்சியை பராமரிக்கவும்",
+    "safe social": "பாதுகாப்பான சமூகம்",
+    "collaborate with classmates in a secure, moderated environment": "பாதுகாப்பான, கண்காணிக்கப்படும் சூழலில் வகுப்பு தோழர்களுடன் இணைந்து செயல்படுங்கள்",
+    "active players": "செயலில் உள்ள வீரர்கள்",
+    "score improve": "மதிப்பெண் முன்னேற்றம்",
+    "quests done": "முடிக்கப்பட்ட பணிகள்",
+    "industry standard": "தொழில் தரம்",
+    "gold": "தங்கம்",
+    "safe. secure. fun": "பாதுகாப்பானது. நம்பகமானது. பொழுதுபோக்கு"
+  },
+  "or": {
+    "nav_features": "ବିଶେଷତା",
+    "nav_tracks": "ବିଷୟ ପାଠ୍ୟକ୍ରମ",
+    "nav_how": "ଏହା କିପରି କାମ କରେ",
+    "nav_educators": "ଶିକ୍ଷକ କେନ୍ଦ୍ର",
+    "nav_teacher_hub": "👩‍🏫 ଶିକ୍ଷକ ହବ୍",
+    "nav_sign_in": "ସାଇନ୍ ଇନ୍",
+    "nav_get_started": "ଆରମ୍ଭ କରନ୍ତୁ",
+    "hero_badge": "ଇଣ୍ଟରାକ୍ଟିଭ୍ STEM ଏବଂ କୋଡିଂ ମିଶନ — ଖେଳି ଖେଳି ଶିଖନ୍ତୁ",
+    "hero_title": "ଖେଳି ଖେଳି ଶିଖନ୍ତୁ, <br><span class=\"text-gradient\">ଗୋଟିଏ ପରେ ଗୋଟିଏ ମିଶନ</span>",
+    "hero_subtitle": "ବିଦ୍ୟାଳୟ ପାଠ୍ୟକ୍ରମକୁ ଛୋଟ ଛୋଟ ମିଶନ, ଭିଜୁଆଲ୍ ସମାଧାନ ଏବଂ ତୁରନ୍ତ ଫଳାଫଳରେ ପରିଣତ କରନ୍ତୁ।",
+    "btn_start_quest": "🚀 ଆରମ୍ଭ କରନ୍ତୁ (ଛାତ୍ର)",
+    "btn_educator_portal": "👩‍🏫 ଶିକ୍ଷକ ପୋର୍ଟାଲ୍",
+    "btn_quick_demo": "🎮 ଡେମୋ ଦେଖନ୍ତୁ",
+    "stat_active_students": "ସକ୍ରିୟ ଛାତ୍ରଛାତ୍ରୀ",
+    "stat_missions": "ସମାଧାନ ହୋଇଥିବା ମିଶନ",
+    "stat_concept_mastery": "ଧାରଣା ଦକ୍ଷତା",
+    "stat_interactive_labs": "ଇଣ୍ଟରାକ୍ଟିଭ୍ ଲ୍ୟାବ୍",
+    "features_title": "ଆଲଗୋପ୍ଲେ କାହିଁକି ପ୍ରଭାବଶାଳୀ",
+    "features_subtitle": "ଗେମ୍ ମେକାନିକ୍ସ ଏବଂ ଶିକ୍ଷଣ ବିଜ୍ଞାନର ସମନ୍ୱୟ ଯାହା ସ୍ଥାୟୀ ଜ୍ଞାନ ପ୍ରଦାନ କରେ।",
+    "feat_1_title": "ଛୋଟ ମିଶନଗୁଡ଼ିକ",
+    "feat_1_desc": "ଏକ ସମୟରେ ଗୋଟିଏ ଧାରଣା ଉପରେ ଧ୍ୟାନ ଦେବା ପାଇଁ ୫-୧୦ ମିନିଟର ଚ୍ୟାଲେଞ୍ଜ।",
+    "feat_2_title": "XP, ବ୍ୟାଜ୍ ଏବଂ ପୁରସ୍କାର",
+    "feat_2_desc": "ପଏଣ୍ଟ ଅର୍ଜନ କରନ୍ତୁ ଏବଂ କଷ୍ଟମ୍ ଅବତାର ଅନଲକ୍ କରନ୍ତୁ।",
+    "feat_3_title": "ତୁରନ୍ତ ଭିଜୁଆଲ୍ ସୂଚନା",
+    "feat_3_desc": "ପଦକ୍ଷେପ ଅନୁଯାୟୀ ସୂଚନା ସମାଧାନର କାରଣ ବୁଝିବାରେ ସାହାଯ୍ୟ କରେ।",
+    "feat_4_title": "ସଠିକ୍ ମୂଲ୍ୟାଙ୍କନ",
+    "feat_4_desc": "ଛାତ୍ରମାନଙ୍କ କେଉଁଠାରେ ଉନ୍ନତି ଆବଶ୍ୟକ ତାହା ଜାଣିବା ପାଇଁ ମେଟ୍ରିକ୍ସ।",
+    "tracks_title": "ବିଷୟ ପାଠ୍ୟକ୍ରମ ଅନୁସନ୍ଧାନ କରନ୍ତୁ",
+    "tracks_subtitle": "ବର୍ତ୍ତମାନ ଖେଳିବା ଏବଂ ଶିଖିବା ପାଇଁ ପ୍ରସ୍ତୁତ ଇଣ୍ଟରାକ୍ଟିଭ୍ ମଡ୍ୟୁଲ୍",
+    "track_math_title": "ଗଣିତ (Mathematics)",
+    "track_math_sub": "ସ୍ମାର୍ଟ ବଜାର ଏବଂ ଭିଜୁଆଲ୍ ଭଗ୍ନାଂଶ",
+    "track_math_badge": "ଇଣ୍ଟରାକ୍ଟିଭ୍",
+    "track_math_desc": "ବଜାର ସିମ୍ୟୁଲେଟରରେ ମସଲା ବାଣିଜ୍ୟ କରନ୍ତୁ ଏବଂ ଭଗ୍ନାଂଶ ଗଣନା କରନ୍ତୁ।",
+    "track_math_dur": "⏱️ ମିଶନ ପିଛା ୫–୮ ମିନିଟ୍",
+    "track_play_btn": "ମିଶନ ଖେଳନ୍ତୁ →",
+    "track_tech_title": "ପ୍ରଯୁକ୍ତିବିଦ୍ୟା (Technology)",
+    "track_tech_sub": "ଲଜିକ୍, ପ୍ରବାହ ଏବଂ କୋଡ୍ ରନର୍",
+    "track_tech_badge": "ସକ୍ରିୟ",
+    "track_tech_desc": "ଗେମିଫାଏଡ୍ ଷ୍ଟେପିଂ ସହିତ କଣ୍ଡିସନାଲ୍ ଲଜିକ୍ ଏବଂ ଡାଟା ଷ୍ଟ୍ରକଚର୍ ବୁଝନ୍ତୁ।",
+    "track_tech_dur": "⏱️ ମିଶନ ପିଛା ୬–୧୦ ମିନିଟ୍",
+    "track_phy_title": "ଭୌତିକ ବିଜ୍ଞାନ (Physical Science)",
+    "track_phy_sub": "ବଳ, ଆଲୋକ ଏବଂ ଶକ୍ତି",
+    "track_phy_badge": "ଲୋକପ୍ରିୟ",
+    "track_phy_desc": "ଭୌତିକ ବିଜ୍ଞାନ ପରୀକ୍ଷା, ଆଲୋକ ପ୍ରତିଫଳନ ଏବଂ ଗତିଜ ପ୍ରଣାଳୀର ଅନୁକରଣ କରନ୍ତୁ।",
+    "track_phy_dur": "⏱️ ମିଶନ ପିଛା ୭–୧୨ ମିନିଟ୍",
+    "track_bio_title": "ଜୀବ ବିଜ୍ଞାନ (Living Science)",
+    "track_bio_sub": "କୋଷ, ପରିବେଶ ଏବଂ ଜେନେଟିକ୍ସ",
+    "track_bio_badge": "ମୁଖ୍ୟ",
+    "track_bio_desc": "ପଜଲ୍ ମାଧ୍ୟମରେ କୋଷ ଜୀବବିଜ୍ଞାନ ଏବଂ ପ୍ରାକୃତିକ ପରିବେଶ ଅନୁସନ୍ଧାନ କରନ୍ତୁ।",
+    "track_bio_dur": "⏱️ ମିଶନ ପିଛା ୫–୮ ମିନିଟ୍",
+    "track_lang_title": "ଭାଷା ଦକ୍ଷତା (Language Mastery)",
+    "track_lang_sub": "ବ୍ୟାକରଣ, ଶବ୍ଦକୋଷ ଏବଂ ବାକ୍ୟ ଗଠନ",
+    "track_lang_badge": "ନୂତନ",
+    "track_lang_desc": "ପଜଲ୍ ଚ୍ୟାଲେଞ୍ଜ ସହିତ ପଢ଼ିବା ବୁଝିବା ଏବଂ ବାକ୍ୟ ଗଠନକୁ ମଜବୁତ କରନ୍ତୁ।",
+    "track_lang_dur": "⏱️ ମିଶନ ପିଛା ୫–୭ ମିନିଟ୍",
+    "track_vid_title": "ଭିଡିଓ କ୍ୱେଷ୍ଟ ଆରେନା",
+    "track_vid_sub": "ଇଣ୍ଟରାକ୍ଟିଭ୍ STEM ଭିଡିଓ ଚ୍ୟାଲେଞ୍ଜ",
+    "track_vid_badge": "ବିଶେଷ",
+    "track_vid_desc": "ବିଜ୍ଞାନ ଟ୍ୟୁଟୋରିଆଲ୍ ଦେଖନ୍ତୁ ଏବଂ ଚେକପଏଣ୍ଟ ଚ୍ୟାଲେଞ୍ଜ ସମାଧାନ କରନ୍ତୁ।",
+    "track_vid_dur": "⏱️ କ୍ଲିପ୍ ପିଛା ୪–୬ ମିନିଟ୍",
+    "track_watch_btn": "ଦେଖନ୍ତୁ ଏବଂ ଖେଳନ୍ତୁ →",
+    "teacher_badge": "👩‍🏫 ଶିକ୍ଷକ ଏବଂ ବିଦ୍ୟାଳୟ ପାଇଁ",
+    "teacher_title": "ସ୍ମାର୍ଟ କ୍ଲାସରୁମ୍ ହବ୍ ଏବଂ ପରୀକ୍ଷା ନିର୍ମାତା",
+    "teacher_desc": "ଆମର ସ୍ମାର୍ଟ ଜେନେରେଟର ସହିତ କିଛି ସେକେଣ୍ଡରେ ପାଠ୍ୟକ୍ରମ ପରୀକ୍ଷା ସୃଷ୍ଟି କରନ୍ତୁ। ହୋମୱାର୍କ ବଣ୍ଟନ କରନ୍ତୁ ଏବଂ ଛାତ୍ର ଦକ୍ଷତା ଟ୍ରାକ୍ କରନ୍ତୁ।",
+    "teacher_bullet_1": "<strong>ତୁରନ୍ତ ବ୍ୟାଚ୍ ପରୀକ୍ଷା ନିର୍ମାତା:</strong> ୩, ୫, ୧୦ କିମ୍ବା ପସନ୍ଦର ପ୍ରଶ୍ନ ବାଛନ୍ତୁ।",
+    "teacher_bullet_2": "<strong>ଅସାଇନମେଣ୍ଟ ଷ୍ଟୁଡିଓ:</strong> ସ୍ୱୟଂଚାଳିତ ଛାତ୍ର ବଣ୍ଟନ ସହିତ ସହଜ ଫାଇଲ୍ ଅପଲୋଡ୍।",
+    "teacher_bullet_3": "<strong>ମୂଲ୍ୟାଙ୍କନ ଅନ୍ତର୍ଦୃଷ୍ଟି:</strong> ରିଅଲ୍-ଟାଇମ୍ ଛାତ୍ର ପ୍ରଗତି ଏବଂ ପ୍ରାଥମିକତା ତାଲିକା।",
+    "teacher_btn_login": "ଶିକ୍ଷକ ଲଗଇନ୍",
+    "teacher_btn_dash": "ଶିକ୍ଷକ ଡ୍ୟାସବୋର୍ଡ",
+    "teacher_btn_builder": "ପରୀକ୍ଷା ନିର୍ମାତା →",
+    "teacher_card_head": "ଅଷ୍ଟମ ଶ୍ରେଣୀ — ରିଅଲ୍-ଟାଇମ୍ ଡାଇଗ୍ନୋଷ୍ଟିକ୍",
+    "teacher_card_live": "ଲାଇଭ୍ ସକ୍ରିୟ",
+    "teacher_card_subj1": "ଭଗ୍ନାଂଶ ଏବଂ ଅନୁପାତ ଦକ୍ଷତା",
+    "teacher_card_avg1": "92% ହାରାହାରି",
+    "teacher_card_subj2": "ବୀଜଗାଣିତିକ ସମୀକରଣ",
+    "teacher_card_avg2": "78% ହାରାହାରି",
+    "teacher_card_exam_ready": "💡 ପରୀକ୍ଷା ପ୍ରସ୍ତୁତ: ମିଡ୍-ଟର୍ମ ପରୀକ୍ଷା",
+    "teacher_card_edit": "ପ୍ରଶ୍ନ ସମ୍ପାଦନ କରନ୍ତୁ",
+    "how_title": "ଏହା କିପରି କାମ କରେ",
+    "how_subtitle": "ପାଠପଢ଼ା ସମୟକୁ ଖେଳ ସମୟରେ ପରିଣତ କରୁଥିବା ଚାରୋଟି ସରଳ ପଦକ୍ଷେପ",
+    "how_step1_badge": "ପଦକ୍ଷେପ ୦୧",
+    "how_step1_title": "ଏକ ବିଷୟ ବାଛନ୍ତୁ",
+    "how_step1_desc": "ଗଣିତ, ବିଜ୍ଞାନ, ପ୍ରଯୁକ୍ତିବିଦ୍ୟା କିମ୍ବା ନିର୍ଦ୍ଧାରିତ ହୋମୱାର୍କ ବାଛନ୍ତୁ।",
+    "how_step2_badge": "ପଦକ୍ଷେପ ୦୨",
+    "how_step2_title": "ଭିଜୁଆଲ୍ ମିଶନ ଖେଳନ୍ତୁ",
+    "how_step2_desc": "ଲାଇଭ୍ ସିମ୍ୟୁଲେସନ୍ ଏବଂ ନିର୍ଦ୍ଦେଶିତ ସୂଚନା ସହିତ ପଜଲ୍ ସମାଧାନ କରନ୍ତୁ।",
+    "how_step3_badge": "ପଦକ୍ଷେପ ୦୩",
+    "how_step3_title": "XP ଏବଂ ବ୍ୟାଜ୍ ଅର୍ଜନ କରନ୍ତୁ",
+    "how_step3_desc": "ଆପଣଙ୍କ ପ୍ରୋଫାଇଲ୍ ଅପଗ୍ରେଡ୍ କରନ୍ତୁ, ବ୍ୟାଜ୍ ଅନଲକ୍ କରନ୍ତୁ ଏବଂ ଲକ୍ଷ୍ୟ ହାସଲ କରନ୍ତୁ।",
+    "how_step4_badge": "ପଦକ୍ଷେପ ୦୪",
+    "how_step4_title": "ମୁଖ୍ୟ ଦକ୍ଷତା ହାସଲ କରନ୍ତୁ",
+    "how_step4_desc": "ଯାଞ୍ଚ ହୋଇଥିବା ବିଶ୍ଳେଷଣ ଏବଂ ଶିକ୍ଷକ ମତାମତ ସହିତ ଆପଣଙ୍କ ବୁଝିବା ଶକ୍ତି ବୃଦ୍ଧି କରନ୍ତୁ।",
+    "cta_title": "ଆପଣଙ୍କ ଶିକ୍ଷାକୁ ଉନ୍ନତ କରିବାକୁ ପ୍ରସ୍ତୁତ କି?",
+    "cta_subtitle": "ଆଜି ହିଁ ନିଜର ଆକାଉଣ୍ଟ ଖୋଲନ୍ତୁ ଏବଂ ଜଟିଳ ଧାରଣାଗୁଡ଼ିକୁ ସହଜ କରୁଥିବା ଗେମିଫାଏଡ୍ ଶିକ୍ଷାର ଅନୁଭୂତି ନିଅନ୍ତୁ।",
+    "cta_btn_student": "ଛାତ୍ର ଆକାଉଣ୍ଟ ଖୋଲନ୍ତୁ",
+    "cta_btn_teacher": "ଶିକ୍ଷକ ସାଇନ୍ ଇନ୍",
+    "footer_tagline": "ଇଣ୍ଟରାକ୍ଟିଭ୍ ସମସ୍ୟା ସମାଧାନ ଏବଂ ମାପଯୋଗ୍ୟ ଦକ୍ଷତା ମାଧ୍ୟମରେ ଛାତ୍ର ଏବଂ ଶିକ୍ଷକଙ୍କୁ ଯୋଡୁଥିବା STEM ଶିକ୍ଷା।",
+    "footer_head_platform": "ପ୍ଲାଟଫର୍ମ",
+    "footer_link_fractions": "ସ୍ମାର୍ଟ ବଜାର ଭଗ୍ନାଂଶ",
+    "footer_link_video": "STEM ଭିଡିଓ ଆରେନା",
+    "footer_link_student_dash": "ଛାତ୍ର ଡ୍ୟାସବୋର୍ଡ",
+    "footer_head_educators": "ଶିକ୍ଷକ",
+    "footer_link_teacher_dash": "ଶିକ୍ଷକ ଡ୍ୟାସବୋର୍ଡ",
+    "footer_link_exam_studio": "ପରୀକ୍ଷା ନିର୍ମାତା ଷ୍ଟୁଡିଓ",
+    "footer_link_assignments": "ଅସାଇନମେଣ୍ଟ ଡ୍ରପଜୋନ୍",
+    "footer_head_quick": "ଦ୍ରୁତ ପ୍ରବେଶ",
+    "footer_link_student_login": "ଛାତ୍ର ଲଗଇନ୍",
+    "footer_link_create_acc": "ଆକାଉଣ୍ଟ ଖୋଲନ୍ତୁ",
+    "footer_link_teacher_portal": "ଶିକ୍ଷକ ପୋର୍ଟାଲ୍",
+    "footer_copyright": "© 2026 ଆଲଗୋପ୍ଲେ ଶିକ୍ଷା। ସମସ୍ତ ଅଧିକାର ସଂରକ୍ଷିତ।",
+    "footer_tech_stack": "Node.js • Express • MongoDB ସକ୍ଷମ",
+    "auth_student_login_title": "ଛାତ୍ର ଲଗଇନ୍",
+    "auth_student_login_subtitle": "ସ୍ୱାଗତ! ଆପଣଙ୍କ ଆଲଗୋପ୍ଲେ ପରିଚୟପତ୍ର ପ୍ରବେଶ କରନ୍ତୁ",
+    "auth_teacher_login_title": "ଶିକ୍ଷକ ପୋର୍ଟାଲ୍",
+    "auth_teacher_login_subtitle": "ଶିକ୍ଷକ ଏବଂ ପ୍ରଶାସକଙ୍କ ପାଇଁ ସୁରକ୍ଷିତ ଲଗଇନ୍",
+    "auth_student_signup_title": "ଛାତ୍ର ପଞ୍ଜୀକରଣ",
+    "auth_student_signup_subtitle": "ଆଲଗୋପ୍ଲେରେ ଯୋଗ ଦିଅନ୍ତୁ ଏବଂ ନିଜର ଶିକ୍ଷା ଯାତ୍ରା ଆରମ୍ଭ କରନ୍ତୁ 🚀",
+    "auth_teacher_signup_title": "ଶିକ୍ଷକ ପଞ୍ଜୀକରଣ",
+    "auth_teacher_signup_subtitle": "ପରୀକ୍ଷା ସୃଷ୍ଟି ଏବଂ ଶ୍ରେଣୀ ନିରୀକ୍ଷଣ ପାଇଁ ପଞ୍ଜୀକରଣ କରନ୍ତୁ",
+    "auth_username_label": "ୟୁଜରନେମ୍",
+    "auth_username_placeholder": "ୟୁଜରନେମ୍ ପ୍ରବେଶ କରନ୍ତୁ",
+    "auth_password_label": "ପାସୱାର୍ଡ",
+    "auth_password_placeholder": "ପାସୱାର୍ଡ ପ୍ରବେଶ କରନ୍ତୁ",
+    "auth_school_label": "ବିଦ୍ୟାଳୟ ନାମ",
+    "auth_school_placeholder": "ଆପଣଙ୍କ ବିଦ୍ୟାଳୟ ବା ଅନୁଷ୍ଠାନ",
+    "auth_age_label": "ବୟସ",
+    "auth_age_placeholder": "ଉଦା: ୧୨",
+    "auth_grade_label": "ଶ୍ରେଣୀ",
+    "auth_grade_placeholder": "ଉଦା: ଷଷ୍ଠ ଶ୍ରେଣୀ",
+    "auth_dept_label": "ବିଷୟ / ବିଭାଗ",
+    "auth_dept_placeholder": "ଉଦା: ଗଣିତ",
+    "auth_btn_login": "ଲଗଇନ୍ କରନ୍ତୁ",
+    "auth_btn_signup": "ଆକାଉଣ୍ଟ ଖୋଲନ୍ତୁ",
+    "auth_btn_quick_demo": "🚀 ଡେମୋ ଲଗଇନ୍",
+    "auth_no_account": "ଆକାଉଣ୍ଟ ନାହିଁ କି?",
+    "auth_create_account": "ଆକାଉଣ୍ଟ ଖୋଲନ୍ତୁ",
+    "auth_already_account": "ପୂର୍ବରୁ ଆକାଉଣ୍ଟ ଅଛି କି?",
+    "auth_teacher_link": "ଶିକ୍ଷକ ଲଗଇନ୍",
+    "auth_student_link": "ଛାତ୍ର ଲଗଇନ୍",
+    "auth_are_you_teacher": "ଆପଣ ଜଣେ ଶିକ୍ଷକ କି?",
+    "auth_are_you_student": "ଆପଣ ଜଣେ ଛାତ୍ର କି?",
+    "auth_back_home": "← ମୁଖ୍ୟ ପୃଷ୍ଠାକୁ ଫେରନ୍ତୁ",
+    "dash_welcome": "ସ୍ୱାଗତ, ଶିକ୍ଷାର୍ଥୀ!",
+    "dash_subtitle": "ଆପଣଙ୍କ ଦୈନନ୍ଦିନ ଶିକ୍ଷା କେନ୍ଦ୍ର: ଇଣ୍ଟରାକ୍ଟିଭ୍ ଚ୍ୟାଲେଞ୍ଜ ମାଧ୍ୟମରେ ଧାରଣା ହାସଲ କରନ୍ତୁ",
+    "dash_nav_home": "ହୋମ୍",
+    "dash_nav_tracks": "ବିଷୟ ବିଭାଗ",
+    "dash_nav_exams": "ପରୀକ୍ଷା",
+    "dash_nav_resources": "ସମ୍ବଳ",
+    "dash_nav_leaderboard": "ଲିଡରବୋର୍ଡ",
+    "dash_nav_achievements": "ସଫଳତା",
+    "dash_nav_logout": "ଲଗଆଉଟ୍",
+    "dash_nav_tech": "ବୈଷୟିକ ସଂରଚନା",
+    "dash_track_math": "ଗଣିତ",
+    "dash_track_math_desc": "ସ୍ମାର୍ଟ ବଜାର, ଭଗ୍ନାଂଶ, ଜ୍ୟାମିତି ଏବଂ ବୀଜଗଣିତ",
+    "dash_track_science": "ଭୌତିକ ବିଜ୍ଞାନ",
+    "dash_track_science_desc": "ବଳ, ଆଲୋକ, ଶକ୍ତି ଏବଂ ପରୀକ୍ଷଣ",
+    "dash_track_tech": "ପ୍ରଯୁକ୍ତିବିଦ୍ୟା ଏବଂ କୋଡିଂ",
+    "dash_track_tech_desc": "ଆଲଗୋରିଦମ୍, ଲଜିକ୍ ଫ୍ଲୋ ଏବଂ କୋଡ୍ ରନର୍",
+    "dash_track_bio": "ଜୀବ ବିଜ୍ଞାନ",
+    "dash_track_bio_desc": "କୋଷ ଜୀବବିଜ୍ଞାନ, ପରିବେଶ ଏବଂ ଜେନେଟିକ୍ସ",
+    "dash_daily_streak": "ଦୈନିକ ଷ୍ଟ୍ରିକ୍",
+    "dash_coins": "ମୁଦ୍ରା",
+    "dash_xp": "ଅନୁଭୂତି ପଏଣ୍ଟ",
+    "dash_continue_learning": "ଶିକ୍ଷା ଜାରି ରଖନ୍ତୁ →",
+    "dash_start_mission": "ମିଶନ ଆରମ୍ଭ କରନ୍ତୁ →",
+    "tdash_title": "ଆଲଗୋପ୍ଲେ — ଶିକ୍ଷକ ପୋର୍ଟାଲ୍",
+    "tdash_nav_overview": "ସମୀକ୍ଷା",
+    "tdash_nav_exams": "ପରୀକ୍ଷା ଷ୍ଟୁଡିଓ",
+    "tdash_nav_resources": "ହୋମୱାର୍କ ଅପଲୋଡ୍",
+    "tdash_stat_students": "ସକ୍ରିୟ ଛାତ୍ରଛାତ୍ରୀ",
+    "tdash_stat_avg_mastery": "ହାରାହାରି ଦକ୍ଷତା",
+    "tdash_stat_learning_gain": "ଶିକ୍ଷା ଅଭିବୃଦ୍ଧି",
+    "tdash_stat_misconceptions": "ଚିହ୍ନଟ ହୋଇଥିବା ଭୁଲ୍ ଧାରଣା",
+    "tdash_remediation_queue": "ପ୍ରାଥମିକତା ପ୍ରଶିକ୍ଷଣ ତାଲିକା",
+    "tdash_recent_attempts": "ନିକଟତର ପରୀକ୍ଷା ଫଳାଫଳ",
+    "tdash_export_csv": "CSV ରିପୋର୍ଟ ଡାଉନଲୋଡ୍",
+    "exam_portal_title": "ଛାତ୍ର ଅନଲାଇନ୍ ପରୀକ୍ଷା",
+    "exam_submit_btn": "ପରୀକ୍ଷା ଦାଖଲ କରନ୍ତୁ",
+    "exam_back_btn": "← ପରୀକ୍ଷାକୁ ଫେରନ୍ତୁ",
+    "exam_time_left": "ବାକି ଥିବା ସମୟ",
+    "exam_question": "ପ୍ରଶ୍ନ",
+    "exam_completed": "ପରୀକ୍ଷା ସଫଳତାର ସହିତ ଦାଖଲ ହୋଇଛି!",
+    "exam_your_score": "ଆପଣଙ୍କ ସ୍କୋର",
+    "frac_title": "ଆଲଗୋପ୍ଲେ: ସ୍ମାର୍ଟ ବଜାର",
+    "frac_subtitle": "ଷଷ୍ଠ ଶ୍ରେଣୀ ଗଣିତ — ଅସମାନ ଭଗ୍ନାଂଶ ଅଭିଯାନ",
+    "frac_stage1": "ପର୍ଯ୍ୟାୟ ୧: ସମାନ ଭାଗ",
+    "frac_stage2": "ପର୍ଯ୍ୟାୟ ୨: ସାଧାରଣ ହର",
+    "frac_stage3": "ପର୍ଯ୍ୟାୟ ୩: ବଜାର ବ୍ୟବସାୟ",
+    "frac_submit": "ଉତ୍ତର ଦାଖଲ କରନ୍ତୁ",
+    "frac_next": "ପରବର୍ତ୍ତୀ ଆହ୍ୱାନ →",
+    "frac_hint_title": "ଉପଯୋଗୀ ସୂଚନା",
+    "frac_misconception_title": "ଧାରଣାଗତ ନିଦାନ",
+    "tech_title": "ଆଲଗୋପ୍ଲେ ଆର୍କିଟେକ୍ଚର ଏବଂ ଟେକ୍ ଷ୍ଟାକ୍",
+    "tech_subtitle": "ସମ୍ପୂର୍ଣ୍ଣ ଡେଭଲପର୍ ଡକ୍ୟୁମେଣ୍ଟେସନ୍, ସଂସ୍ଥାପିତ ପ୍ୟାକେଜ୍ ଏବଂ କୋଡ୍ ମାନଚିତ୍ର",
+    "tech_tab_overview": "ସିଷ୍ଟମ୍ ଆର୍କିଟେକ୍ଚର",
+    "tech_tab_packages": "ସଂସ୍ଥାପିତ ପ୍ୟାକେଜ୍",
+    "tech_tab_codemap": "କେଉଁ କୋଡ୍ କେଉଁଠି ଅଛି",
+    "tech_frontend_head": "ଫ୍ରଣ୍ଟଏଣ୍ଡ ପ୍ରଯୁକ୍ତିବିଦ୍ୟା",
+    "tech_backend_head": "ବ୍ୟାକଏଣ୍ଡ ଏବଂ ଡାଟାବେସ୍",
+    "tech_packages_head": "NPM ପ୍ୟାକେଜ୍ ଏବଂ ନିର୍ଭରଶୀଳତା",
+    "tech_codemap_head": "କୋଡ୍‌ବେସ୍ ଡାଇରେକ୍ଟୋରୀ ମାନଚିତ୍ର",
+    "tech_btn_home": "← ହୋମ୍‌କୁ ଫେରନ୍ତୁ",
+    "tech_btn_dash": "ଛାତ୍ର ଡ୍ୟାସବୋର୍ଡ",
+    "tech_btn_teacher": "ଶିକ୍ଷକ ପୋର୍ଟାଲ୍",
+    "dashboard": "ଡ୍ୟାସବୋର୍ଡ",
+    "student_portal": "ଛାତ୍ର ପୋର୍ଟାଲ",
+    "teacher_portal": "ଶିକ୍ଷକ ପୋର୍ଟାଲ",
+    "leaderboard": "ଲିଡରବୋର୍ଡ",
+    "logout": "ଲଗ୍ ଆଉଟ୍",
+    "login": "ଲଗଇନ୍",
+    "signup": "ସାଇନ୍ ଅପ୍",
+    "profile": "ପ୍ରୋଫାଇଲ୍",
+    "assignments": "ଅସାଇନମେଣ୍ଟ",
+    "exams": "ପରୀକ୍ଷା",
+    "mathematics": "ଗଣିତ",
+    "science": "ବିଜ୍ଞାନ",
+    "technology": "ପ୍ରଯୁକ୍ତିବିଦ୍ୟା",
+    "ai_tutor": "AI ଟ୍ୟୁଟର",
+    "ask_anything": "ଯାହା କିଛି ପଚାରନ୍ତୁ",
+    "send": "ପଠାନ୍ତୁ",
+    "clear_chat": "ଚାଟ୍ ସଫା କରନ୍ତୁ",
+    "welcome": "ସ୍ୱାଗତ",
+    "gamified learning 6-10": "ଗେମିଫାଇଡ୍ ଶିକ୍ଷଣ 6–10",
+    "gamified learning 6–10": "ଗେମିଫାଇଡ୍ ଶିକ୍ଷଣ 6–10",
+    "explorer": "ଅନ୍ୱେଷକ",
+    "level up your education": "ଆପଣଙ୍କ ଶିକ୍ଷାକୁ ଉନ୍ନତ କରନ୍ତୁ",
+    "transform your syllabus into an epic quest. master subjects, earn xp, and unlock real-world knowledge through play": "ଆପଣଙ୍କ ପାଠ୍ୟକ୍ରମକୁ ଏକ ରୋମାଞ୍ଚକର ଯାତ୍ରାରେ ପରିଣତ କରନ୍ତୁ। ଖେଳ ମାଧ୍ୟମରେ ବିଷୟଗୁଡ଼ିକ ଶିଖନ୍ତୁ, XP ଅର୍ଜନ କରନ୍ତୁ ଏବଂ ଜ୍ଞାନ ହାସଲ କରନ୍ତୁ",
+    "smart bazaar: fractions quest": "ସ୍ମାର୍ଟ ବଜାର: ଭଗ୍ନାଂଶ ଅନୁସନ୍ଧାନ",
+    "learn to add unlike fractions through indian marketplace trade, interactive visual strips, and real-time guidance": "ଭାରତୀୟ ବଜାର ବ୍ୟବସାୟ, ପାରସ୍ପରିକ ଭିଜୁଆଲ୍ ଷ୍ଟ୍ରିପ୍ସ ଏବଂ ମାର୍ଗଦର୍ଶନ ମାଧ୍ୟମରେ ଅସମାନ ଭଗ୍ନାଂଶ ଯୋଡ଼ିବା ଶିଖନ୍ତୁ",
+    "diagnostic quiz": "ନିଦାନମୂଳକ କୁଇଜ୍",
+    "visual strips": "ଭିଜୁଆଲ୍ ଷ୍ଟ୍ରିପ୍ସ",
+    "step-by-step hints": "ପଦକ୍ଷେପ ଅନୁଯାୟୀ ସୂଚନା",
+    "start quest": "ଅନୁସନ୍ଧାନ ଆରମ୍ଭ କରନ୍ତୁ",
+    "your universe": "ଆପଣଙ୍କ ବ୍ରହ୍ମାଣ୍ଡ",
+    "master each domain to earn unique badges": "ଅନନ୍ୟ ବ୍ୟାଜ୍ ଅର୍ଜନ କରିବାକୁ ପ୍ରତ୍ୟେକ କ୍ଷେତ୍ରରେ ଦକ୍ଷତା ହାସଲ କରନ୍ତୁ",
+    "physics & chemistry": "ପଦାର୍ଥ ଓ ରସାୟନ ବିଜ୍ଞାନ",
+    "algebra & geometry": "ବୀଜଗଣିତ ଓ ଜ୍ୟାମିତି",
+    "coding & ai": "କୋଡିଂ ଏବଂ ଏଆଇ",
+    "grammar & prose": "ବ୍ୟାକରଣ ଓ ଗଦ୍ୟ",
+    "human body & life": "ମାନବ ଶରୀର ଓ ଜୀବନ",
+    "mastery": "ଦକ୍ଷତା",
+    "enter domain": "ଡୋମେନରେ ପ୍ରବେଶ କରନ୍ତୁ",
+    "open file": "ଫାଇଲ୍ ଖୋଲନ୍ତୁ",
+    "download": "ଡାଉନଲୋଡ୍ କରନ୍ତୁ",
+    "watch video": "ଭିଡିଓ ଦେଖନ୍ତୁ",
+    "class assignment": "ଶ୍ରେଣୀ ଅସାଇନମେଣ୍ଟ",
+    "today": "ଆଜି",
+    "no assignments posted yet": "କୌଣସି ଅସାଇନମେଣ୍ଟ ପୋଷ୍ଟ ହୋଇନାହିଁ",
+    "loading assignments": "ଅସାଇନମେଣ୍ଟ ଲୋଡ୍ ହେଉଛି...",
+    "daily quests": "ଦୈନନ୍ଦିନ ଅନୁସନ୍ଧାନ",
+    "view all": "ସବୁ ଦେଖନ୍ତୁ",
+    "play now": "ବର୍ତ୍ତମାନ ଖେଳନ୍ତୁ",
+    "mario math runner": "ମାରିଓ ମ୍ୟାଥ୍ ରନର୍",
+    "mathematics • speed arcade": "ଗଣିତ • ସ୍ପିଡ୍ ଆର୍କେଡ୍",
+    "smart bazaar: market quest": "ସ୍ମାର୍ଟ ବଜାର: ମାର୍କେଟ କ୍ୱେଷ୍ଟ",
+    "fractions • visual trade": "ଭଗ୍ନାଂଶ • ଭିଜୁଆଲ୍ ବାଣିଜ୍ୟ",
+    "continuous chase quiz": "କଣ୍ଟିନ୍ୟୁଅସ୍ ଚେଜ୍ କୁଇଜ୍",
+    "logic • speed challenge": "ତର୍କ • ସ୍ପିଡ୍ ଚ୍ୟାଲେଞ୍ଜ",
+    "physics engine lab": "ପଦାର୍ଥ ବିଜ୍ଞାନ ଇଞ୍ଜିନ୍ ଲ୍ୟାବ୍",
+    "physics • interactive simulator": "ପଦାର୍ଥ ବିଜ୍ଞାନ • ଇଣ୍ଟରାକ୍ଟିଭ୍ ସିମ୍ୟୁଲେଟର",
+    "chemistry lab reactions": "ରସାୟନ ବିଜ୍ଞାନ ଲ୍ୟାବ୍ ପ୍ରତିକ୍ରିୟା",
+    "chemistry • atom & matter lab": "ରସାୟନ ବିଜ୍ଞାନ • ପରମାଣୁ ଓ ପଦାର୍ଥ ଲ୍ୟାବ୍",
+    "anatomy pin explorer": "ଶରୀର ରଚନା ପିନ୍ ଅନ୍ୱେଷକ",
+    "biology • visual step-by-step": "ଜୀବ ବିଜ୍ଞାନ • ପଦକ୍ଷେପ ଅନୁଯାୟୀ ଭିଜୁଆଲ୍ସ",
+    "interactive video arena": "ଇଣ୍ଟରାକ୍ଟିଭ୍ ଭିଡିଓ ଆରେନା",
+    "stem • video challenge": "STEM • ଭିଡିଓ ଚ୍ୟାଲେଞ୍ଜ",
+    "subject arcade hub": "ବିଷୟ ଆର୍କେଡ୍ ହବ୍",
+    "all subjects • multi-game arcade": "ସମସ୍ତ ବିଷୟ • ମଲ୍ଟି-ଗେମ୍ ଆର୍କେଡ୍",
+    "sutra math cannon": "ସୂତ୍ର ଗଣିତ କମାଣ",
+    "mathematics • bubble shooter": "ଗଣିତ • ବବଲ୍ ଶୁଟର୍",
+    "adaptive challenges": "ଅନୁକୂଳୀ ଚ୍ୟାଲେଞ୍ଜଗୁଡ଼ିକ",
+    "the game gets smarter as you do. problems adjust in real-time to your skill level": "ଆପଣ ଶିଖିବା ସହିତ ଖେଳ ଅଧିକ ସ୍ମାର୍ଟ ହୋଇଯାଏ। ପ୍ରଶ୍ନଗୁଡ଼ିକ ଆପଣଙ୍କ ଦକ୍ଷତା ସ୍ତର ଅନୁଯାୟୀ ପରିବର୍ତ୍ତିତ ହୁଏ",
+    "streak rewards": "ଷ୍ଟ୍ରିକ୍ ପୁରସ୍କାର",
+    "maintain your daily learning streak to unlock rare profile icons and coin multipliers": "ଦୁର୍ଲଭ ପ୍ରୋଫାଇଲ୍ ଆଇକନ୍ ଏବଂ କଏନ୍ ଗୁଣକ ଅନଲକ୍ କରିବାକୁ ଆପଣଙ୍କ ଦୈନନ୍ଦିନ ଶିକ୍ଷଣ ଷ୍ଟ୍ରିକ୍ ବଜାୟ ରଖନ୍ତୁ",
+    "safe social": "ସୁରକ୍ଷିତ ସାମାଜିକ ପରିବେଶ",
+    "collaborate with classmates in a secure, moderated environment": "ଏକ ସୁରକ୍ଷିତ ଏବଂ ନିୟନ୍ତ୍ରିତ ପରିବେଶରେ ସହପାଠୀମାନଙ୍କ ସହିତ ସହଯୋଗ କରନ୍ତୁ",
+    "active players": "ସକ୍ରିୟ ଖେଳାଳି",
+    "score improve": "ସ୍କୋର ଉନ୍ନତି",
+    "quests done": "ସମାପ୍ତ ହୋଇଥିବା ମିଶନ",
+    "industry standard": "ଶିଳ୍ପ ମାନକ",
+    "gold": "ସ୍ୱର୍ଣ୍ଣ",
+    "safe. secure. fun": "ସୁରକ୍ଷିତ। ନିରାପଦ। ମଜାଳିଆ"
+  },
+  "ml": {
+    "nav_features": "സവിശേഷതകൾ",
+    "nav_tracks": "വിഷയങ്ങൾ",
+    "nav_how": "ഇതെങ്ങനെ പ്രവർത്തിക്കുന്നു",
+    "nav_educators": "അധ്യാപക കേന്ദ്രം",
+    "nav_teacher_hub": "👩‍🏫 അധ്യാപക ഹബ്",
+    "nav_sign_in": "ലോഗിൻ",
+    "nav_get_started": "തുടങ്ങുക",
+    "hero_badge": "ഇന്ററാക്ടീവ് STEM & കോഡിംഗ് മിഷനുകൾ — കളിയിലൂടെ പഠിക്കാം",
+    "hero_title": "കളികളിലൂടെ പഠിക്കാം, <br><span class=\"text-gradient\">ഓരോ ഇന്ററാക്ടീവ് മിഷനിലൂടെയും</span>",
+    "hero_subtitle": "സ്കൂൾ സിലബസ് ലളിതമായ മിഷനുകളായും വിഷ്വൽ പ്രശ്നപരിഹാരങ്ങളായും മാറ്റുന്നു. വിദ്യാർത്ഥികൾക്കും അധ്യാപകർക്കും അനുയോജ്യം.",
+    "btn_start_quest": "🚀 ആരംഭിക്കുക (വിദ്യാർത്ഥി)",
+    "btn_educator_portal": "👩‍🏫 അധ്യാപക പോർട്ടൽ",
+    "btn_quick_demo": "🎮 ഡെമോ കാണുക",
+    "stat_active_students": "സജീവ വിദ്യാർത്ഥികൾ",
+    "stat_missions": "പൂർത്തിയാക്കിയ മിഷനുകൾ",
+    "stat_concept_mastery": "വിഷയ പ്രാവീണ്യം",
+    "stat_interactive_labs": "ഇന്ററാക്ടീവ് ലാബുകൾ",
+    "features_title": "എന്തുകൊണ്ട് ആൽഗോപ്ലേ",
+    "features_subtitle": "ഗെയിമിംഗ് രീതികളും പഠന ശാസ്ത്രവും ചേരുമ്പോൾ അറിവ് ശാശ്വതമാകുന്നു.",
+    "feat_1_title": "ചെറിയ മിഷനുകൾ",
+    "feat_1_desc": "ഒരു സമയം ഒരു ആശയത്തിൽ ശ്രദ്ധ കേന്ദ്രീകരിക്കുന്ന 5 മുതൽ 10 മിനിറ്റ് വരെയുള്ള വെല്ലുവിളികൾ.",
+    "feat_2_title": "XP, ബാഡ്ജുകൾ & സമ്മാനങ്ങൾ",
+    "feat_2_desc": "പോയിന്റുകൾ നേടുക, പുതിയ അവതാറുകൾ അൺലോക്ക് ചെയ്യുക.",
+    "feat_3_title": "തത്സമയ വിഷ്വൽ ഫീഡ്‌ബാക്ക്",
+    "feat_3_desc": "ഘട്ടം ഘട്ടമായുള്ള സൂചനകൾ പ്രശ്നപരിഹാരം എളുപ്പമാക്കുന്നു.",
+    "feat_4_title": "കൃത്യമായ വിലയിരുത്തൽ",
+    "feat_4_desc": "വിദ്യാർത്ഥികൾക്ക് കൂടുതൽ ശ്രദ്ധ ആവശ്യമുള്ള മേഖലകൾ കണ്ടെത്തുന്നു.",
+    "tracks_title": "വിഷയങ്ങൾ പര്യവേക്ഷണം ചെയ്യുക",
+    "tracks_subtitle": "ഇപ്പോൾ തന്നെ കളിച്ചു പഠിക്കാൻ തയ്യാറായ ഇന്ററാക്ടീവ് മൊഡ്യൂളുകൾ",
+    "track_math_title": "ഗണിതം (Mathematics)",
+    "track_math_sub": "സ്മാർട്ട് ബസാർ & വിഷ്വൽ ഭിന്നസംഖ്യകൾ",
+    "track_math_badge": "ഇന്ററാക്ടീവ്",
+    "track_math_desc": "മാർക്കറ്റ് സിമുലേറ്ററിൽ സുഗന്ധവ്യഞ്ജന വ്യാപാരം നടത്തുകയും ഭിന്നസംഖ്യകൾ കണക്കാക്കുകയും ചെയ്യുക.",
+    "track_math_dur": "⏱️ മിഷന് 5–8 മിനിറ്റ്",
+    "track_play_btn": "മിഷൻ കളിക്കുക →",
+    "track_tech_title": "സാങ്കേതികവിദ്യ (Technology)",
+    "track_tech_sub": "ലോജിക്, ഫ്ലോ & കോഡ് റണ്ണർ",
+    "track_tech_badge": "സജീവം",
+    "track_tech_desc": "വിഷ്വൽ ഗാമിഫൈഡ് സ്റ്റെപ്പിംഗ് വഴി വ്യവസ്ഥാപിത ലോജിക്കും ഡാറ്റാ ഘടനകളും മനസ്സിലാക്കുക.",
+    "track_tech_dur": "⏱️ മിഷന് 6–10 മിനിറ്റ്",
+    "track_phy_title": "ഭൗതികശാസ്ത്രം (Physical Science)",
+    "track_phy_sub": "ബലങ്ങൾ, ഒപ്റ്റിക്സ് & ഊർജ്ജം",
+    "track_phy_badge": "ജനപ്രിയം",
+    "track_phy_desc": "ഭൗതികശാസ്ത്ര പരീക്ഷണങ്ങളും പ്രകാശ പ്രതിഫലനവും സിമുലേറ്റ് ചെയ്യുക.",
+    "track_phy_dur": "⏱️ മിഷന് 7–12 മിനിറ്റ്",
+    "track_bio_title": "ജീവശാസ്ത്രം (Living Science)",
+    "track_bio_sub": "കോശങ്ങൾ, പരിസ്ഥിതി & ജനിതകം",
+    "track_bio_badge": "പ്രധാനം",
+    "track_bio_desc": "പസിലുകളിലൂടെ കോശ ജീവശാസ്ത്രവും പ്രകൃതിദത്ത പരിസ്ഥിതികളും പര്യവേക്ഷണം ചെയ്യുക.",
+    "track_bio_dur": "⏱️ മിഷന് 5–8 മിനിറ്റ്",
+    "track_lang_title": "ഭാഷാ പ്രാവീണ്യം (Language Mastery)",
+    "track_lang_sub": "വ്യാകരണം, പദാവലി & വാക്യഘടന",
+    "track_lang_badge": "പുതിയത്",
+    "track_lang_desc": "പസിൽ ചലഞ്ചുകളിലൂടെ വായനാശേഷിയും വാക്യഘടനയും മെച്ചപ്പെടുത്തുക.",
+    "track_lang_dur": "⏱️ മിഷന് 5–7 മിനിറ്റ്",
+    "track_vid_title": "വീഡിയോ ക്വസ്റ്റ് അരീന",
+    "track_vid_sub": "ഇന്ററാക്ടീവ് STEM വീഡിയോ ചലഞ്ചുകൾ",
+    "track_vid_badge": "പ്രത്യേകം",
+    "track_vid_desc": "ശാസ്ത്ര ട്യൂട്ടോറിയലുകൾ കാണുകയും ഇൻലൈൻ ചലഞ്ചുകൾ പരിഹരിക്കുകയും ചെയ്യുക.",
+    "track_vid_dur": "⏱️ ക്ലിപ്പിന് 4–6 മിനിറ്റ്",
+    "track_watch_btn": "കണ്ടു കളിക്കുക →",
+    "teacher_badge": "👩‍🏫 അധ്യാപകർക്കും സ്കൂളുകൾക്കും വേണ്ടി",
+    "teacher_title": "സ്മാർട്ട് ക്ലാസ്റൂം ഹബ് & പരീക്ഷാ നിർമ്മാതാവ്",
+    "teacher_desc": "ഞങ്ങളുടെ സ്മാർട്ട് ജനറേറ്റർ ഉപയോഗിച്ച് നിമിഷങ്ങൾക്കകം സിലബസ് അധിഷ്ഠിത പരീക്ഷകൾ നിർമ്മിക്കുക. ഹോംവർക്ക് നൽകുകയും വിദ്യാർത്ഥി മുന്നേറ്റം നിരീക്ഷിക്കുകയും ചെയ്യുക.",
+    "teacher_bullet_1": "<strong>തത്സമയ പരീക്ഷാ നിർമ്മാതാവ്:</strong> 3, 5, 10 അല്ലെങ്കിൽ ഇഷ്ടാനുസൃത ചോദ്യങ്ങൾ തിരഞ്ഞെടുക്കുക.",
+    "teacher_bullet_2": "<strong>അസൈൻമെന്റ് സ്റ്റുഡിയോ:</strong> ഓട്ടോമേറ്റഡ് ഫയൽ അപ്‌ലോഡും വിദ്യാർത്ഥി വിതരണവും.",
+    "teacher_bullet_3": "<strong>ഡയഗ്നോസ്റ്റിക് സ്ഥിതിവിവരക്കണക്കുകൾ:</strong> തത്സമയ വിദ്യാർത്ഥി പുരോഗതിയും പ്രത്യേക സഹായ പട്ടികയും.",
+    "teacher_btn_login": "അധ്യാപക ലോഗിൻ",
+    "teacher_btn_dash": "അധ്യാപക ഡാഷ്‌ബോർഡ്",
+    "teacher_btn_builder": "പരീക്ഷാ നിർമ്മാതാവ് →",
+    "teacher_card_head": "ക്ലാസ് 8 — തത്സമയ ഡയഗ്നോസ്റ്റിക്",
+    "teacher_card_live": "തത്സമയം സജീവം",
+    "teacher_card_subj1": "ഭിന്നസംഖ്യകളും അനുപാതങ്ങളും പ്രാവീണ്യം",
+    "teacher_card_avg1": "92% ശരാശരി",
+    "teacher_card_subj2": "ബീജഗണിത സമവാക്യങ്ങൾ",
+    "teacher_card_avg2": "78% ശരാശരി",
+    "teacher_card_exam_ready": "💡 പരീക്ഷ തയ്യാർ: മിഡ്-ടേം ടെസ്റ്റ്",
+    "teacher_card_edit": "ചോദ്യങ്ങൾ തിരുത്തുക",
+    "how_title": "ഇതെങ്ങനെ പ്രവർത്തിക്കുന്നു",
+    "how_subtitle": "പഠന സമയത്തെ കളി സമയമാക്കി മാറ്റുന്ന നാല് ലളിതമായ ഘട്ടങ്ങൾ",
+    "how_step1_badge": "ഘട്ടം 01",
+    "how_step1_title": "ഒരു വിഷയം തിരഞ്ഞെടുക്കുക",
+    "how_step1_desc": "കണക്ക്, ശാസ്ത്രം, സാങ്കേതികവിദ്യ അല്ലെങ്കിൽ സ്കൂൾ ഹോംവർക്ക് തിരഞ്ഞെടുക്കുക.",
+    "how_step2_badge": "ഘട്ടം 02",
+    "how_step2_title": "വിഷ്വൽ മിഷനുകൾ കളിക്കുക",
+    "how_step2_desc": "തത്സമയ വിഷ്വൽ സിമുലേഷനിലൂടെയും സൂചനകളിലൂടെയും പസിലുകൾ പരിഹരിക്കുക.",
+    "how_step3_badge": "ഘട്ടം 03",
+    "how_step3_title": "XP & ബാഡ്ജുകൾ നേടുക",
+    "how_step3_desc": "നിങ്ങളുടെ പ്രൊഫൈൽ ലെവൽ അപ്പ് ചെയ്യുക, ബാഡ്ജുകൾ അൺലോക്ക് ചെയ്യുക.",
+    "how_step4_badge": "ഘട്ടം 04",
+    "how_step4_title": "പ്രധാന കഴിവുകളിൽ പ്രാവീണ്യം",
+    "how_step4_desc": "കൃത്യമായ വിശകലനങ്ങളിലൂടെയും അധ്യാപക ഫീഡ്‌ബാക്കിലൂടെയും നിങ്ങളുടെ അറിവ് വർദ്ധിപ്പിക്കുക.",
+    "cta_title": "പഠന നിലവാരം ഉയർത്താൻ തയ്യാറാണോ?",
+    "cta_subtitle": "ഇന്നുതന്നെ അക്കൗണ്ട് തുടങ്ങി സങ്കീർണ്ണമായ വിഷയങ്ങൾ ലളിതമാക്കുന്ന ഗാമിഫൈഡ് പഠനം അനുഭവിക്കുക.",
+    "cta_btn_student": "വിദ്യാർത്ഥി അക്കൗണ്ട് നിർമ്മിക്കുക",
+    "cta_btn_teacher": "അധ്യാപക സൈൻ ഇൻ",
+    "footer_tagline": "ഇന്ററാക്ടീവ് പ്രശ്നപരിഹാരത്തിലൂടെയും കൃത്യമായ പ്രാവീണ്യത്തിലൂടെയും വിദ്യാർത്ഥികളെയും അധ്യാപകരെയും ബന്ധിപ്പിക്കുന്ന STEM വിദ്യാഭ്യാസം.",
+    "footer_head_platform": "പ്ലാറ്റ്‌ഫോം",
+    "footer_link_fractions": "സ്മാർട്ട് ബസാർ ഭിന്നസംഖ്യകൾ",
+    "footer_link_video": "STEM വീഡിയോ അരീന",
+    "footer_link_student_dash": "വിദ്യാർത്ഥി ഡാഷ്‌ബോർഡ്",
+    "footer_head_educators": "അധ്യാപകർ",
+    "footer_link_teacher_dash": "അധ്യാപക ഡാഷ്‌ബോർഡ്",
+    "footer_link_exam_studio": "പരീക്ഷാ നിർമ്മാണ സ്റ്റുഡിയോ",
+    "footer_link_assignments": "അസൈൻമെന്റ് ഡ്രോപ്പ്‌സോൺ",
+    "footer_head_quick": "വേഗത്തിലുള്ള ആക്‌സസ്",
+    "footer_link_student_login": "വിദ്യാർത്ഥി ലോഗിൻ",
+    "footer_link_create_acc": "അക്കൗണ്ട് നിർമ്മിക്കുക",
+    "footer_link_teacher_portal": "അധ്യാപക പോർട്ടൽ",
+    "footer_copyright": "© 2026 ആൽഗോപ്ലേ വിദ്യാഭ്യാസം. എല്ലാ അവകാശങ്ങളും നിക്ഷിപ്തം.",
+    "footer_tech_stack": "Node.js • Express • MongoDB പ്രവർത്തനക്ഷമമാക്കി",
+    "auth_student_login_title": "വിദ്യാർത്ഥി ലോഗിൻ",
+    "auth_student_login_subtitle": "തിരികെ സ്വാഗതം! നിങ്ങളുടെ ആൽഗോപ്ലേ വിവരങ്ങൾ നൽകുക",
+    "auth_teacher_login_title": "അധ്യാപക പോർട്ടൽ",
+    "auth_teacher_login_subtitle": "അധ്യാപകർക്കും അഡ്മിനിസ്ട്രേറ്റർമാർക്കുമുള്ള സുരക്ഷിത ലോഗിൻ",
+    "auth_student_signup_title": "വിദ്യാർത്ഥി രജിസ്ട്രേഷൻ",
+    "auth_student_signup_subtitle": "ആൽഗോപ്ലേയിൽ ചേരൂ, നിങ്ങളുടെ പഠനയാത്ര ആരംഭിക്കൂ 🚀",
+    "auth_teacher_signup_title": "അധ്യാപക രജിസ്ട്രേഷൻ",
+    "auth_teacher_signup_subtitle": "പരീക്ഷകൾ നിർമ്മിക്കുന്നതിനും ക്ലാസുകൾ നിരീക്ഷിക്കുന്നതിനും രജിസ്റ്റർ ചെയ്യുക",
+    "auth_username_label": "ഉപയോക്തൃനാമം",
+    "auth_username_placeholder": "ഉപയോക്തൃനാമം നൽകുക",
+    "auth_password_label": "പാസ്‌വേഡ്",
+    "auth_password_placeholder": "പാസ്‌വേഡ് നൽകുക",
+    "auth_school_label": "സ്കൂളിന്റെ പേര്",
+    "auth_school_placeholder": "സ്കൂൾ അല്ലെങ്കിൽ അക്കാദമി",
+    "auth_age_label": "പ്രായം",
+    "auth_age_placeholder": "ഉദാ: 12",
+    "auth_grade_label": "ക്ലാസ്",
+    "auth_grade_placeholder": "ഉദാ: ക്ലാസ് 6",
+    "auth_dept_label": "വിഷയം / വകുപ്പ്",
+    "auth_dept_placeholder": "ഉദാ: ഗണിതം",
+    "auth_btn_login": "ലോഗിൻ ചെയ്യുക",
+    "auth_btn_signup": "അക്കൗണ്ട് നിർമ്മിക്കുക",
+    "auth_btn_quick_demo": "🚀 ഡെമോ ലോഗിൻ",
+    "auth_no_account": "അക്കൗണ്ട് ഇല്ലേ?",
+    "auth_create_account": "അക്കൗണ്ട് നിർമ്മിക്കുക",
+    "auth_already_account": "ഇതിനകം അക്കൗണ്ട് ഉണ്ടോ?",
+    "auth_teacher_link": "അധ്യാപക ലോഗിൻ",
+    "auth_student_link": "വിദ്യാർത്ഥി ലോഗിൻ",
+    "auth_are_you_teacher": "നിങ്ങൾ അധ്യാപകനാണോ?",
+    "auth_are_you_student": "നിങ്ങൾ വിദ്യാർത്ഥിയാണോ?",
+    "auth_back_home": "← പ്രധാന പേജിലേക്ക് മടങ്ങുക",
+    "dash_welcome": "തിരികെ സ്വാഗതം, വിദ്യാർത്ഥി!",
+    "dash_subtitle": "നിങ്ങളുടെ പഠന തട്ടകം: ഇന്ററാക്ടീവ് വെല്ലുവിളികളിലൂടെ ആശയങ്ങളിൽ പ്രാവീണ്യം നേടൂ",
+    "dash_nav_home": "ഹോം",
+    "dash_nav_tracks": "വിഷയങ്ങൾ",
+    "dash_nav_exams": "പരീക്ഷകൾ",
+    "dash_nav_resources": "വിഭവങ്ങൾ",
+    "dash_nav_leaderboard": "ലീഡർബോർഡ്",
+    "dash_nav_achievements": "നേട്ടങ്ങൾ",
+    "dash_nav_logout": "ലോഗൗട്ട്",
+    "dash_nav_tech": "സാങ്കേതിക ഘടന",
+    "dash_track_math": "ഗണിതം",
+    "dash_track_math_desc": "സ്മാർട്ട് ബസാർ, ഭിന്നസംഖ്യകൾ, ജ്യാമിതി & ബീജഗണിതം",
+    "dash_track_science": "ഭൗതിക ശാസ്ത്രം",
+    "dash_track_science_desc": "ബലങ്ങൾ, പ്രകാശശാസ്ത്രം, ഊർജ്ജം & പരീക്ഷണങ്ങൾ",
+    "dash_track_tech": "സാങ്കേതികവിദ്യയും കോഡിംഗും",
+    "dash_track_tech_desc": "അൽഗോരിതങ്ങൾ, ലോജിക് ഫ്ലോ & കോഡ് റണ്ണർ",
+    "dash_track_bio": "ജീവശാസ്ത്രം",
+    "dash_track_bio_desc": "സെൽ ബയോളജി, പരിസ്ഥിതി വ്യവസ്ഥകൾ & ജനിതകശാസ്ത്രം",
+    "dash_daily_streak": "ദൈനംദിന സ്ട്രീക്ക്",
+    "dash_coins": "നാണയങ്ങൾ",
+    "dash_xp": "അനുഭവ പോയിന്റുകൾ",
+    "dash_continue_learning": "പഠനം തുടരുക →",
+    "dash_start_mission": "മിഷൻ ആരംഭിക്കുക →",
+    "tdash_title": "ആൽഗോപ്ലേ — അധ്യാപക പോർട്ടൽ",
+    "tdash_nav_overview": "അവലോകനം",
+    "tdash_nav_exams": "പരീക്ഷാ സ്റ്റുഡിയോ",
+    "tdash_nav_resources": "ഹോംവർക്ക് അപ്‌ലോഡ്",
+    "tdash_stat_students": "സജീവ വിദ്യാർത്ഥികൾ",
+    "tdash_stat_avg_mastery": "ശരാശരി പ്രാവീണ്യം",
+    "tdash_stat_learning_gain": "പഠന പുരോഗതി",
+    "tdash_stat_misconceptions": "കണ്ടെത്തിയ തെറ്റിദ്ധാരണകൾ",
+    "tdash_remediation_queue": "പ്രത്യേക സഹായ പട്ടിക",
+    "tdash_recent_attempts": "സമീപകാല പരീക്ഷാ ഫലങ്ങൾ",
+    "tdash_export_csv": "CSV റിപ്പോർട്ട് ഡൗൺലോഡ്",
+    "exam_portal_title": "വിദ്യാർത്ഥി ഓൺലൈൻ പരീക്ഷ",
+    "exam_submit_btn": "പരീക്ഷ സമർപ്പിക്കുക",
+    "exam_back_btn": "← പരീക്ഷകളിലേക്ക് മടങ്ങുക",
+    "exam_time_left": "ബാക്കി സമയം",
+    "exam_question": "ചോദ്യം",
+    "exam_completed": "പരീക്ഷ വിജയകരമായി സമർപ്പിച്ചു!",
+    "exam_your_score": "നിങ്ങളുടെ സ്കോർ",
+    "frac_title": "ആൽഗോപ്ലേ: സ്മാർട്ട് ബസാർ",
+    "frac_subtitle": "ക്ലാസ് 6 ഗണിതം — വ്യത്യസ്ത ഭിന്നസംഖ്യാ സാഹസികത",
+    "frac_stage1": "ഘട്ടം 1: തുല്യ പകുതികൾ",
+    "frac_stage2": "ഘട്ടം 2: പൊതുവായ ഛേദം",
+    "frac_stage3": "ഘട്ടം 3: ബസാർ വ്യാപാരം",
+    "frac_submit": "ഉത്തരം സമർപ്പിക്കുക",
+    "frac_next": "അടുത്ത വെല്ലുവിളി →",
+    "frac_hint_title": "ഉപകാരപ്രദമായ സൂചന",
+    "frac_misconception_title": "ആശയപരമായ വിശകലനം",
+    "tech_title": "ആൽഗോപ്ലേ ആർക്കിടെക്ചറും സാങ്കേതിക വിദ്യകളും",
+    "tech_subtitle": "ഡെവലപ്പർ ഡോക്യുമെന്റേഷൻ, ഇൻസ്റ്റാൾ ചെയ്ത പാക്കേജുകൾ, കോഡ് മാപ്പ്",
+    "tech_tab_overview": "സിസ്റ്റം ആർക്കിടെക്ചർ",
+    "tech_tab_packages": "ഇൻസ്റ്റാൾ ചെയ്ത പാക്കേജുകൾ",
+    "tech_tab_codemap": "ഏത് കോഡ് എവിടെയാണ്",
+    "tech_frontend_head": "ഫ്രണ്ട്എൻഡ് സാങ്കേതികവിദ്യകൾ",
+    "tech_backend_head": "ബാക്കെൻഡും ഡാറ്റാബേസും",
+    "tech_packages_head": "NPM പാക്കേജുകളും ആശ്രയത്വങ്ങളും",
+    "tech_codemap_head": "കോഡ്‌ബേസ് ഡയറക്ടറി മാപ്പ്",
+    "tech_btn_home": "← ഹോമിലേക്ക് മടങ്ങുക",
+    "tech_btn_dash": "വിദ്യാർത്ഥി ഡാഷ്‌ബോർഡ്",
+    "tech_btn_teacher": "അധ്യാപക പോർട്ടൽ",
+    "dashboard": "ഡാഷ്‌ബോർഡ്",
+    "student_portal": "വിദ്യാർത്ഥി പോർട്ടൽ",
+    "teacher_portal": "അധ്യാപക പോർട്ടൽ",
+    "leaderboard": "ലീഡർബോർഡ്",
+    "logout": "ലോഗ് ഔട്ട്",
+    "login": "ലോഗിൻ",
+    "signup": "സൈൻ അപ്പ്",
+    "profile": "പ്രൊഫൈൽ",
+    "assignments": "അസൈൻമെന്റുകൾ",
+    "exams": "പരീക്ഷകൾ",
+    "mathematics": "ഗണിതം",
+    "science": "ശാസ്ത്രം",
+    "technology": "സാങ്കേതികവിദ്യ",
+    "ai_tutor": "AI ട്യൂട്ടർ",
+    "ask_anything": "എന്തും ചോദിക്കുക",
+    "send": "അയക്കുക",
+    "clear_chat": "ചാറ്റ് മായ്‌ക്കുക",
+    "welcome": "സ്വാഗതം",
+    "gamified learning 6-10": "ഗെയിമിഫൈഡ് ലേണിംഗ് 6–10",
+    "gamified learning 6–10": "ഗെയിമിഫൈഡ് ലേണിംഗ് 6–10",
+    "explorer": "അന്വേഷകൻ",
+    "level up your education": "നിങ്ങളുടെ വിദ്യാഭ്യാസം ലെവൽ അപ്പ് ചെയ്യുക",
+    "transform your syllabus into an epic quest. master subjects, earn xp, and unlock real-world knowledge through play": "നിങ്ങളുടെ സിലബസിനെ ഒരു ഇതിഹാസ ദൗത്യമാക്കി മാറ്റുക. കളികളിലൂടെ വിഷയങ്ങളിൽ പ്രാവീണ്യം നേടുക, XP നേടുക, വിജ്ഞാനം അൺലോക്ക് ചെയ്യുക",
+    "smart bazaar: fractions quest": "സ്മാർട്ട് ബസാർ: ഭിന്നസംഖ്യാ അന്വേഷണം",
+    "learn to add unlike fractions through indian marketplace trade, interactive visual strips, and real-time guidance": "ഇന്ത്യൻ ചന്തയിലെ വ്യാപാരം, സംവേദനാത്മക വിഷ്വൽ സ്ട്രിപ്പുകൾ, തത്സമയ മാർഗ്ഗനിർദ്ദേശം എന്നിവയിലൂടെ വ്യത്യസ്ത ഭിന്നസംഖ്യകൾ കൂട്ടാൻ പഠിക്കുക",
+    "diagnostic quiz": "ഡയഗ്നോസ്റ്റിക് ക്വിസ്",
+    "visual strips": "വിഷ്വൽ സ്ട്രിപ്പുകൾ",
+    "step-by-step hints": "ഘട്ടം ഘട്ടമായുള്ള സൂചനകൾ",
+    "start quest": "ദൗത്യം ആരംഭിക്കുക",
+    "your universe": "നിങ്ങളുടെ പ്രപഞ്ചം",
+    "master each domain to earn unique badges": "അതുല്യമായ ബാഡ്ജുകൾ നേടുന്നതിന് ഓരോ മേഖലയിലും പ്രാവീണ്യം നേടുക",
+    "physics & chemistry": "ഭൗതികശാസ്ത്രവും രസതന്ത്രവും",
+    "algebra & geometry": "ബീജഗണിതവും ജ്യാമിതിയും",
+    "coding & ai": "കോഡിംഗും AI യും",
+    "grammar & prose": "വ്യാകരണവും ഗദ്യവും",
+    "human body & life": "മനുഷ്യ ശരീരവും ജീവനും",
+    "mastery": "പ്രാവീണ്യം",
+    "enter domain": "മേഖലയിലേക്ക് പ്രവേശിക്കുക",
+    "open file": "ഫയൽ തുറക്കുക",
+    "download": "ഡൗൺലോഡ് ചെയ്യുക",
+    "watch video": "വീഡിയോ കാണുക",
+    "class assignment": "ക്ലാസ് അസൈൻമെന്റ്",
+    "today": "ഇന്ന്",
+    "no assignments posted yet": "ഇതുവരെ അസൈൻമെന്റുകളൊന്നും പോസ്റ്റ് ചെയ്തിട്ടില്ല",
+    "loading assignments": "അസൈൻമെന്റുകൾ ലോഡ് ചെയ്യുന്നു...",
+    "daily quests": "ദൈനംദിന ദൗത്യങ്ങൾ",
+    "view all": "എല്ലാം കാണുക",
+    "play now": "ഇപ്പോൾ കളിക്കുക",
+    "mario math runner": "മരിയോ മാത്ത് റണ്ണർ",
+    "mathematics • speed arcade": "ഗണിതം • സ്പീഡ് ആർക്കേഡ്",
+    "smart bazaar: market quest": "സ്മാർട്ട് ബസാർ: മാർക്കറ്റ് ക്വസ്റ്റ്",
+    "fractions • visual trade": "ഭിന്നസംഖ്യകൾ • വിഷ്വൽ വ്യാപാരം",
+    "continuous chase quiz": "തുടർച്ചയായ ചേസ് ക്വിസ്",
+    "logic • speed challenge": "ലോജിക് • സ്പീഡ് ചലഞ്ച്",
+    "physics engine lab": "ഫിസിക്സ് എഞ്ചിൻ ലാബ്",
+    "physics • interactive simulator": "ഭൗതികശാസ്ത്രം • സംവേദനാത്മക സിമുലേറ്റർ",
+    "chemistry lab reactions": "രസതന്ത്ര ലാബ് പ്രതികരണങ്ങൾ",
+    "chemistry • atom & matter lab": "രസതന്ത്രം • ആറ്റവും പദാർത്ഥവും ലാബ്",
+    "anatomy pin explorer": "അനാട്ടമി പിൻ എക്സ്പ്ലോറർ",
+    "biology • visual step-by-step": "ബയോളജി • ഘട്ടം ഘട്ടമായുള്ള വിഷ്വലുകൾ",
+    "interactive video arena": "ഇന്ററാക്ടീവ് വീഡിയോ അരീന",
+    "stem • video challenge": "STEM • വീഡിയോ ചലഞ്ച്",
+    "subject arcade hub": "വിഷയ ആർക്കേഡ് ഹബ്ബ്",
+    "all subjects • multi-game arcade": "എല്ലാ വിഷയങ്ങളും • മൾട്ടി-ഗെയിം ആർക്കേഡ്",
+    "sutra math cannon": "സൂത്ര കണക്ക് പീരങ്കി",
+    "mathematics • bubble shooter": "ഗണിതം • ബബിൾ ഷൂട്ടർ",
+    "adaptive challenges": "അഡാപ്റ്റീവ് വെല്ലുവിളികൾ",
+    "the game gets smarter as you do. problems adjust in real-time to your skill level": "നിങ്ങൾ പഠിക്കുന്നതിനനുസരിച്ച് ഗെയിം കൂടുതൽ സ്മാർട്ടാകും. നിങ്ങളുടെ നൈപുണ്യ നിലവാരത്തിനനുസരിച്ച് ചോദ്യങ്ങൾ തത്സമയം ക്രമീകരിക്കപ്പെടുന്നു",
+    "streak rewards": "സ്ട്രീക്ക് റിവാർഡുകൾ",
+    "maintain your daily learning streak to unlock rare profile icons and coin multipliers": "അപൂർവ്വ പ്രൊഫൈൽ ഐക്കണുകളും കോയിൻ മൾട്ടിപ്ലയറുകളും അൺലോക്ക് ചെയ്യുന്നതിന് നിങ്ങളുടെ ദൈനംദിന പഠന സ്ട്രീക്ക് നിലനിർത്തുക",
+    "safe social": "സുരക്ഷിത സോഷ്യൽ പ്ലാറ്റ്‌ഫോം",
+    "collaborate with classmates in a secure, moderated environment": "സുരക്ഷിതവും നിയന്ത്രിതവുമായ അന്തരീക്ഷത്തിൽ സഹപാഠികളുമായി സഹകരിക്കുക",
+    "active players": "സജീവ കളിക്കാർ",
+    "score improve": "സ്കോർ മെച്ചപ്പെടുത്തൽ",
+    "quests done": "പൂർത്തിയാക്കിയ ദൗത്യങ്ങൾ",
+    "industry standard": "വ്യവസായ നിലവാരം",
+    "gold": "സ്വർണ്ണം",
+    "safe. secure. fun": "സുരക്ഷിതം. വിശ്വസനീയം. വിനോദം"
+  }
+};
+
+  const DYNAMIC_PATTERNS = {
+    te: [
+      { regex: /^level\s+(\d+)\s+explorer$/i, replace: (_, lvl) => `స్థాయి ${lvl} అన్వేషకుడు` },
+      { regex: /^(\d+)\s*\/\s*(\d+)\s*xp\s+to\s+level\s+(\d+)$/i, replace: (_, cur, tot, lvl) => `స్థాయి ${lvl}కి ${cur} / ${tot} XP` },
+      { regex: /^\+(\d+)\s*xp$/i, replace: (_, xp) => `+${xp} XP` },
+      { regex: /^by\s+(.+)$/i, replace: (_, name) => `${name} ద్వారా` },
+      { regex: /^©\s*(\d+)\s*algoplay education.*?safe.*?secure.*?fun.*?$/i, replace: (_, yr) => `© ${yr} ఆల్గోప్లే ఎడ్యుకేషన్. సురక్షితం. భద్రం. వినోదం.` }
+    ],
+    hi: [
+      { regex: /^level\s+(\d+)\s+explorer$/i, replace: (_, lvl) => `लेवल ${lvl} अन्वेषक` },
+      { regex: /^(\d+)\s*\/\s*(\d+)\s*xp\s+to\s+level\s+(\d+)$/i, replace: (_, cur, tot, lvl) => `लेवल ${lvl} के लिए ${cur} / ${tot} XP` },
+      { regex: /^\+(\d+)\s*xp$/i, replace: (_, xp) => `+${xp} XP` },
+      { regex: /^by\s+(.+)$/i, replace: (_, name) => `${name} द्वारा` },
+      { regex: /^©\s*(\d+)\s*algoplay education.*?safe.*?secure.*?fun.*?$/i, replace: (_, yr) => `© ${yr} अल्गोप्ले एजुकेशन। सुरक्षित। संरक्षित। मनोरंजक।` }
+    ],
+    ta: [
+      { regex: /^level\s+(\d+)\s+explorer$/i, replace: (_, lvl) => `நிலை ${lvl} ஆய்வாளர்` },
+      { regex: /^(\d+)\s*\/\s*(\d+)\s*xp\s+to\s+level\s+(\d+)$/i, replace: (_, cur, tot, lvl) => `நிலை ${lvl}க்கு ${cur} / ${tot} XP` },
+      { regex: /^\+(\d+)\s*xp$/i, replace: (_, xp) => `+${xp} XP` },
+      { regex: /^by\s+(.+)$/i, replace: (_, name) => `${name} மூலம்` },
+      { regex: /^©\s*(\d+)\s*algoplay education.*?safe.*?secure.*?fun.*?$/i, replace: (_, yr) => `© ${yr} அல்கோப்ளே கல்வி. பாதுகாப்பானது. நம்பகமானது. பொழுதுபோக்கு.` }
+    ],
+    or: [
+      { regex: /^level\s+(\d+)\s+explorer$/i, replace: (_, lvl) => `ସ୍ତର ${lvl} ଅନ୍ୱେଷକ` },
+      { regex: /^(\d+)\s*\/\s*(\d+)\s*xp\s+to\s+level\s+(\d+)$/i, replace: (_, cur, tot, lvl) => `ସ୍ତର ${lvl} ପାଇଁ ${cur} / ${tot} XP` },
+      { regex: /^\+(\d+)\s*xp$/i, replace: (_, xp) => `+${xp} XP` },
+      { regex: /^by\s+(.+)$/i, replace: (_, name) => `${name} ଦ୍ୱାରା` },
+      { regex: /^©\s*(\d+)\s*algoplay education.*?safe.*?secure.*?fun.*?$/i, replace: (_, yr) => `© ${yr} ଆଲଗୋପ୍ଲେ ଶିକ୍ଷା। ସୁରକ୍ଷିତ। ନିରାପଦ। ମଜାଳିଆ।` }
+    ],
+    ml: [
+      { regex: /^level\s+(\d+)\s+explorer$/i, replace: (_, lvl) => `ലെവൽ ${lvl} അന്വേഷകൻ` },
+      { regex: /^(\d+)\s*\/\s*(\d+)\s*xp\s+to\s+level\s+(\d+)$/i, replace: (_, cur, tot, lvl) => `ലെവൽ ${lvl} ലേക്ക് ${cur} / ${tot} XP` },
+      { regex: /^\+(\d+)\s*xp$/i, replace: (_, xp) => `+${xp} XP` },
+      { regex: /^by\s+(.+)$/i, replace: (_, name) => `${name} വഴി` },
+      { regex: /^©\s*(\d+)\s*algoplay education.*?safe.*?secure.*?fun.*?$/i, replace: (_, yr) => `© ${yr} അൽഗോപ്ലേ വിദ്യാഭ്യാസം. സുരക്ഷിതം. വിശ്വസനീയം. വിനോദം.` }
+    ]
+  };
+
+  let activeLanguage = localStorage.getItem(STORAGE_KEY) || sessionStorage.getItem(STORAGE_KEY) || "en";
+  let externalDictionaries = {};
   let translationTimer;
 
-  function normalize(value) {
-    return value.replace(/\s+/g, " ").trim();
+  // Normalization helper
+  function clean(str) {
+    return (str || "").replace(/\s+/g, " ").trim();
   }
 
-  function rememberEnglishValues(dictionary) {
-    englishValues = new Map();
-    Object.entries(dictionary).forEach(([key, value]) => {
-      if (typeof value !== "string" || /<[^>]+>/.test(value)) return;
-      const normalized = normalize(value);
-      if (normalized) englishValues.set(normalized, key);
-    });
+  function normalizeDashes(str) {
+    return (str || "").replace(/[–—]/g, "-");
   }
 
-  function setElementValue(element, value) {
-    if (!element || typeof value !== "string") return;
-    if (/<[a-z][\s\S]*>/i.test(value)) element.innerHTML = value;
-    else element.textContent = value;
+  // Peels leading and trailing emojis, symbols, bullets, arrows, and punctuation cleanly
+  function peelAffixes(rawText) {
+    const leadMatch = rawText.match(/^([\p{Extended_Pictographic}\u2190-\u21FF\u2600-\u26BF\u2700-\u27BF•★🌟🚀🤖🚪🎮💡📏🏆🎯🏪🗑️👁️⬇️▶️👩‍🏫👨‍🏫🍕❤️💻🌐.,!?:;\-—–«»"'\s]*)/u);
+    const trailMatch = rawText.match(/([\p{Extended_Pictographic}\u2190-\u21FF\u2600-\u26BF\u2700-\u27BF•★🌟🚀🤖🚪🎮💡📏🏆🎯🏪🗑️👁️⬇️▶️👩‍🏫👨‍🏫🍕❤️💻🌐.,!?:;\-—–«»"'\s]*)$/u);
+
+    let prefix = leadMatch ? leadMatch[1] : "";
+    let suffix = trailMatch ? trailMatch[1] : "";
+    let core = rawText;
+
+    if (prefix && core.startsWith(prefix)) {
+      core = core.slice(prefix.length);
+    }
+    if (suffix && core.endsWith(suffix)) {
+      core = core.slice(0, core.length - suffix.length);
+    }
+
+    return { prefix, core, suffix };
   }
 
-  function translateMarkedElements(dictionary) {
-    document.querySelectorAll("[data-i18n]").forEach(element => {
-      const value = dictionary[element.getAttribute("data-i18n")];
-      if (value) setElementValue(element, value);
-    });
-    document.querySelectorAll("[data-i18n-placeholder]").forEach(element => {
-      const value = dictionary[element.getAttribute("data-i18n-placeholder")];
-      if (value) element.setAttribute("placeholder", value);
-    });
-    document.querySelectorAll("[data-i18n-title]").forEach(element => {
-      const value = dictionary[element.getAttribute("data-i18n-title")];
-      if (value) element.setAttribute("title", normalize(value));
-    });
-  }
+  function lookupTranslation(rawText, langCode) {
+    if (!rawText || langCode === "en") return rawText;
 
-  function translateKnownText(dictionary) {
-    const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_ELEMENT);
-    const elements = [];
-    while (walker.nextNode()) elements.push(walker.currentNode);
-    elements.forEach(element => {
-      if (element.matches("script, style, select, option, textarea, input, [data-i18n]")) return;
-      if (element.children.length > 0) return;
-      if (!originalText.has(element)) {
-        originalText.set(element, normalize(element.textContent || ""));
+    const trimmed = clean(rawText);
+    if (!trimmed) return rawText;
+
+    const extDict = externalDictionaries[langCode] || {};
+    const coreDict = CORE_TRANSLATIONS[langCode] || {};
+    const patterns = DYNAMIC_PATTERNS[langCode] || [];
+
+    // 1. Direct match on trimmed text
+    const lowerTrimmed = trimmed.toLowerCase();
+    const dashTrimmed = normalizeDashes(lowerTrimmed);
+    if (extDict[trimmed]) return extDict[trimmed];
+    if (extDict[lowerTrimmed]) return extDict[lowerTrimmed];
+    if (coreDict[lowerTrimmed]) return coreDict[lowerTrimmed];
+    if (coreDict[dashTrimmed]) return coreDict[dashTrimmed];
+
+    // 2. Check dynamic patterns on trimmed text
+    for (const p of patterns) {
+      if (p.regex.test(trimmed)) {
+        return trimmed.replace(p.regex, p.replace);
       }
-      const source = originalText.get(element);
-      const key = englishValues.get(source);
-      if (key && dictionary[key]) setElementValue(element, dictionary[key]);
+    }
+
+    // 3. Peel leading/trailing emojis, symbols, arrows, and punctuation
+    const peeled = peelAffixes(rawText);
+    const coreClean = clean(peeled.core);
+    if (!coreClean) return null;
+
+    const lowerCore = coreClean.toLowerCase();
+    const dashCore = normalizeDashes(lowerCore);
+
+    const wrapResult = (translated) => {
+      return peeled.prefix + translated + peeled.suffix;
+    };
+
+    // Check dynamic patterns on core
+    for (const p of patterns) {
+      if (p.regex.test(coreClean)) {
+        return wrapResult(coreClean.replace(p.regex, p.replace));
+      }
+    }
+
+    // Check dictionaries on core
+    if (extDict[coreClean]) return wrapResult(extDict[coreClean]);
+    if (extDict[lowerCore]) return wrapResult(extDict[lowerCore]);
+    if (coreDict[lowerCore]) return wrapResult(coreDict[lowerCore]);
+    if (coreDict[dashCore]) return wrapResult(coreDict[dashCore]);
+
+    return null;
+  }
+
+  function translateNode(node, langCode) {
+    if (!node || node.nodeType !== Node.TEXT_NODE) return;
+    const parent = node.parentElement;
+    if (!parent) return;
+    if (parent.matches("script, style, select, option, textarea, code, pre")) return;
+
+    if (typeof node.__algo_orig_text === "undefined") {
+      node.__algo_orig_text = node.nodeValue;
+    }
+
+    const original = node.__algo_orig_text;
+    if (!original || !original.trim()) return;
+
+    if (langCode === "en") {
+      if (node.nodeValue !== original) node.nodeValue = original;
+      return;
+    }
+
+    const translated = lookupTranslation(original, langCode);
+    if (translated && translated !== original) {
+      node.nodeValue = translated;
+    }
+  }
+
+  function translateAttributes(element, langCode) {
+    if (!element || element.nodeType !== Node.ELEMENT_NODE) return;
+
+    // Placeholders
+    if (element.hasAttribute("placeholder")) {
+      if (typeof element.__algo_orig_ph === "undefined") {
+        element.__algo_orig_ph = element.getAttribute("placeholder");
+      }
+      const origPh = element.__algo_orig_ph;
+      if (langCode === "en") {
+        element.setAttribute("placeholder", origPh);
+      } else {
+        const trans = lookupTranslation(origPh, langCode);
+        if (trans) element.setAttribute("placeholder", trans);
+      }
+    }
+
+    // Marked data-i18n attributes
+    if (element.hasAttribute("data-i18n")) {
+      const key = element.getAttribute("data-i18n");
+      const extDict = externalDictionaries[langCode] || {};
+      const coreDict = CORE_TRANSLATIONS[langCode] || {};
+      const val = extDict[key] || coreDict[key.toLowerCase()];
+      if (val) {
+        if (/<[a-z][\s\S]*>/i.test(val)) element.innerHTML = val;
+        else element.textContent = val;
+      }
+    }
+  }
+
+  function translateFullPage(langCode) {
+    if (!document.body) return;
+
+    document.documentElement.lang = langCode;
+
+    // 1. Walk text nodes
+    const walker = document.createTreeWalker(
+      document.body,
+      NodeFilter.SHOW_TEXT,
+      {
+        acceptNode(node) {
+          const parent = node.parentElement;
+          if (!parent) return NodeFilter.FILTER_REJECT;
+          const tag = parent.tagName.toLowerCase();
+          if (tag === "script" || tag === "style" || tag === "select" || tag === "option" || tag === "code" || tag === "pre") {
+            return NodeFilter.FILTER_REJECT;
+          }
+          if (parent.closest(".algoplay-language-control")) return NodeFilter.FILTER_REJECT;
+          return NodeFilter.FILTER_ACCEPT;
+        }
+      }
+    );
+
+    const textNodes = [];
+    while (walker.nextNode()) {
+      textNodes.push(walker.currentNode);
+    }
+    textNodes.forEach(node => translateNode(node, langCode));
+
+    // 2. Elements & Placeholders
+    document.querySelectorAll("input[placeholder], textarea[placeholder], [data-i18n]").forEach(el => {
+      if (el.closest(".algoplay-language-control")) return;
+      translateAttributes(el, langCode);
     });
-  }
 
-  function translatePage(dictionary) {
-    translateMarkedElements(dictionary);
-    translateKnownText(dictionary);
-  }
-
-  function updateLanguageControl() {
-    const select = document.querySelector(".algoplay-language-control select, #languageSelect");
-    if (select) select.value = activeLanguage;
-    document.documentElement.lang = activeLanguage;
+    // 3. Sync all language controls on page
+    document.querySelectorAll(".algoplay-language-control select, #languageSelect").forEach(sel => {
+      if (sel.value !== langCode) sel.value = langCode;
+    });
   }
 
   function applyLanguage(code) {
-    const dictionary = dictionaries[code] || dictionaries.en;
-    if (!dictionary) return;
-    activeLanguage = dictionaries[code] ? code : "en";
-    translatePage(dictionary);
-    updateLanguageControl();
-    localStorage.setItem(STORAGE_KEY, activeLanguage);
+    const valid = CODES.includes(code) ? code : "en";
+    activeLanguage = valid;
+    localStorage.setItem(STORAGE_KEY, valid);
+    sessionStorage.setItem(STORAGE_KEY, valid);
+
+    translateFullPage(valid);
+
     window.dispatchEvent(new CustomEvent("algoplay:language-changed", {
-      detail: { language: activeLanguage }
+      detail: { language: valid }
     }));
   }
 
-  function createControl() {
-    let select = document.querySelector("#languageSelect");
-    const hasLandingTranslator = Boolean(
-      document.querySelector('script[src*="multilingual/landing-i18n.js"]')
-    );
-    if (select && hasLandingTranslator) return select;
-    if (!select) {
-      const wrapper = document.createElement("div");
-      wrapper.className = "algoplay-language-control";
-      wrapper.innerHTML = `
-        <span aria-hidden="true">文</span>
-        <label>
-          <span class="sr-only">Choose language</span>
-          <select aria-label="Choose language">
-            ${CODES.map(code => `<option value="${code}">${NAMES[code]}</option>`).join("")}
-          </select>
-        </label>`;
-      document.body.appendChild(wrapper);
-      select = wrapper.querySelector("select");
+  function injectLanguageSwitcher() {
+    // If #languageSelect exists on page (e.g. index.html navbar), attach listener directly
+    const existing = document.getElementById("languageSelect");
+    if (existing) {
+      existing.value = activeLanguage;
+      if (!existing.dataset.algoBound) {
+        existing.dataset.algoBound = "true";
+        existing.addEventListener("change", (e) => applyLanguage(e.target.value));
+      }
+      return;
     }
-    if (select.dataset.algoplayI18nBound === "true") return select;
-    select.dataset.algoplayI18nBound = "true";
-    select.addEventListener("change", () => applyLanguage(select.value));
-    return select;
+
+    // Otherwise create floating pill switcher
+    if (document.querySelector(".algoplay-language-control")) return;
+
+    const wrapper = document.createElement("div");
+    wrapper.className = "algoplay-language-control";
+    wrapper.setAttribute("role", "region");
+    wrapper.setAttribute("aria-label", "Language selector");
+    wrapper.innerHTML = `
+      <span aria-hidden="true" style="font-size:14px;color:#00d8ff;">🌐</span>
+      <select aria-label="Select website language" style="background:transparent;color:#f8fafc;border:0;outline:0;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;">
+        ${CODES.map(c => `<option value="${c}" style="background:#0f172a;color:#f8fafc;" ${c === activeLanguage ? 'selected' : ''}>${NAMES[c]}</option>`).join("")}
+      </select>
+    `;
+    document.body.appendChild(wrapper);
+
+    const select = wrapper.querySelector("select");
+    select.addEventListener("change", (e) => applyLanguage(e.target.value));
   }
 
-  async function load() {
-    const responses = await Promise.all(CODES.map(async code => {
-      const response = await fetch(`multilingual/${code}.json`, { cache: "no-cache" });
-      if (!response.ok) throw new Error(`Unable to load ${code}.json`);
-      return [code, await response.json()];
-    }));
-    dictionaries = Object.fromEntries(responses);
-    rememberEnglishValues(dictionaries.en);
-    createControl();
-    applyLanguage(localStorage.getItem(STORAGE_KEY) || "en");
+  async function loadExternalDictionaries() {
+    try {
+      const results = await Promise.all(
+        CODES.map(async c => {
+          try {
+            const res = await fetch(`multilingual/${c}.json`, { cache: "no-cache" });
+            if (res.ok) {
+              const data = await res.json();
+              return [c, data];
+            }
+          } catch (e) {}
+          return [c, {}];
+        })
+      );
+      externalDictionaries = Object.fromEntries(results);
+    } catch (e) {}
+
+    // Re-apply if a non-English language is already selected
+    if (activeLanguage !== "en") {
+      translateFullPage(activeLanguage);
+    }
+  }
+
+  function init() {
+    injectLanguageSwitcher();
+    applyLanguage(activeLanguage);
+
+    loadExternalDictionaries();
+
+    // Observe dynamic changes
     const observer = new MutationObserver(() => {
       window.clearTimeout(translationTimer);
       translationTimer = window.setTimeout(() => {
-        translatePage(dictionaries[activeLanguage] || dictionaries.en);
-      }, 50);
+        if (activeLanguage !== "en") {
+          translateFullPage(activeLanguage);
+        }
+      }, 80);
     });
+
     observer.observe(document.body, {
       childList: true,
-      subtree: true,
-      attributes: true,
-      attributeFilter: ["data-i18n", "data-i18n-placeholder", "data-i18n-title"]
+      subtree: true
     });
   }
 
-  window.setLanguage = function (language) {
-    if (dictionaries[language]) applyLanguage(language);
-    else localStorage.setItem(STORAGE_KEY, language);
+  // Global API
+  window.setAlgoPlayLanguage = function (lang) {
+    applyLanguage(lang);
+  };
+  window.setLanguage = window.setAlgoPlayLanguage;
+  window.lookupTranslation = lookupTranslation;
+  window.translateText = function (text, lang) {
+    return lookupTranslation(text, lang || activeLanguage);
   };
 
-  document.addEventListener("DOMContentLoaded", () => {
-    const link = document.createElement("link");
-    link.rel = "stylesheet";
-    link.href = "multilingual/site-i18n.css";
-    document.head.appendChild(link);
-    load().catch(error => console.error("AlgoPlay multilingual setup failed:", error));
-  });
-  window.addEventListener("algoplay:language-requested", event => {
-    if (event.detail && event.detail.language) window.setLanguage(event.detail.language);
-  });
-  window.addEventListener("storage", event => {
-    if (event.key === STORAGE_KEY && event.newValue && dictionaries[event.newValue]) {
-      applyLanguage(event.newValue);
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", init);
+  } else {
+    init();
+  }
+
+  // Sync across tabs and iframe navigations
+  window.addEventListener("storage", (e) => {
+    if (e.key === STORAGE_KEY && e.newValue && e.newValue !== activeLanguage) {
+      applyLanguage(e.newValue);
     }
   });
-}());
+
+  window.addEventListener("algoplay:language-requested", (e) => {
+    if (e.detail && e.detail.language) {
+      applyLanguage(e.detail.language);
+    }
+  });
+})();

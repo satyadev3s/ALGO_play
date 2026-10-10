@@ -161,7 +161,6 @@ body{
     </div>
 
     <button class="btn" id="loginBtn">Login</button>
-    <button class="btn" id="demoLoginBtn" type="button" style="margin-top:10px;background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);">🚀 Quick Demo Login</button>
 
     <div class="signup">
         New to Algoplay?
@@ -200,12 +199,6 @@ body{
                 👁️ Open File Now
             </a>
         </div>
-    </div>
-
-    <div class="tags">
-        <span class="tag">DSA</span>
-        <span class="tag">Visuals</span>
-        <span class="tag">Mastery</span>
     </div>
 </div>
 
@@ -268,17 +261,6 @@ function completeLogin(id, name, school, token) {
     }
     window.location.href = "maindashboard.html";
 }
-
-document.getElementById("demoLoginBtn").addEventListener("click", async () => {
-    try {
-        const response = await fetch("/api/demo-login", { method: "POST" });
-        const data = await response.json();
-        if (!response.ok) throw new Error(data.error || "Demo login failed");
-        completeLogin(data.student.id, data.student.name, data.student.schoolname, data.token);
-    } catch (error) {
-        alert("Demo login is unavailable while the application server is offline.");
-    }
-});
 
 document.getElementById("loginBtn").addEventListener("click", async () => {
     const username = document.getElementById("username").value.trim();

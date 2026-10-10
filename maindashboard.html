@@ -116,14 +116,6 @@ html, body {
 .carousel-dots div { width: 8px; height: 8px; background: #334155; border-radius: 50%; cursor: pointer; }
 .carousel-dots .active { background: var(--accent1); width: 24px; border-radius: 4px; }
 
-/* Floating UI */
-.top-right-chips { position: fixed; right: 30px; top: 100px; display: flex; flex-direction: column; gap: 12px; z-index: 90; }
-.top-chip { 
-  background: rgba(15, 23, 42, 0.9); padding: 10px 18px; border-radius: 50px; 
-  border: 1px solid var(--glass-border); backdrop-filter: blur(10px);
-  display: flex; align-items: center; gap: 10px; font-weight: 700;
-}
-
 /* Animations */
 .reveal { opacity: 0; transform: translateY(30px); transition: 0.8s var(--ease); }
 .reveal.show { opacity: 1; transform: translateY(0); }
@@ -152,10 +144,12 @@ html, body {
       </div>
     </div>
     <nav class="nav">
+      <button onclick="gotochatbox()" style="background: linear-gradient(135deg, rgba(0,216,255,0.25), rgba(255,57,198,0.25)); border: 1px solid rgba(0,216,255,0.6); color: #00d8ff; font-weight: 700;">🤖 AI Tutor</button>
       <button onclick="gotogames()">Games</button>
       <button onclick="gotoexam()">Exams</button>
       <button onclick="settings()">Settings</button>
       <button onclick="visitprofile()">Profile</button>
+      <button onclick="studentLogout()" style="background: rgba(239,68,68,0.18); border: 1px solid rgba(239,68,68,0.45); color: #fca5a5; font-weight: 600;">Logout</button>
     </nav>
   </header>
 
@@ -166,9 +160,10 @@ html, body {
   <h2>Level Up Your Education.</h2>
   <p>Transform your syllabus into an epic quest. Master subjects, earn XP, and unlock real-world knowledge through play.</p>
   
-  <div style="display: flex; gap: 15px;">
+  <div style="display: flex; gap: 15px; flex-wrap: wrap;">
     <button class="btn btn-primary" id="startBtn" onclick="gotoexam()">Start Exam</button>
     <button class="btn btn-outline" onclick="gotogames()">Browse Games</button>
+    <button class="btn btn-outline" onclick="gotochatbox()" style="border-color: #00d8ff; color: #00d8ff;">🤖 Ask AI Tutor</button>
   </div>
 </div>
     <div style="position: relative; display: flex; justify-content: center;">
@@ -371,8 +366,6 @@ html, body {
   </footer>
 </div>
 
-<div class="top-right-chips" id="topChips"></div>
-
 <div id="particlesRoot"></div>
 
 <script>
@@ -401,6 +394,15 @@ html, body {
 
 function gotochatbox(){
     location.href="chatbox.html";
+}
+function studentLogout(){
+    if(confirm('Are you sure you want to log out of your student account?')){
+        sessionStorage.clear();
+        localStorage.removeItem('student_id');
+        localStorage.removeItem('student_name');
+        localStorage.removeItem('algoplay_student_token');
+        location.href = 'Loginpage.html';
+    }
 }
 // 3. Run this function as soon as the page loads
 window.addEventListener('DOMContentLoaded', loadUserGreeting);
@@ -442,15 +444,6 @@ function renderHeader() {
   const level = Math.floor(store.profile.xp / 500) + 1;
   const perc = (xpInLevel / 500) * 100;
 
-  $('#topChips').innerHTML = `
-    <div class="top-chip">🔥 ${store.streak.count} Day Streak</div>
-    <div class="top-chip">💰 ${store.profile.coins} Coins</div>
-    <div class="top-chip" style="flex-direction:column; align-items:flex-end;">
-      <div style="font-size:10px">LVL ${level}</div>
-      <div class="level-container" style="width:80px; height:4px; margin:0"><div class="level-bar" style="width:${perc}%"></div></div>
-    </div>
-  `;
-  
   $('#heroLevelText').innerText = `Level ${level} Explorer`;
   $('#heroXPBar').style.width = perc + '%';
 }

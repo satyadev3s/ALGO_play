@@ -1,322 +1,283 @@
-# 🎮 AlgoPlay (VidyaVerse) — Gamified STEM & Coding Learning Platform
+# 🚀 AlgoPlay — Gamified STEM & AI Educational Platform
 
-[![Node.js](https://img.shields.io/badge/Backend-Node.js%20v18%2B-green.svg)](https://nodejs.org/)
-[![Express](https://img.shields.io/badge/Framework-Express%20v4-lightgrey.svg)](https://expressjs.com/)
-[![Database](https://img.shields.io/badge/Database-MongoDB%20%7C%20Mongoose-brightgreen.svg)](https://www.mongodb.com/)
-[![Frontend](https://img.shields.io/badge/Frontend-HTML5%20%7C%20CSS3%20%7C%20Vanilla%20JS-blue.svg)](#)
-[![Typography](https://img.shields.io/badge/UI-Poppins%20%7C%20Glassmorphism-9cf.svg)](#)
-[![License](https://img.shields.io/badge/License-MIT-orange.svg)](#)
+![AlgoPlay Banner](https://img.shields.io/badge/AlgoPlay-v1.0.0-00d8ff?style=for-the-badge&logo=electron&logoColor=white)
+![Node.js](https://img.shields.io/badge/Node.js-v18+-339933?style=for-the-badge&logo=nodedotjs&logoColor=white)
+![Express.js](https://img.shields.io/badge/Express.js-v4.21.2-000000?style=for-the-badge&logo=express&logoColor=white)
+![MongoDB](https://img.shields.io/badge/MongoDB-v6+-47A248?style=for-the-badge&logo=mongodb&logoColor=white)
+![Google Gemini](https://img.shields.io/badge/Google_Gemini-3.5_Flash_Lite-8E75C2?style=for-the-badge&logo=google&logoColor=white)
+![Multilingual](https://img.shields.io/badge/Languages-6_Indian_Languages-ff007f?style=for-the-badge)
 
-**AlgoPlay (VidyaVerse)** is an interactive, gamified educational platform designed for school students and educators. The platform transforms school curricula (Mathematics, Science, Technology, and Language) into bite-sized missions, visual problem-solving games, real-time misconception diagnosis, and streamlined classroom tools for teachers.
-
----
-
-## 📑 Table of Contents
-- [✨ Key Features Overview](#-key-features-overview)
-- [🎓 Student Experience](#-student-experience)
-- [👩‍🏫 Educator Hub & Classroom Tools](#-educator-hub--classroom-tools)
-- [🧠 Pedagogical Loop & Misconception Engine](#-pedagogical-loop--misconception-engine)
-- [🎮 Arcade Mini-Games Universe](#-arcade-mini-games-universe)
-- [🗄️ Backend Architecture & Database Schemas](#️-backend-architecture--database-schemas)
-- [📡 REST API Reference](#-rest-api-reference)
-- [📁 Project Directory Structure](#-project-directory-structure)
-- [🚀 Quick Start & Installation](#-quick-start--installation)
-- [🔒 Child Safety & Privacy Disclaimers](#-child-safety--privacy-disclaimers)
+**AlgoPlay** is an interactive, gamified learning platform tailored for grades 6–10 and competitive STEM foundation. It transforms traditional school curriculums into epic quests featuring **XP systems, interactive games, real-time visual simulations, a Google Gemini-powered AI Study Tutor, and universal multilingual support across 6 Indian languages**.
 
 ---
 
-## ✨ Key Features Overview
-
-### 1. Unified Cyber-Glassmorphic UI
-- **Unified Poppins Typography:** Consistent Google Font `Poppins` across all pages.
-- **Deep Space & Radiant Gradients:** Translucent glassmorphism (`backdrop-filter: blur(16px)`), cyan and violet neon glows, and responsive cards.
-- **Identical Login & Signup Portals:** [`Loginpage.html`](Loginpage.html) and [`signuppage.html`](signuppage.html) feature a 950px dual-panel card with matching aesthetic tags and live alert cards.
-- **Shared accessibility foundation:** Every page loads [`multilingual/app-theme.css`](multilingual/app-theme.css) for consistent design tokens, visible keyboard focus, mobile tap targets, and reduced-motion support while preserving each page's existing layout.
-
-### 2. High-Performance Full-Stack Backend
-- **Node.js & Express API:** Production-grade REST backend running on port `5000`.
-- **MongoDB Persistence:** Mongoose models for students, educators, exams, questions, homework assignments, and learning metrics.
-- **Multipart Uploads:** Multer file storage handling teacher worksheets, PDFs, Word docs, images, and MP4 videos with immediate student distribution.
-- **Zero-Downtime Offline Fallback:** Resilient in-memory fallback store ensures that pages remain functional even when MongoDB is offline.
+## 📌 Table of Contents
+- [✨ Key Features](#-key-features)
+- [🛠️ Technologies Used](#️-technologies-used)
+- [📦 Packages & Dependencies](#-packages--dependencies)
+- [📂 Project Directory Structure](#-project-directory-structure)
+- [⚙️ Prerequisites & Installation](#️-prerequisites--installation)
+- [🚀 How to Run the Website](#-how-to-run-the-website)
+- [🍃 MongoDB Compass Connection](#-mongodb-compass-connection)
+- [🌐 Multilingual System Architecture](#-multilingual-system-architecture)
+- [🤖 AlgoBuddy AI Tutor](#-algobuddy-ai-tutor)
+- [📡 API Endpoints Reference](#-api-endpoints-reference)
 
 ---
 
-## 🎓 Student Experience
+## ✨ Key Features
 
-### 🏠 Starting Landing Page (`index.html`)
-- Animated twinkling starfield canvas background.
-- Live animated counters: **2,500+ Active Students**, **15,200+ Missions Solved**, **98% Concept Mastery**, and **50+ Labs**.
-- Direct launchers into Subject Tracks (Mathematics, Science, Technology, Biology, Language, and STEM Video Arena).
-- Quick dual-path action buttons for Students and Educators.
+1. **🤖 Live Gemini AI Study Tutor ("AlgoBuddy")**:
+   - Direct integration with Google's latest **Gemini 3.5 Flash Lite** model via the official `@google/genai` SDK.
+   - Answers questions across **Computer Science, AIML, Mathematics, Science, and Languages**.
+   - Built-in educational fallback engine ensuring students always receive answers even during offline or connectivity issues.
+   - Dual-input support: dedicated sidebar composer + persistent bottom chat bar with real-time markdown formatting and KaTeX math notation.
 
-### 🔐 Student Authentication (`Loginpage.html` & `signuppage.html`)
-- Clean input fields with glowing cyan outline accents (`#7dd3fc`).
-- **Live Teacher Resource Alert:** A dedicated `📬 Teacher Resource Assigned` card automatically alerts students when a teacher uploads new homework, with an instant **`👁️ Open File Now`** button.
-- **Quick Demo Login:** One-click instant login button for frictionless testing and demonstration.
+2. **🏪 Smart Bazaar — Fractions Quest**:
+   - An interactive, gamified simulation of an Indian marketplace where students learn unlike fractions through visual slice trading.
+   - Real-time diagnostic quiz, step-by-step visual hints, and XP progression.
 
-### 🎒 Student Dashboard (`maindashboard.html`)
-- **Class Assignments Catalog:** Displays homework assigned by teachers, complete with subject tags, teacher name, date, and **`👁️ Open File`** and **`⬇️ Download`** buttons.
-- **Quests & Track Navigation:** Direct access to daily missions, level hubs, arcade games, and AI tutor.
+3. **🎮 9 Integrated Gamified STEM Missions**:
+   - **Mario Math Runner**: Speed arcade math challenges.
+   - **Continuous Chase Quiz**: Speed challenge testing logic and reaction time.
+   - **SUTRA Math Cannon**: Physics-based bubble shooter math game.
+   - **Physics Engine Lab**: Interactive gravity, motion, and collision simulator.
+   - **Chemistry Lab Reactions**: Virtual atom, molecule, and chemical bonding workbench.
+   - **Anatomy Pin Explorer**: Step-by-step human biology and organ system diagnostics.
+   - **Subject Arcade Hub & Video Arena**: Interactive video quests and arcade games.
+   - **WEKA Data Mining Lab**: Virtual machine learning lab (Decision Trees, Naive Bayes, Neural Networks, Clustering).
 
-### 🤖 AI Study Tutor (`chatbox.html`)
-- Socratic learning assistant providing guided hints without giving away final answers.
-- **Bilingual Assistance:** Supports English and regional languages (Telugu) for inclusive learning.
+4. **🌐 Deep Multilingual Engine (6 Languages)**:
+   - Real-time page translation into **తెలుగు (Telugu)**, **हिन्दी (Hindi)**, **தமிழ் (Tamil)**, **ଓଡ଼ిଆ (Odia)**, **മലയാളം (Malayalam)**, and **English**.
+   - Persistent across all 80+ platform views via `localStorage` and `sessionStorage`.
+   - Dynamic text-node traversal engine with emoji isolation and regex pattern matching for dynamic numbers (Levels, XP counters, Dates, Author tags).
 
-### 🤖 AlgoBuddy AI Tutor (student dashboard)
-- The active student dashboard (`maindashboard.html`) includes a floating AlgoBuddy chat assistant.
-- Gemini requests go through the server-side `POST /api/chat` endpoint; the API key is never sent to the browser.
-- Student sessions use short-lived signed tokens, bounded history, message validation, and per-student rate limiting.
-- Conversations are kept in the browser session only and are isolated by student ID; they are not stored in MongoDB.
+5. **🔊 Procedural 8-Bit Web Audio Synthesizer**:
+   - Built-in sound engine using the browser's native **Web Audio API** (`audio-manager.js`).
+   - Procedurally synthesizes retro arcade jumps, coin pickups, clicks, and celebratory fanfares with zero external audio assets.
 
----
-
-## 👩‍🏫 Educator Hub & Classroom Tools
-
-### 📊 Modernized Teacher Dashboard (`teacherdash.html`)
-Redesigned with a 3-tab layout:
-1. **Class Overview & Roster:** View enrolled students, individual grades, XP, and status.
-2. **Smart Bazaar & Misconceptions:** Visual breakdown of mathematical error patterns and targeted intervention priorities.
-3. **Curriculum & Question Inspector:** Full visibility into quiz questions, correct answers, and distractors.
-- **Executive KPIs:** 4 high-level stat cards tracking Total Students, Active Learners, Average Learning Gain, and Priority Remediation.
-- **Export Capabilities:** One-click CSV export (`algoplay_fraction_analytics.csv`) for school district reporting.
-
-### ✏️ Dynamic Batch Exam Builder (`giveexam.html`)
-- **Question Count Selector:** Choose **3**, **5**, **10**, or enter a **custom count** (e.g., 7 or 15 questions).
-- **Batch Card Generator:** Dynamically creates editable cards with question text, options A, B, C, D, and a 1-click radio selector for the correct answer.
-- **Single-Click Publish:** Submits the exam and its entire question bank to MongoDB simultaneously.
-
-### 📂 Assignment & Resource Studio (`resources.html`)
-- **Drag-and-Drop Dropzone:** Easily upload homework files (PDF, DOC, DOCX, JPG, PNG, or MP4 up to 15MB). MP4 resources include an inline player on student dashboards.
-- **Automated Student Linkage:** Files are stored in `/uploads` and recorded in MongoDB.
-- **Instant Student Redirect:** Teacher is automatically redirected to the student view with options to immediately verify and open the file.
+6. **🧑‍🎓 Student & 👩‍🏫 Teacher Portals**:
+   - **Students**: Profile customization, daily quests, exam center, assignment viewer, and global leaderboards.
+   - **Teachers**: Assignment distribution (PDF, DOCX, images, MP4 videos), exam creation, student progress metrics, and misconception diagnostics.
 
 ---
 
-## 🧠 Pedagogical Loop & Misconception Engine
+## 🛠️ Technologies Used
 
-AlgoPlay implements a complete, closed-loop adaptive learning cycle:
-```
-DIAGNOSE ➔ IDENTIFY MISCONCEPTION ➔ TARGETED VISUAL HINT ➔ PRACTICE ➔ VERIFY INDEPENDENT MASTERY ➔ MEASURE LEARNING GAIN
-```
+### Frontend
+| Technology | Description |
+| :--- | :--- |
+| **HTML5 & CSS3** | Semantic markup with custom Glassmorphism and Neon Cyberpunk themes (`var(--bg)`, `--accent`, backdrop filters). |
+| **Vanilla JavaScript (ES6+)** | Lightweight, high-performance client scripting with zero frontend framework overhead. |
+| **HTML5 Canvas API** | Particle animations, interactive quantum backgrounds, and custom 2D game rendering loops. |
+| **Web Audio API** | Real-time procedural audio synthesis generating retro 8-bit sound effects. |
+| **MutationObserver API** | Watches the DOM in real-time to translate dynamically fetched content (e.g. assignments, scores). |
+| **TreeWalker API** | Deep `NodeFilter.SHOW_TEXT` text-node traversal for universal language localization. |
 
-### The 3 Progressive Missions (`fraction_mission.html`)
-1. **Diagnostic Pre-Test (Stage 0):** Baseline assessment establishing initial competency.
-2. **Mission 1 — Understand Fractions:** Interactive CSS/SVG visual fraction strips (**Market Bar Scale**) comparing $1/2$, $1/4$, $2/4$, $1/3$, and $1/6$.
-3. **Mission 2 — Unlike Denominators Addition:** 4-step guided problem solving (Find LCM $\rightarrow$ Scale numerators $\rightarrow$ Add $\rightarrow$ Simplify) with misconception alerts.
-4. **Mission 3 — Smart Bazaar Word Problems:** Authentic Indian marketplace scenarios:
-   - *Farmer Suresh's Sabzi Basket:* Combining $1/2$ kg green chillies + $3/8$ kg ginger.
-   - *Halwai Ramu's Mithai Kitchen:* Mixing $2/3$ cup rose water + $1/4$ cup saffron syrup.
-   - *Grain Merchant's Wholesale Mandi:* Calculating total sacks of sona masoori rice ($3/10 + 2/5$).
-5. **Post-Test & Learning Gain Measurement (Stage 4):**
-   $$\text{Learning Gain} = \text{Post-Test Accuracy} - \text{Pre-Test Accuracy}$$
+### Backend
+| Technology | Description |
+| :--- | :--- |
+| **Node.js (v18+)** | Asynchronous, event-driven JavaScript server runtime. |
+| **Express.js (v4.21.2)** | Minimalist web application framework providing RESTful API routing, middleware, and static asset delivery. |
+| **MongoDB & Mongoose (v8.9.5)** | NoSQL document database with strict schema modeling, automatic indexing, and dual-mode in-memory resilience. |
+| **Crypto (Node.js Core)** | Cryptographic HMAC-SHA256 signature generation for stateless student & teacher bearer tokens. |
 
-### Deterministic Misconception Rules (`fractionEngine.js`)
+### Artificial Intelligence & Machine Learning
+| Technology | Description |
+| :--- | :--- |
+| **Google Gen AI SDK** | `@google/genai` (v2.28.0) official SDK connecting to Google Gemini. |
+| **Gemini 3.5 Flash Lite** | High-throughput, low-latency reasoning model powering the AlgoBuddy AI Study Tutor. |
+| **WEKA Data Mining Lab** | Educational data science simulation covering Naive Bayes, Decision Trees, J48, and K-Means. |
 
-| Detected Misconception | Trigger Rule | Diagnostic Feedback & Visual Hint |
+---
+
+## 📦 Packages & Dependencies
+
+Below is the list of all production npm packages defined in `package.json` and their role in the platform:
+
+| Package | Version | Purpose & Usage |
 | :--- | :--- | :--- |
-| **Direct Numerator/Denominator Addition** | Student selects $(n_1+n_2)/(d_1+d_2)$ (e.g. $1/2 + 1/4 = 2/6$) | Explains that denominators represent *slice size*. Shows visual watermelon slices. |
-| **LCM Scaling Omission** | Student adjusts denominators but forgets numerators | Visualizes fraction scaling: $\frac{1 \times 2}{2 \times 2} = \frac{2}{4}$. |
-| **Cross-Multiplication Confusion** | Student multiplies denominators without adjusting numerators | Guides student through identifying the Least Common Denominator first. |
-| **Operation Sign Error** | Student subtracts numerators instead of adding | Clarifies word problem intent (combining quantities vs finding differences). |
+| **`@google/genai`** | `^2.28.0` | Official Google Gen AI SDK used in `server.js` to communicate with the Gemini API (`gemini-3.5-flash-lite`). Powers the conversational AI tutor for real-time educational Q&A. |
+| **`express`** | `^4.21.2` | Core backend framework handling HTTP routing, REST API endpoints (`/api/chat`, `/api/auth/*`, `/assignments`, `/exams`), JSON request parsing, and serving static HTML/CSS/JS frontend files. |
+| **`mongoose`** | `^8.9.5` | Object Data Modeling (ODM) library for MongoDB. Defines schemas and validates data for `Students`, `Teachers`, `Exams`, `Questions`, `ExamAttempts`, `Assignments`, and `LearningMetrics`. |
+| **`dotenv`** | `^16.4.7` | Loads sensitive configuration (such as `GEMINI_API_KEY`, `MONGODB_URI`, `PORT`, and `AUTH_SECRET`) from the root `.env` file into `process.env`. |
+| **`cors`** | `^2.8.5` | Cross-Origin Resource Sharing middleware enabling secure cross-origin requests from web clients and external tools. |
+| **`multer`** | `^1.4.5-lts.1` | Multipart/form-data upload middleware for teachers to upload assignment worksheets and videos (`.pdf`, `.docx`, `.png`, `.jpg`, `.mp4`) to the `uploads/` directory. |
+| **`bcryptjs`** | `^2.4.3` | Secure password hashing algorithm for teacher and student authentication with salting rounds. |
 
 ---
 
-## 🎮 Arcade Mini-Games Universe
-
-AlgoPlay features 8 interactive STEM mini-games accessible via [`gameboard.html`](gameboard.html):
-
-1. **Smart Bazaar Market Quest (`fraction_mission.html`):** Visual fraction bars and marketplace trading simulator.
-2. **Mario Math Runner (`game2.html`):** Rapid-fire arithmetic platformer with obstacles.
-3. **Continuous Chase Quiz (`newgame.html`):** Fast-paced runner quiz with survival mechanics.
-4. **Physics Engine Lab (`phyg1.html`):** Simulator for gravitation, velocity, momentum, and sound waves.
-5. **Chemistry Reaction Lab (`cheg1.html`):** Interactive atom builder and chemical reaction equations.
-6. **Anatomy Pin Explorer (`sciencegame.html`):** Visual organ pin-drop exploration.
-7. **Interactive Video Arena (`videogame1.html`):** Video challenges that pause dynamically for checkpoint quiz questions.
-8. **Cosmic Science Arena (`sciencelevel.html`):** Space-themed multi-disciplinary science challenge.
-
----
-
-## 🗄️ Backend Architecture & Database Schemas
-
-The backend runs on **Express.js** and connects to **MongoDB** via Mongoose.
-
-### Mongoose Schemas (`/models`)
-
-- **Student (`models/Student.js`)**
-  ```javascript
-  {
-    student_id: String,
-    name: String,
-    school_name: String,
-    age: Number,
-    grade: String,
-    password: String, // Plain or hashed
-    score: Number,
-    xp: Number,
-    rank: Number
-  }
-  ```
-
-- **Teacher (`models/Teacher.js`)**
-  ```javascript
-  {
-    name: String,
-    email: String,
-    school_name: String,
-    subject: String,
-    password: String
-  }
-  ```
-
-- **Exam (`models/Exam.js`) & Question (`models/Question.js`)**
-  ```javascript
-  // Exam: { title, subject, duration, is_active }
-  // Question: { exam_id, question_text, option_a, option_b, option_c, option_d, correct_option }
-  ```
-
-- **Assignment (`models/Assignment.js`)**
-  ```javascript
-  {
-    title: String,
-    subject: String,
-    filename: String,
-    original_name: String,
-    teacher_name: String,
-    timestamp: Date
-  }
-  ```
-
-- **ExamAttempt (`models/ExamAttempt.js`) & LearningMetric (`models/LearningMetric.js`)**
-  Tracks exam scores, timestamps, pre/post-test diagnostic scores, and detected error patterns.
-
----
-
-## 📡 REST API Reference
-
-| Method | Endpoint | Description |
-| :--- | :--- | :--- |
-| `GET` | `/api/health` | Backend status & MongoDB connection state |
-| `POST` | `/Signup` | Register a new student |
-| `POST` | `/Login` | Authenticate student |
-| `POST` | `/TeacherSignup` | Register a new educator |
-| `POST` | `/TeacherLogin` | Authenticate educator |
-| `GET` | `/teacher/dashboard` | Fetch class roster, learner status & KPI stats |
-| `POST` | `/exam/create` | Create a new test |
-| `GET` | `/exam/:exam_id/questions` | Fetch questions for an exam |
-| `POST` | `/exam/:exam_id/submit` | Grade exam answers & reward XP |
-| `POST` | `/assign_work` | Upload file (`multipart/form-data`) & assign homework |
-| `GET` | `/assignments` | List all class assignments |
-| `POST` | `/levelupdate` | Update student current game level |
-| `POST` | `/scoreupdate` | Increment student score & XP |
-| `GET` | `/leaderboard` | Retrieve student rankings |
-| `GET` | `/api/analytics/fraction` | Smart Bazaar class diagnostic metrics |
-
----
-
-## 📁 Project Directory Structure
+## 📂 Project Directory Structure
 
 ```text
-vision-999/
-│
-├── server.js                    # Express REST API & MongoDB connection
-├── models/                      # Mongoose Schema Definitions
-│   ├── Student.js
-│   ├── Teacher.js
-│   ├── Exam.js
-│   ├── Question.js
-│   ├── ExamAttempt.js
-│   ├── Assignment.js
-│   └── LearningMetric.js
-├── .env                         # Server environment configuration
-├── .env.example                 # Example configuration template
-├── package.json                 # Project dependencies & scripts
-├── start.bat                    # One-click Windows startup script
-├── uploads/                     # Uploaded documents and MP4 videos
-├── storageService.js            # Persistence & analytics synchronization
-├── fractionEngine.js            # Misconception diagnosis engine
-│
-├── 🌐 Public & Student Portals
-│   ├── index.html               # Main Landing Page (Features, Tracks, Stats)
-│   ├── Loginpage.html           # Student Login with Real-Time Assignment Alert
-│   ├── signuppage.html          # Student Registration
-│   ├── maindashboard.html       # Primary Student Dashboard & Assignment Viewer
-│   ├── fraction_mission.html    # Smart Bazaar Fractions Quest (Missions 1-3)
-│   ├── gameboard.html           # 8 Arcade Mini-Games Hub
-│   ├── chatbox.html             # AI Socratic Study Tutor (English & Telugu)
-│   ├── takeexam.html            # Active Exam Testing Interface
-│   ├── leaderboard.html         # Class Leaderboard
-│   └── userprofile.html         # Student Profile & Settings
-│
-├── 🎮 STEM Mini-Games
-│   ├── game2.html               # Mario Math Runner
-│   ├── newgame.html             # Continuous Runner Quiz
-│   ├── phyg1.html               # Interactive Physics Lab
-│   ├── cheg1.html               # Chemistry Reactions & Atom Lab
-│   ├── sciencegame.html         # Human Anatomy Pin Explorer
-│   ├── videogame1.html          # STEM Video Arena
-│   └── sciencelevel.html        # Cosmic Starfield Science Arena
-│
-└── 👩‍🏫 Educator Tools
-    ├── teacherdash.html         # 3-Tab Teacher Dashboard (Roster, Misconceptions, Inspector)
-    ├── giveexam.html            # Batch Exam Builder with 3/5/10 Question Selector
-    ├── resources.html           # Assignment Studio & Document Dropzone
-    ├── teacherlogin.html        # Teacher Login Portal
-    └── teachersignup.html       # Teacher Registration Portal
+Algo_play/
+└── Code_0apex/
+    ├── models/                      # Mongoose Schema Definitions
+    │   ├── Assignment.js            # Teacher class assignments
+    │   ├── Exam.js                  # Exam definitions & subject metadata
+    │   ├── ExamAttempt.js           # Student test submission records
+    │   ├── LearningMetric.js        # Analytics & misconception metrics
+    │   ├── Question.js              # MCQ question banks
+    │   ├── Student.js               # Student accounts & profiles
+    │   └── Teacher.js               # Educator accounts & credentials
+    ├── multilingual/                # Universal Localization System
+    │   ├── site-i18n.js             # Universal deep text traversal & sync engine
+    │   ├── site-i18n.css            # Floating language selector widget style
+    │   ├── landing-i18n.js          # Landing page language coordinator
+    │   ├── en.json                  # English dictionary
+    │   ├── te.json                  # Telugu dictionary (తెలుగు)
+    │   ├── hi.json                  # Hindi dictionary (हिन्दी)
+    │   ├── ta.json                  # Tamil dictionary (தமிழ்)
+    │   ├── or.json                  # Odia dictionary (ଓଡ଼ିଆ)
+    │   └── ml.json                  # Malayalam dictionary (മലയാളം)
+    ├── uploads/                     # Teacher-uploaded worksheets & videos
+    ├── .env                         # Environment variables (API keys, ports)
+    ├── audio-manager.js             # Procedural Web Audio API sound synthesizer
+    ├── chatbox.html & chatbox.js    # AI Study Tutor Interface
+    ├── fraction_mission.html        # Smart Bazaar Fractions Interactive Mission
+    ├── gameboard.html               # Subject Arcade Hub
+    ├── index.html                   # Platform Landing Page
+    ├── Loginpage.html               # Student Login & Registration
+    ├── maindashboard.html           # Main Student Gamified Dashboard
+    ├── package.json                 # Project dependencies & scripts
+    ├── server.js                    # Express + MongoDB + Gemini Backend Server
+    ├── student_portal.html          # Student Exam & Diagnostic Portal
+    ├── teacherdash.html             # Teacher Management Dashboard
+    └── teacherlogin.html            # Educator Login & Registration
 ```
 
 ---
 
-## 🚀 Quick Start & Installation
+## ⚙️ Prerequisites & Installation
 
-### Prerequisites
-- [Node.js](https://nodejs.org/) (v16 or higher)
-- [MongoDB](https://www.mongodb.com/try/download/community) installed and running locally on `mongodb://127.0.0.1:27017/algoplay` (or a remote MongoDB Atlas URI)
+### 1. Prerequisites
+- **Node.js**: `v18.0.0` or higher installed ([Download Node.js](https://nodejs.org/)).
+- **MongoDB**: Installed locally ([Download MongoDB Community Server](https://www.mongodb.com/try/download/community)) or a MongoDB Atlas URI.
+- **MongoDB Compass**: For database visualization ([Download Compass](https://www.mongodb.com/products/tools/compass)).
 
-### 1. Clone Repository
-```bash
-git clone https://github.com/satyadev3s/vidya_verse.git
-cd vidya_verse
+### 2. Clone / Open Project
+```powershell
+cd c:\Users\durga\Videos\Captures\gym\src\Algo_play\Code_0apex
 ```
-
-### 2. Configure Environment (`.env`)
-Create a `.env` file in the root directory:
-```env
-PORT=5000
-MONGODB_URI=mongodb://127.0.0.1:27017/algoplay
-UPLOAD_DIR=uploads
-NODE_ENV=development
-AUTH_SECRET=use-a-long-random-secret
-GEMINI_API_KEY=your-new-gemini-api-key
-GEMINI_MODEL=gemini-2.5-flash
-```
-
-Never commit `.env` or expose `GEMINI_API_KEY` in frontend files. The key previously pasted into chat should be revoked and replaced because it must be treated as compromised.
 
 ### 3. Install Dependencies
-```bash
+```powershell
 npm install
 ```
 
-### 4. Start the Application
-```bash
-npm start
+### 4. Configure Environment Variables (`.env`)
+Create or edit the `.env` file in `Code_0apex/`:
+```env
+PORT=5000
+MONGODB_URI=mongodb://127.0.0.1:27017/algoplay
+GEMINI_API_KEY=your_google_gemini_api_key_here
+GEMINI_MODEL=gemini-3.5-flash-lite
+AUTH_SECRET=algoplay_secure_jwt_token_secret_key_2026
 ```
-
-Alternatively, on Windows, double-click **`start.bat`**.
-
-- **Open Website:** [http://localhost:5000/index.html](http://localhost:5000/index.html)
-- **Teacher Assignment Studio:** [http://localhost:5000/resources.html](http://localhost:5000/resources.html)
-- **Student Login:** [http://localhost:5000/Loginpage.html](http://localhost:5000/Loginpage.html)
-- **Teacher Dashboard:** [http://localhost:5000/teacherdash.html](http://localhost:5000/teacherdash.html)
-
-### Render and MongoDB Atlas
-
-The repository includes [`render.yaml`](render.yaml), which uses `npm ci`, starts `server.js` through `npm start`, and checks `/api/health`. In Render, create a Node web service from this repository and set `MONGODB_URI` to a MongoDB Atlas connection string and `GEMINI_API_KEY` to a newly generated key. Keep the generated `AUTH_SECRET` private. In MongoDB Atlas, create a database user with a strong password and add only the Render outbound access permitted by your deployment policy (a temporary `0.0.0.0/0` rule is not recommended for production). Verify the deployed `/api/health` response before testing student login and AlgoBuddy.
 
 ---
 
-## 🔒 Child Safety & Privacy Disclaimers
+## 🚀 How to Run the Website
 
-- **Educational Purpose:** The platform is engineered to enhance STEM comprehension through playful learning mechanics and diagnostic feedback.
-- **Local & Demo Authentication:** The `🚀 Quick Demo Login` feature uses local sessions to simplify review and demonstration. For enterprise deployments, integrate bcrypt password hashing and HTTP-only session cookies.
-- **Data Privacy:** Local storage stores temporary client state. Production deployments should enforce school-specific multi-tenancy and data isolation.
+### Step 1: Ensure MongoDB is Running
+Make sure your local MongoDB service is running:
+```powershell
+net start MongoDB
+```
+
+### Step 2: Start the AlgoPlay Backend
+From the `Code_0apex` folder, run:
+```powershell
+node server.js
+```
+*(Or run `npm start`)*
+
+You will see:
+```text
+======================================================
+  🚀 AlgoPlay Node & Express + MongoDB Backend Running!
+  📡 API Server: http://localhost:5000
+  📂 Static Files Served on Port 5000
+======================================================
+✅ Connected to MongoDB successfully at: mongodb://127.0.0.1:27017/algoplay
+```
+
+### Step 3: Access the Platform in Your Browser
+Open your browser and navigate to:
+* 🌐 **Landing Page**: [http://localhost:5000](http://localhost:5000)
+* 🎮 **Student Dashboard**: [http://localhost:5000/maindashboard.html](http://localhost:5000/maindashboard.html)
+* 🤖 **AI Study Chatbot**: [http://localhost:5000/chatbox.html](http://localhost:5000/chatbox.html)
+* 🏪 **Smart Bazaar Fractions Quest**: [http://localhost:5000/fraction_mission.html](http://localhost:5000/fraction_mission.html)
+* 🧑‍🎓 **Student Login**: [http://localhost:5000/Loginpage.html](http://localhost:5000/Loginpage.html)
+* 👩‍🏫 **Teacher Dashboard**: [http://localhost:5000/teacherdash.html](http://localhost:5000/teacherdash.html)
+
+---
+
+## 🍃 MongoDB Compass Connection
+
+To inspect or manage users, assignments, and questions:
+1. Open **MongoDB Compass**.
+2. In the **New Connection** field, enter:
+   ```text
+   mongodb://localhost:27017
+   ```
+3. Click **Connect**.
+4. In the database list on the left, select **`algoplay`**.
+5. You will see all 7 platform collections:
+   - `students`: Registered student profiles, grade levels, and passwords.
+   - `teachers`: Verified educator accounts.
+   - `assignments`: Teacher assignments with download URLs and file metadata.
+   - `exams`: Active quizzes and test definitions.
+   - `questions`: Question banks with answer options and correct choices.
+   - `examattempts`: Student exam submissions, scores, and timestamps.
+   - `learningmetrics`: Misconception logs and concept mastery scores.
+
+---
+
+## 🌐 Multilingual System Architecture
+
+AlgoPlay includes a proprietary client-side internationalization system (`site-i18n.js`):
+* **Persistent Across All Pages**: The selected language is stored in `localStorage` under `algoplay_lang`. Navigating across any page maintains the chosen language seamlessly.
+* **Affix & Emoji Peeling**: Separates leading/trailing icons, emojis, bullets, and punctuation (e.g. `👁️ Open File`, `Start Quest →`, `Play Now 🎮`), translates the substantive text, and restores original styling.
+* **Dynamic Pattern Matchers**: Uses regex rules for dynamic content like `Level 3 Explorer`, `120 / 500 XP to Level 2`, and `By Prof. Sharma`.
+* **Zero Flicker**: Employs an active `MutationObserver` to re-translate any dynamically loaded cards or asynchronous assignment lists immediately.
+
+---
+
+## 🤖 AlgoBuddy AI Tutor
+
+The AI chatbot connects directly to Google Gemini via `POST /api/chat`:
+* **Model**: `gemini-3.5-flash-lite` (or `gemini-flash-latest`).
+* **Subjects**: Computer Science, AIML, Cyber Security, Mathematics (Fractions, Algebra, Geometry), Science (Physics, Chemistry, Biology), and Languages.
+* **LaTeX Cleaners**: Cleans raw LaTeX equations into standard readable unicode (e.g., `1/2 + 1/4 = 3/4`).
+* **Resilient**: If the internet or API quota is unavailable, the backend gracefully switches to the built-in educational tutor engine with zero downtime.
+
+---
+
+## 📡 API Endpoints Reference
+
+### 🔐 Authentication
+* `POST /api/auth/register` — Register a new student.
+* `POST /api/auth/login` — Student login (returns HMAC token).
+* `POST /api/teacher/register` — Register a new teacher.
+* `POST /api/teacher/login` — Teacher login.
+
+### 🤖 AI Study Assistant
+* `POST /api/chat` — Send a query to Gemini AlgoBuddy (supports chat history, rate-limited to 12 req/min).
+
+### 📚 Assignments
+* `GET /assignments` — Retrieve all active teacher assignments.
+* `POST /upload-assignment` — Upload assignment file (PDF, DOCX, video) with subject & grade.
+* `DELETE /assignments/:id` — Delete an assignment.
+
+### 📝 Exams & Metrics
+* `GET /api/exams` — List all active quizzes and tests.
+* `GET /api/exams/:id/questions` — Fetch exam questions.
+* `POST /api/exams/attempt` — Submit completed exam attempt and record score.
+* `POST /api/metrics` — Log student concept mastery and misconception diagnostics.
+
+---
+
+## 📜 License & Copyright
+© 2025–2026 **AlgoPlay Education**. Safe. Secure. Fun.
+All rights reserved.

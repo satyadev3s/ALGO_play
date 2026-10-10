@@ -260,8 +260,9 @@ label{
 
 <div class="center-wrap">
   <div class="card">
-    <div style="display:flex;justify-content:flex-start;margin-bottom:10px;">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
       <a href="maindashboard.html" style="color:#60a5fa;text-decoration:none;font-weight:600;padding:6px 14px;background:rgba(255,255,255,0.08);border-radius:8px;border:1px solid rgba(255,255,255,0.15);font-size:13px;">← Dashboard</a>
+      <button onclick="studentLogout()" style="background:rgba(239,68,68,0.2);border:1px solid rgba(239,68,68,0.5);color:#fca5a5;padding:6px 14px;border-radius:8px;cursor:pointer;font-weight:700;font-size:13px;display:inline-flex;align-items:center;gap:6px;">🚪 Logout</button>
     </div>
 
     <h1>Student Profile</h1>
@@ -463,6 +464,16 @@ function saveProfile() {
 }
 
 saveBtn.onclick = saveProfile;
+
+function studentLogout(){
+  if(confirm('Are you sure you want to log out of your student account?')){
+    sessionStorage.clear();
+    localStorage.removeItem('student_id');
+    localStorage.removeItem('student_name');
+    localStorage.removeItem('algoplay_student_token');
+    window.location.href = 'Loginpage.html';
+  }
+}
 </script>
 
 <script src="multilingual/site-i18n.js"></script>

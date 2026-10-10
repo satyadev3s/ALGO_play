@@ -139,7 +139,7 @@ button:hover{transform:scale(1.05);background:var(--accent-hover);}
 
 <div style="max-width:650px;margin:0 auto 15px;display:flex;justify-content:space-between;align-items:center;">
     <a href="maindashboard.html" style="color:#38bdf8;text-decoration:none;font-weight:600;padding:8px 16px;background:rgba(255,255,255,0.08);border-radius:10px;border:1px solid rgba(255,255,255,0.15);font-size:13px;">← Back to Dashboard</a>
-    <div></div>
+    <button onclick="studentLogout()" id="logoutBtn" style="width:auto;margin:0;padding:8px 18px;background:linear-gradient(135deg,rgba(239,68,68,0.2),rgba(220,38,38,0.3));border:1px solid rgba(239,68,68,0.5);color:#fca5a5;border-radius:10px;font-size:13px;font-weight:700;cursor:pointer;display:inline-flex;align-items:center;gap:6px;">🚪 Logout</button>
 </div>
 
 <h1>Algoplay Student Portal</h1>
@@ -402,6 +402,15 @@ function goReview(){
     showScreen("screen-review");
 }
 function goHome(){location.reload();}
+function studentLogout(){
+    if(confirm('Are you sure you want to log out of your student account?')){
+        sessionStorage.clear();
+        localStorage.removeItem('student_id');
+        localStorage.removeItem('student_name');
+        localStorage.removeItem('algoplay_student_token');
+        location.href = 'Loginpage.html';
+    }
+}
 </script>
 <script src="multilingual/site-i18n.js"></script>
 <script src="audio-manager.js"></script>

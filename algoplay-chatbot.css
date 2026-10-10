@@ -2,8 +2,12 @@
   position: fixed;
   right: 24px;
   bottom: 24px;
-  z-index: 1000;
+  z-index: 99999;
   font-family: Poppins, Arial, sans-serif;
+  display: flex;
+  flex-direction: column-reverse;
+  align-items: flex-end;
+  gap: 12px;
 }
 
 .algoplay-chat-launcher {

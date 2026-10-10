@@ -133,7 +133,6 @@ body {
     </div>
 
     <button class="btn" id="loginBtn">Login</button>
-    <button class="btn" id="demoTeacherBtn" type="button" style="margin-top:10px;background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);">🚀 Quick Demo Teacher Login</button>
 
     <div class="footer">
         Don’t have an account?
@@ -153,10 +152,6 @@ function completeTeacherLogin(id, name, email, school) {
     sessionStorage.setItem("logged_in_school", school);
     window.location.href = "teacherdash.html";
 }
-
-document.getElementById("demoTeacherBtn").addEventListener("click", () => {
-    completeTeacherLogin(1, "Prof. Sharma", "teacher@school.edu", "AlgoPlay Academy");
-});
 
 document.getElementById("loginBtn").addEventListener("click", loginTeacher);
 
