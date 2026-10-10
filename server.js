@@ -53,10 +53,14 @@ if (!GEMINI_API_KEY) {
   console.warn('ℹ️ GEMINI_API_KEY is not configured; /api/chat will return a configuration error.');
 }
 
-// Ensure uploads directory exists
-const UPLOAD_DIR = path.join(__dirname, 'uploads');
-if (!fs.existsSync(UPLOAD_DIR)) {
-  fs.mkdirSync(UPLOAD_DIR, { recursive: true });
+// Ensure uploads directory exists (use /tmp on Vercel to avoid EROFS read-only error)
+const UPLOAD_DIR = process.env.VERCEL ? path.join('/tmp', 'uploads') : path.join(__dirname, 'uploads');
+try {
+  if (!fs.existsSync(UPLOAD_DIR)) {
+    fs.mkdirSync(UPLOAD_DIR, { recursive: true });
+  }
+} catch (err) {
+  console.warn('Upload directory initialization notice:', err.message);
 }
 
 // Multer Storage Configuration
@@ -2115,13 +2119,18 @@ app.get('/api/analytics/fraction', async (req, res) => {
 // ==========================================
 // START SERVER
 // ==========================================
-const server = app.listen(PORT, () => {
-  console.log(`\n======================================================`);
-  console.log(`  🚀 AlgoPlay Node & Express + MongoDB Backend Running!`);
-  console.log(`  📡 API Server: http://localhost:${PORT}`);
-  console.log(`  📂 Static Files Served on Port ${PORT}`);
-  console.log(`  🍃 MongoDB: ${isMongoConnected ? 'Connected' : 'Fallback mode'}`);
-  console.log(`======================================================\n`);
-});
+let server;
+if (!process.env.VERCEL) {
+  server = app.listen(PORT, () => {
+    console.log(`\n======================================================`);
+    console.log(`  🚀 AlgoPlay Node & Express + MongoDB Backend Running!`);
+    console.log(`  📡 API Server: http://localhost:${PORT}`);
+    console.log(`  📂 Static Files Served on Port ${PORT}`);
+    console.log(`  🍃 MongoDB: ${isMongoConnected ? 'Connected' : 'Fallback mode'}`);
+    console.log(`======================================================\n`);
+  });
+}
 
-module.exports = { app, server };
+module.exports = app;
+module.exports.app = app;
+module.exports.server = server;
