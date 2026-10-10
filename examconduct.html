@@ -1,0 +1,492 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AlgoPlay — Available Examinations</title>
+
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --bg-dark: #070913;
+      --card-bg: rgba(22, 30, 49, 0.78);
+      --border: rgba(141, 162, 255, 0.16);
+      --primary: #4f46e5;
+      --primary-light: #6366f1;
+      --accent-cyan: #06b6d4;
+      --accent-green: #10b981;
+      --accent-orange: #f59e0b;
+      --accent-rose: #f43f5e;
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+    }
+
+    * { margin:0; padding:0; box-sizing:border-box; font-family:'Poppins', sans-serif; }
+
+    body {
+      background: radial-gradient(circle at top right, #171b38, #070913 90%);
+      color: var(--text-main);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    header {
+      padding: 16px 40px;
+      background: rgba(15, 23, 42, 0.8);
+      backdrop-filter: blur(14px);
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: sticky;
+      top: 0;
+      z-index: 50;
+    }
+
+    .brand-wrap {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .brand-icon {
+      width: 42px;
+      height: 42px;
+      border-radius: 12px;
+      background: linear-gradient(135deg, #a855f7, var(--primary));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+    }
+
+    .nav-actions {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .nav-link {
+      color: #94a3b8;
+      text-decoration: none;
+      font-weight: 600;
+      font-size: 13px;
+      padding: 8px 16px;
+      border-radius: 10px;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--border);
+      transition: all 0.2s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .nav-link:hover {
+      background: rgba(255, 255, 255, 0.12);
+      color: #fff;
+      transform: translateY(-2px);
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 40px 24px;
+      width: 100%;
+      flex: 1;
+    }
+
+    .hero-banner {
+      background: linear-gradient(135deg, rgba(79, 70, 229, 0.25), rgba(168, 85, 247, 0.15));
+      border: 1px solid rgba(168, 85, 247, 0.35);
+      border-radius: 20px;
+      padding: 30px;
+      margin-bottom: 36px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 20px;
+    }
+
+    .hero-text h2 {
+      font-size: 26px;
+      font-weight: 800;
+      color: #fff;
+      margin-bottom: 6px;
+    }
+
+    .hero-text p {
+      font-size: 14px;
+      color: #cbd5e1;
+    }
+
+    .student-badge-pill {
+      background: rgba(15, 23, 42, 0.85);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 12px 20px;
+      font-size: 13px;
+      color: #a5b4fc;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    /* FILTER TABS */
+    .filter-bar {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 24px;
+      flex-wrap: wrap;
+    }
+
+    .filter-btn {
+      padding: 8px 18px;
+      border-radius: 10px;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      border: 1px solid var(--border);
+      background: rgba(255, 255, 255, 0.05);
+      color: #94a3b8;
+      transition: all 0.2s ease;
+    }
+
+    .filter-btn.active, .filter-btn:hover {
+      background: var(--primary);
+      color: #fff;
+      border-color: var(--primary);
+      box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3);
+    }
+
+    /* EXAM GRID */
+    .exam-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+      gap: 24px;
+    }
+
+    .exam-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      padding: 24px;
+      backdrop-filter: blur(12px);
+      transition: all 0.3s ease;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+    }
+
+    .exam-card:hover {
+      transform: translateY(-5px);
+      border-color: rgba(168, 85, 247, 0.45);
+      box-shadow: 0 14px 35px rgba(0, 0, 0, 0.5);
+    }
+
+    .card-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 12px;
+    }
+
+    .subject-pill {
+      font-size: 11px;
+      font-weight: 800;
+      padding: 4px 10px;
+      border-radius: 6px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .subject-pill.math { background: rgba(99, 102, 241, 0.2); color: #a5b4fc; border: 1px solid rgba(99, 102, 241, 0.3); }
+    .subject-pill.science { background: rgba(16, 185, 129, 0.2); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.3); }
+    .subject-pill.tech { background: rgba(6, 182, 212, 0.2); color: #38bdf8; border: 1px solid rgba(6, 182, 212, 0.3); }
+    .subject-pill.english { background: rgba(245, 158, 11, 0.2); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.3); }
+
+    .exam-title {
+      font-size: 18px;
+      font-weight: 700;
+      color: #fff;
+      margin-bottom: 8px;
+      line-height: 1.4;
+    }
+
+    .exam-desc {
+      font-size: 13px;
+      color: var(--text-muted);
+      margin-bottom: 18px;
+      line-height: 1.5;
+      flex: 1;
+    }
+
+    .meta-list {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      padding: 12px 0;
+      border-top: 1px solid rgba(255, 255, 255, 0.06);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+      margin-bottom: 18px;
+      font-size: 12px;
+    }
+
+    .meta-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      color: #cbd5e1;
+    }
+
+    .card-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .status-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 12px;
+      font-weight: 700;
+    }
+    .status-badge.available { color: #34d399; }
+    .status-badge.in_progress { color: #fbbf24; }
+    .status-badge.submitted { color: #38bdf8; }
+
+    .btn-action {
+      padding: 9px 18px;
+      border-radius: 10px;
+      font-weight: 700;
+      font-size: 13px;
+      cursor: pointer;
+      border: none;
+      transition: all 0.2s ease;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .btn-start {
+      background: linear-gradient(135deg, var(--primary), var(--primary-light));
+      color: #fff;
+    }
+    .btn-start:hover {
+      filter: brightness(1.15);
+      box-shadow: 0 4px 15px rgba(99, 102, 241, 0.4);
+      transform: translateY(-2px);
+    }
+
+    .btn-resume {
+      background: linear-gradient(135deg, #f59e0b, #d97706);
+      color: #fff;
+    }
+    .btn-resume:hover {
+      filter: brightness(1.15);
+      transform: translateY(-2px);
+    }
+
+    .btn-result {
+      background: rgba(56, 189, 248, 0.15);
+      border: 1px solid rgba(56, 189, 248, 0.35);
+      color: #38bdf8;
+    }
+    .btn-result:hover {
+      background: rgba(56, 189, 248, 0.25);
+      color: #fff;
+    }
+
+    footer {
+      padding: 24px;
+      text-align: center;
+      font-size: 12px;
+      color: var(--text-muted);
+      border-top: 1px solid var(--border);
+      background: rgba(15, 23, 42, 0.4);
+    }
+  </style>
+<link rel="stylesheet" href="multilingual/app-theme.css">
+</head>
+
+<body>
+
+<header>
+  <div class="brand-wrap">
+    <div class="brand-icon">📝</div>
+    <div>
+      <h1 style="font-size: 18px; font-weight: 800; color: #fff;">AlgoPlay Exams</h1>
+      <span style="font-size: 11px; color: var(--text-muted);">Curated Online Assessments</span>
+    </div>
+  </div>
+
+  <div class="nav-actions">
+    <a href="maindashboard.html" class="nav-link">🏠 Dashboard</a>
+    <a href="resources.html" class="nav-link">📤 Assignments</a>
+  </div>
+</header>
+
+<div class="container">
+  
+  <div class="hero-banner">
+    <div class="hero-text">
+      <h2>Active Student Examinations</h2>
+      <p>Assess your mastery across Mathematics, Science, and Technology modules.</p>
+    </div>
+    <div class="student-badge-pill">
+      <span>🧑‍🎓</span>
+      <span id="studentGreeting">Enrolled Student</span>
+    </div>
+  </div>
+
+  <!-- SUBJECT FILTERS -->
+  <div class="filter-bar">
+    <button class="filter-btn active" onclick="applyFilter('ALL', this)">All Subjects</button>
+    <button class="filter-btn" onclick="applyFilter('Mathematics', this)">📐 Mathematics</button>
+    <button class="filter-btn" onclick="applyFilter('Science', this)">🔬 Science</button>
+    <button class="filter-btn" onclick="applyFilter('Technology', this)">💻 Technology</button>
+  </div>
+
+  <!-- EXAM CARDS GRID -->
+  <div class="exam-grid" id="examGrid">
+    <div style="grid-column: 1/-1; text-align: center; color: var(--text-muted); padding: 40px;">
+      Loading available exams from server...
+    </div>
+  </div>
+
+</div>
+
+<footer>
+  © 2026 AlgoPlay • Educational Examination &amp; Mastery Platform
+</footer>
+
+<script>
+const API = window.location.origin.includes('localhost') || window.location.origin.includes('127.0.0.1')
+  ? ''
+  : window.location.origin;
+
+const studentId = sessionStorage.getItem('student_id') || localStorage.getItem('student_id') || '101';
+const studentName = sessionStorage.getItem('student_name') || localStorage.getItem('student_name') || 'Student';
+const studentClass = sessionStorage.getItem('profileClass') || 'Grade 6';
+
+document.getElementById('studentGreeting').innerText = `${studentName} • ${studentClass}`;
+
+let allExams = [];
+let currentFilter = 'ALL';
+
+async function fetchExams() {
+  try {
+    const res = await fetch(`${API}/exams/active?student_id=${studentId}&class_grade=${encodeURIComponent(studentClass)}`);
+    if (res.ok) {
+      allExams = await res.json();
+    }
+  } catch (err) {
+    console.warn('Backend unavailable, loading local storage exams...', err);
+  }
+
+  // Also read any custom exams stored locally by teacher
+  try {
+    const custom = JSON.parse(localStorage.getItem('algoplay_custom_exams') || '[]');
+    if (custom && custom.length > 0) {
+      custom.forEach(ce => {
+        if (!allExams.some(e => String(e.id) === String(ce.id))) {
+          allExams.unshift({
+            id: String(ce.id),
+            title: ce.title,
+            subject: ce.subject,
+            duration: ce.duration || 25,
+            total_questions: ce.questions ? ce.questions.length : 5,
+            student_status: 'available'
+          });
+        }
+      });
+    }
+  } catch (e) {}
+
+  renderExamGrid();
+}
+
+function applyFilter(subject, btn) {
+  currentFilter = subject;
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderExamGrid();
+}
+
+function renderExamGrid() {
+  const grid = document.getElementById('examGrid');
+
+  let filtered = allExams;
+  if (currentFilter !== 'ALL') {
+    filtered = allExams.filter(e => (e.subject || '').toLowerCase() === currentFilter.toLowerCase());
+  }
+
+  if (!filtered || filtered.length === 0) {
+    grid.innerHTML = `
+      <div style="grid-column: 1/-1; text-align: center; color: var(--text-muted); padding: 50px;">
+        <div style="font-size: 36px; margin-bottom: 12px;">📭</div>
+        <h3 style="color: #fff; margin-bottom: 6px;">No Active Exams for this category</h3>
+        <p>Check back later or select another subject tab.</p>
+      </div>
+    `;
+    return;
+  }
+
+  grid.innerHTML = filtered.map(exam => {
+    const subLower = (exam.subject || '').toLowerCase();
+    let pillClass = 'math';
+    if (subLower.includes('sci')) pillClass = 'science';
+    else if (subLower.includes('tech')) pillClass = 'tech';
+    else if (subLower.includes('eng')) pillClass = 'english';
+
+    let actionBtn = '';
+    let statusText = '';
+
+    if (exam.student_status === 'submitted') {
+      statusText = '<span class="status-badge submitted">● Completed</span>';
+      actionBtn = `<a href="takeexam.html?exam_id=${exam.id}" class="btn-action btn-result">View Result 📊</a>`;
+    } else if (exam.student_status === 'in_progress') {
+      statusText = '<span class="status-badge in_progress">● In Progress</span>';
+      actionBtn = `<a href="takeexam.html?exam_id=${exam.id}" class="btn-action btn-resume">Resume Exam ⏱️</a>`;
+    } else {
+      statusText = '<span class="status-badge available">● Available</span>';
+      actionBtn = `<a href="takeexam.html?exam_id=${exam.id}" class="btn-action btn-start">Start Exam 🚀</a>`;
+    }
+
+    return `
+      <div class="exam-card">
+        <div class="card-top">
+          <span class="subject-pill ${pillClass}">${exam.subject || 'General'}</span>
+          <span style="font-size: 11px; color: #94a3b8; font-weight: 600;">${exam.class_grade || 'All Grades'}</span>
+        </div>
+
+        <div class="exam-title">${exam.title}</div>
+        <div class="exam-desc">${exam.description || 'Comprehensive evaluation covering key syllabus outcomes.'}</div>
+
+        <div class="meta-list">
+          <div class="meta-item"><span>⏱️</span> ${exam.duration || 25} Minutes</div>
+          <div class="meta-item"><span>❓</span> ${exam.total_questions || 5} Questions</div>
+        </div>
+
+        <div class="card-footer">
+          ${statusText}
+          ${actionBtn}
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+// Initial fetch & auto refresh
+fetchExams();
+setInterval(fetchExams, 12000);
+</script>
+
+<script src="multilingual/site-i18n.js"></script>
+<script src="audio-manager.js"></script>
+</body>
+</html>

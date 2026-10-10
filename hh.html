@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AlgoPlay Profile Setup</title>
+    <style>
+        body, html { margin:0; padding:0; height:100%; font-family:'Arial', sans-serif; }
+        #app-container { width:100%; height:100vh; display:flex; justify-content:center; align-items:center;
+            background:linear-gradient(180deg,#1b3d73 0%,#0056b3 35%,#007bff 70%,#0099ff 100%); }
+        .form-card { width:90%; max-width:400px; padding:20px; background-color:rgba(255,255,255,0.1);
+            border-radius:25px; box-shadow:0 10px 30px rgba(0,0,0,0.3); color:white; }
+        .role-selector-container { display:flex; justify-content:space-between; background-color:rgba(255,255,255,0.1);
+            border-radius:25px; margin-bottom:25px; padding:5px; }
+        .role-button { flex-grow:1; border:none; padding:12px 0; border-radius:20px; cursor:pointer; font-size:1em;
+            font-weight:bold; color:white; background-color:transparent; transition:background-color 0.3s; }
+        .role-button.active { background-color:#5b79ff; box-shadow:0 4px 10px rgba(0,0,0,0.2); }
+        .progress-dots { display:flex; justify-content:center; margin-bottom:30px; gap:10px; }
+        .dot { height:10px; width:10px; border-radius:50%; background-color:rgba(255,255,255,0.4); }
+        .dot.active:first-child { background-color:#5b79ff; }
+        .welcome-text { text-align:center; margin-bottom:30px; }
+        .title { font-size:1.8em; font-weight:bold; color:#ffd700; margin-bottom:5px; }
+        form label { display:block; margin-top:20px; margin-bottom:8px; font-weight:600; }
+        input[type="text"] { width:100%; padding:15px 15px; border:none; border-radius:10px; font-size:1em;
+            background-color:white; color:#333; box-sizing:border-box; }
+        input[type="text"]::placeholder { color:#aaa; opacity:0.7; }
+        .button-group { display:flex; justify-content:space-between; margin-top:40px; gap:15px; }
+        .nav-button { flex-grow:1; padding:15px 10px; border:none; border-radius:10px; font-size:1em; font-weight:bold;
+            cursor:pointer; transition:background-color 0.2s; display:flex; align-items:center; justify-content:center;
+            gap:5px; background-color:#5b79ff; color:white; }
+        .nav-button:hover { filter:brightness(1.1); }
+    </style>
+<link rel="stylesheet" href="multilingual/app-theme.css">
+</head>
+<body>
+  <div id="app-container">
+    <div class="form-card">
+
+        <div class="role-selector-container">
+            <button class="role-button active" id="student-btn" data-role="student" 
+                data-i18n="role_student">STUDENT</button>
+
+            <button class="role-button" id="teacher-btn" data-role="teacher" 
+                data-i18n="role_teacher">TEACHER</button>
+        </div>
+
+        <div class="progress-dots">
+            <span class="dot active"></span>
+            <span class="dot"></span>
+            <span class="dot"></span>
+        </div>
+
+        <div class="welcome-text">
+            <h2 class="title" data-i18n="welcome_title">Welcome to AlgoPlay!</h2>
+            <p class="subtitle" data-i18n="welcome_subtitle">Let's get to know you better</p>
+        </div>
+
+        <form id="profile-form" onsubmit="return false;">
+
+            <label for="name-input" data-i18n="label_name">Your user Name</label>
+            <input type="text" id="name-input" 
+                   placeholder="enter your full name" 
+                   data-i18n-placeholder="ph_fullname">
+
+            <label for="email-input" data-i18n="label_class">Enter your class</label>
+            <input type="text" id="email-input" 
+                   placeholder="enter your email address" 
+                   data-i18n-placeholder="ph_class">
+
+            <input type="hidden" id="role-input" name="role" value="student">
+        </form>
+
+        <div class="button-group">
+            <button class="nav-button back-btn" type="button" data-i18n="btn_back">
+                <span class="arrow">←</span> Back
+            </button>
+
+            <button class="nav-button submit-btn" id="submit-button" 
+                    type="button" data-i18n="btn_submit">
+                submit <span class="arrow">→</span>
+            </button>
+        </div>
+
+    </div>
+</div>
+
+
+    <script>
+      document.getElementById('submit-button').addEventListener('click', function() {
+          const name = document.getElementById('name-input').value;
+          const email = document.getElementById('email-input').value;
+          fetch('/usersadd', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ name: name, email: email })
+          })
+          .then(response => response.json())
+          .then(data => {
+              console.log('Success:', data);
+                alert('Profile submitted successfully!');
+          })
+      });
+    </script>
+    <script src="lang.js"></script>
+
+<script src="multilingual/site-i18n.js"></script>
+<script src="audio-manager.js"></script>
+</body>
+</html>

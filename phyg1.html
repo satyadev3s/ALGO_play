@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Physics Lab Pro | All Missions Fixed</title>
+    <style>
+        :root {
+            --bg: #05070a; --panel: #111827; --accent: #38bdf8;
+            --danger: #f43f5e; --success: #10b981; --text: #f8fafc;
+        }
+        body { margin: 0; background: var(--bg); color: var(--text); font-family: 'Segoe UI', sans-serif; overflow: hidden; }
+        .app-container { display: flex; height: 100vh; }
+
+        .sidebar { width: 340px; background: var(--panel); border-right: 1px solid #1f2937; padding: 25px; display: flex; flex-direction: column; }
+        .sidebar h2 { font-size: 1.5rem; margin-bottom: 20px; color: var(--accent); letter-spacing: 1px; }
+        .topic-btn {
+            width: 100%; background: #1f2937; border: 1px solid #374151; color: var(--text);
+            padding: 16px; border-radius: 14px; cursor: pointer; margin-bottom: 12px;
+            text-align: left; transition: all 0.2s; font-size: 0.95rem;
+        }
+        .topic-btn:hover { border-color: var(--accent); background: #1e293b; transform: translateX(5px); }
+
+        .main-stage { flex-grow: 1; display: flex; flex-direction: column; position: relative; }
+        .canvas {
+            flex-grow: 1; margin: 25px; background: #000; border-radius: 30px;
+            border: 2px solid #1f2937; position: relative; overflow: hidden;
+            display: flex; align-items: center; justify-content: center;
+        }
+
+        #obj1, #obj2 { width: 90px; height: 90px; border-radius: 50%; position: absolute; display: none; z-index: 10; }
+        #obj1 { background: var(--accent); box-shadow: 0 0 30px rgba(56,189,248,0.5); }
+        #obj2 { background: var(--danger); box-shadow: 0 0 30px rgba(244,63,94,0.5); }
+        
+        #tank { width: 400px; height: 500px; border: 5px solid #334155; border-top: none; position: relative; display: none; border-radius: 0 0 20px 20px; }
+        #water { width: 100%; height: 70%; background: rgba(56, 189, 248, 0.3); position: absolute; bottom: 0; border-top: 2px solid var(--accent); }
+
+        #wave-container { display: none; width: 85%; height: 200px; align-items: flex-end; gap: 4px; }
+        .bar { width: 12px; background: var(--accent); border-radius: 6px; transition: 0.1s linear; }
+
+        .controls { height: 160px; background: var(--panel); border-top: 1px solid #1f2937; padding: 0 50px; display: flex; align-items: center; justify-content: space-between; }
+        .readout { max-width: 600px; }
+        .readout h3 { margin: 0 0 8px 0; color: var(--accent); font-size: 1.3rem; }
+        .readout p { margin: 0; color: #94a3b8; font-family: 'Courier New', monospace; line-height: 1.4; }
+        
+        .action-btn { background: var(--accent); color: #000; border: none; padding: 15px 35px; border-radius: 10px; font-weight: 800; cursor: pointer; text-transform: uppercase; }
+    </style>
+<link rel="stylesheet" href="multilingual/app-theme.css">
+</head>
+<body>
+
+<div class="app-container">
+    <div class="sidebar">
+        <h2>PHYSICS ENGINE</h2>
+        <button class="topic-btn" onclick="initSim(1)">🪐 1. Gravitation</button>
+        <button class="topic-btn" onclick="initSim(2)">🏎️ 2. Inertia</button>
+        <button class="topic-btn" onclick="initSim(3)">💥 3. Momentum</button>
+        <button class="topic-btn" onclick="initSim(4)">🔊 4. Sound Waves</button>
+        <button class="topic-btn" onclick="initSim(5)">🏗️ 5. Work & Energy</button>
+        <button class="topic-btn" onclick="initSim(6)">💧 6. Archimedes</button>
+    </div>
+
+    <div class="main-stage">
+        <div class="canvas" id="canvas">
+            <div id="obj1"></div>
+            <div id="obj2"></div>
+            <div id="tank"><div id="water"></div></div>
+            <div id="wave-container"></div>
+        </div>
+        <div class="controls">
+            <div class="readout">
+                <h3 id="sim-title">System Standby</h3>
+                <p id="sim-status">Select a mission to start.</p>
+            </div>
+            <div id="btn-area"></div>
+        </div>
+    </div>
+</div>
+
+<script>
+    const obj1 = document.getElementById('obj1');
+    const obj2 = document.getElementById('obj2');
+    const tank = document.getElementById('tank');
+    const waveBox = document.getElementById('wave-container');
+    const title = document.getElementById('sim-title');
+    const status = document.getElementById('sim-status');
+    const btnArea = document.getElementById('btn-area');
+
+    function initSim(n) {
+        // RESET ALL
+        [obj1, obj2, tank, waveBox].forEach(el => el.style.display = "none");
+        obj1.style.transition = "none"; obj2.style.transition = "none";
+        obj1.style.borderRadius = "50%"; obj1.style.width = "90px"; obj1.style.height = "90px";
+        btnArea.innerHTML = "";
+
+        if(n === 1) {
+            title.innerText = "Mission: Gravity Drop";
+            status.innerText = "Earth Gravity g = 9.8m/s².";
+            obj1.style.display = "block"; obj1.style.top = "50px"; obj1.style.left = "calc(50% - 45px)";
+            btnArea.innerHTML = '<button class="action-btn" onclick="runGravity()">Drop</button>';
+        }
+        else if(n === 2) {
+            title.innerText = "Mission: Inertia";
+            status.innerText = "No friction. Constant velocity motion.";
+            obj1.style.display = "block"; obj1.style.left = "50px"; obj1.style.top = "calc(50% - 45px)";
+            btnArea.innerHTML = '<button class="action-btn" onclick="runInertia()">Push</button>';
+        }
+        else if(n === 3) {
+            title.innerText = "Mission: Momentum";
+            status.innerText = "Elastic collision simulation.";
+            obj1.style.display = "block"; obj2.style.display = "block";
+            obj1.style.left = "50px"; obj2.style.left = "70%";
+            obj1.style.top = "calc(50% - 45px)"; obj2.style.top = "calc(50% - 45px)";
+            btnArea.innerHTML = '<button class="action-btn" onclick="runMomentum()">Fire</button>';
+        }
+        else if(n === 4) {
+            title.innerText = "Mission: Sound Waves";
+            status.innerText = "Change frequency to see wavelength.";
+            waveBox.style.display = "flex"; waveBox.innerHTML = "";
+            for(let i=0; i<45; i++) {
+                let b = document.createElement('div'); b.className = 'bar'; b.style.height = "40px";
+                waveBox.appendChild(b);
+            }
+            btnArea.innerHTML = '<input type="range" min="0.1" max="1" step="0.1" oninput="runSound(this.value)">';
+        }
+        else if(n === 5) {
+            title.innerText = "Mission: Work & Energy";
+            status.innerText = "Lifting a load vertically (W = F × s).";
+            obj1.style.display = "block"; obj1.style.borderRadius = "8px";
+            obj1.style.left = "calc(50% - 45px)"; obj1.style.top = "calc(100% - 110px)";
+            btnArea.innerHTML = '<button class="action-btn" onclick="runWork()">Lift Load</button>';
+        }
+        else if(n === 6) {
+            title.innerText = "Mission: Archimedes";
+            status.innerText = "Density comparison in water.";
+            tank.style.display = "block"; obj1.style.display = "block";
+            obj1.style.top = "-100px"; obj1.style.left = "calc(50% - 45px)";
+            btnArea.innerHTML = `<button class="action-btn" onclick="runFloat(0.6)">Wood</button> <button class="action-btn" onclick="runFloat(1.5)" style="background:red">Iron</button>`;
+        }
+    }
+
+    function runGravity() {
+        obj1.style.transition = "top 1s ease-in";
+        obj1.style.top = "calc(100% - 110px)";
+        status.innerText = "Impact! Potential Energy → Kinetic Energy.";
+    }
+
+    function runInertia() {
+        obj1.style.transition = "left 3s linear";
+        obj1.style.left = "90%";
+        status.innerText = "Moving at constant velocity (Newton's 1st Law).";
+    }
+
+    function runMomentum() {
+        obj1.style.transition = "left 0.4s ease-in";
+        obj1.style.left = "calc(70% - 90px)";
+        setTimeout(() => {
+            obj2.style.transition = "left 0.6s ease-out";
+            obj2.style.left = "95%";
+            status.innerText = "Momentum transferred to the second body.";
+        }, 400);
+    }
+
+    function runSound(f) {
+        document.querySelectorAll('.bar').forEach((b, i) => {
+            b.style.height = (Math.sin(i * f * 2) * 80 + 100) + "px";
+        });
+    }
+
+    function runWork() {
+        obj1.style.transition = "top 2.5s ease-in-out";
+        obj1.style.top = "100px";
+        status.innerText = "Work Done! Potential Energy (mgh) stored.";
+    }
+
+    function runFloat(d) {
+        obj1.style.transition = "top 1.5s ease-in";
+        obj1.style.top = (d < 1) ? "45%" : "85%";
+        status.innerText = (d < 1) ? "Object Floats (Upthrust > Weight)" : "Object Sinks (Weight > Upthrust)";
+    }
+</script>
+<script src="multilingual/site-i18n.js"></script>
+<script src="audio-manager.js"></script>
+</body>
+</html>

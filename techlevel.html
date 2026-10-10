@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AlgoPlay – Levels</title>
+
+<style>
+    :root { 
+        --primary:#4f46e5; 
+        --primary-light:#6c62ff; 
+        --bg:#eef0ff; 
+        --text:#1a1a2e; 
+    }
+    body { font-family:"Poppins",sans-serif; background:var(--bg); padding:30px; margin:0; }
+    .container { max-width:520px; margin:auto; }
+    h2 { text-align:center; font-size:30px; font-weight:700; margin-bottom:30px; color:var(--text); }
+    .level-card {
+        background:white; padding:20px 25px; border-radius:18px; margin-bottom:22px;
+        box-shadow:0 4px 15px rgba(0,0,0,0.12); display:flex;
+        justify-content:space-between; align-items:center; border-left:6px solid var(--primary);
+    }
+    .level-title { font-size:18px; font-weight:600; color:var(--text); }
+    .icon-box { background:var(--primary-light); color:white; border-radius:12px; padding:12px; margin-right:12px; font-size:20px; }
+    .left { display:flex; align-items:center; }
+    button {
+        padding:10px 22px; background:var(--primary); color:white; border:none; border-radius:10px;
+        font-size:15px; font-weight:600; cursor:pointer; transition:0.2s;
+    }
+    button:disabled { background:#b5b5b5; cursor:not-allowed; }
+</style>
+<link rel="stylesheet" href="multilingual/app-theme.css">
+</head>
+<body>
+
+<div class="container">
+    <div style="margin-bottom: 20px;">
+        <a href="maindashboard.html" style="text-decoration: none; color: var(--primary); font-weight: 700; font-size: 14px;">← Back to Dashboard</a>
+    </div>
+    <h2>Technology Quizzes &amp; Levels</h2>
+    <div id="levels"></div>
+</div>
+
+<script>
+    const totalLevels = 8;
+
+    // Load unlocked status
+    let unlockedUntil = parseInt(localStorage.getItem("unlockedLevel"));
+
+    if (!unlockedUntil || unlockedUntil < 1) {
+        unlockedUntil = 1;
+        localStorage.setItem("unlockedLevel", 1);
+    }
+
+    // Check if a quiz is completed
+    let completedLevel = sessionStorage.getItem("completedLevel");
+
+    if (completedLevel) {
+        completedLevel = parseInt(completedLevel);
+
+        if (completedLevel === unlockedUntil) {
+            unlockedUntil++;
+            localStorage.setItem("unlockedLevel", unlockedUntil);
+            alert(`🎉 Level ${unlockedUntil} unlocked!`);
+        }
+
+        sessionStorage.removeItem("completedLevel");
+    }
+
+    const icons = ["📘","📗","📙","🎯","🚀","✨","⚡","💡"];
+
+    function loadLevels() {
+        const levelContainer = document.getElementById("levels");
+        levelContainer.innerHTML = "";
+
+        for (let i = 1; i <= totalLevels; i++) {
+            const locked = i > unlockedUntil;
+
+            levelContainer.innerHTML += `
+                <div class="level-card">
+                    <div class="left">
+                        ${locked ? `<div class="icon-box">${icons[i-1]}</div>` : ``}
+                        <span class="level-title">Level ${i}</span>
+                    </div>
+
+                    <button onclick="startLevel(${i})" ${locked ? "disabled" : ""}>
+                        ${locked ? "Locked" : "Start"}
+                    </button>
+                </div>
+            `;
+        }
+    }
+
+    function startLevel(level) {
+        window.location.href = `techq${level}.html`;
+    }
+
+    loadLevels();
+</script>
+
+<script src="multilingual/site-i18n.js"></script>
+<script src="audio-manager.js"></script>
+</body>
+</html>

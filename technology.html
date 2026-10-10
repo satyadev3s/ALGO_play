@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Technology Concepts</title>
+
+<style>
+    /* CSS Variables */
+    :root{
+        --accent: 255,170,90; /* amber / orange */
+        --accent-2: 255,130,50;
+        --glass-bg: rgba(255,210,160,0.10);
+        --border: rgba(255,150,60,0.34);
+    }
+
+    /* Keyframe Animations */
+    @keyframes fadeSlideIn {
+        0% { opacity: 0; transform: translateY(30px); }
+        100% { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes buttonPop {
+        0% { opacity: 0; transform: scale(0.7) translateY(20px); }
+        100% { opacity: 1; transform: scale(1) translateY(0); }
+    }
+
+    /* Base Body Styling */
+    body {
+        font-family: Arial, sans-serif;
+        background: linear-gradient(135deg,#120a06 30%, #221410 100%);
+        padding: 20px;
+        color: #fffaf0;
+        animation: fadeSlideIn 1.2s ease-out;
+        min-height: 100vh;
+    }
+
+    /* Header Styling */
+    h2 {
+        text-align:center;
+        margin-bottom: 25px;
+        padding: 14px;
+        color: rgb(var(--accent));
+        text-shadow: 0 0 10px rgba(var(--accent),0.18), 0 0 18px rgba(var(--accent-2),0.12);
+        background: rgba(255,255,255,0.03);
+        backdrop-filter: blur(10px);
+        border-radius: 12px;
+        width: 92%;
+        max-width: 600px;
+        margin: 0 auto 22px;
+        box-shadow: 0 0 14px rgba(var(--accent),0.10);
+    }
+
+    /* Container for Buttons */
+    .container { 
+        display:flex; 
+        flex-wrap:wrap; 
+        justify-content:center; 
+        max-width: 1000px;
+        margin: auto;
+    }
+
+    /* Button Styling */
+    .btn {
+        width:45%; /* Adjusted for spacing */
+        min-width: 250px;
+        margin:12px;
+        padding:15px;
+        background: var(--glass-bg);
+        color: rgba(255,245,230,0.96);
+        font-size:16px;
+        border-radius:12px;
+        border: 1px solid var(--border);
+        backdrop-filter: blur(10px);
+        box-shadow: 0 0 10px rgba(var(--accent),0.12);
+        cursor:pointer;
+        box-sizing: border-box;
+        transition: transform .28s ease, box-shadow .28s ease, background .28s ease, border .28s ease;
+        opacity:0;
+        animation: buttonPop .82s ease forwards;
+    }
+
+    /* Staggered Button Entry Animations */
+    .btn:nth-child(1) { animation-delay: 0.08s; }
+    .btn:nth-child(2) { animation-delay: 0.18s; }
+    .btn:nth-child(3) { animation-delay: 0.28s; }
+    .btn:nth-child(4) { animation-delay: 0.38s; }
+    .btn:nth-child(5) { animation-delay: 0.48s; }
+    .btn:nth-child(6) { animation-delay: 0.58s; }
+    .btn:nth-child(7) { animation-delay: 0.68s; }
+    .btn:nth-child(8) { animation-delay: 0.78s; }
+    .btn:nth-child(9) { animation-delay: 0.88s; }
+    .btn:nth-child(10){ animation-delay: 0.98s; }
+
+    /* Button Hover Effect */
+    .btn:hover{
+        transform: scale(1.03) translateY(-3px); /* Smoother hover */
+        box-shadow:
+            0 0 12px rgba(var(--accent),0.55),
+            0 0 24px rgba(var(--accent-2),0.28);
+        background: rgba(255,230,190,0.28);
+        border: 1px solid rgba(var(--accent-2),0.85);
+        color: #ffffff; /* Adjusted color to white for better contrast on hover */
+    }
+
+    /* Media Query for Mobile Responsiveness */
+    @media (max-width:560px){ .btn{ width:92%; } h2{ width:92%; } }
+</style>
+
+<script>
+    function goToTechLevel() {
+        // This will redirect the user to a page named 'techlevel.html'
+        window.location.href = "techlevel.html";
+    }
+</script>
+
+<link rel="stylesheet" href="multilingual/app-theme.css">
+</head>
+<body>
+    <div style="max-width: 1000px; margin: 0 auto 15px; display: flex; justify-content: space-between; align-items: center;">
+        <a href="maindashboard.html" style="text-decoration: none; color: #fed7aa; font-weight: 700; font-size: 14px; padding: 8px 16px; background: rgba(255,255,255,0.08); border-radius: 10px; border: 1px solid rgba(255,255,255,0.15);">← Back to Dashboard</a>
+        <a href="techlevel.html" style="text-decoration: none; color: #fb923c; font-weight: 700; font-size: 14px; padding: 8px 16px; background: rgba(251,146,60,0.1); border-radius: 10px; border: 1px solid rgba(251,146,60,0.25);">💻 Tech Levels Hub</a>
+    </div>
+    <h2>Technology – Computer Basics</h2>
+    <div class="container">
+        <button class="btn" onclick="goToTechLevel()">Computer Memory</button>
+        <button class="btn" onclick="goToTechLevel()">Input / Output Devices</button>
+
+        <button class="btn" onclick="goToTechLevel()">CPU &amp; Processing</button>
+        <button class="btn" onclick="goToTechLevel()">Operating Systems</button>
+
+        <button class="btn" onclick="goToTechLevel()">Storage Devices</button>
+        <button class="btn" onclick="goToTechLevel()">Networks &amp; Internet</button>
+
+        <button class="btn" onclick="goToTechLevel()">Software vs Hardware</button>
+        <button class="btn" onclick="goToTechLevel()">Data Representation</button>
+
+        <button class="btn" onclick="goToTechLevel()">Security Fundamentals</button>
+        <button class="btn" onclick="goToTechLevel()">Troubleshooting Basics</button>
+    </div>
+<script src="multilingual/site-i18n.js"></script>
+<script src="audio-manager.js"></script>
+</body>
+</html>

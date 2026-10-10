@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Settings Page</title>
+
+<style>
+    body {
+        margin: 0;
+        font-family: "Poppins", sans-serif;
+        background: #0d1117;
+        color: #e6edf3;
+        display: flex;
+        height: 100vh;
+        overflow: hidden;
+    }
+
+    /* Sidebar */
+    .sidebar {
+        width: 280px;
+        background: #161b22;
+        padding: 25px 0;
+        display: flex;
+        flex-direction: column;
+        border-right: 1px solid #30363d;
+        animation: slideLeft 0.6s ease;
+    }
+
+    @keyframes slideLeft {
+        from { transform: translateX(-80px); opacity: 0; }
+        to { transform: translateX(0); opacity: 1; }
+    }
+
+    .sidebar h2 {
+        text-align: center;
+        margin-bottom: 30px;
+        font-size: 22px;
+        letter-spacing: 1px;
+        color: #58a6ff;
+    }
+
+    .menu-item {
+        padding: 15px 25px;
+        cursor: pointer;
+        transition: .3s;
+        font-size: 17px;
+    }
+
+    .menu-item:hover, .menu-item.active {
+        background: #21262d;
+        color: #58a6ff;
+    }
+
+    /* Content */
+    .content {
+        flex: 1;
+        padding: 40px;
+        overflow-y: auto;
+        animation: fadeIn .7s ease;
+    }
+
+    @keyframes fadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
+    }
+
+    .section {
+        display: none;
+        animation: fadeIn .5s ease;
+    }
+
+    .section.active {
+        display: block;
+    }
+
+    /* Cards */
+    .card {
+        background: #161b22;
+        padding: 25px;
+        border-radius: 12px;
+        border: 1px solid #30363d;
+        margin-bottom: 20px;
+        transition: .3s;
+    }
+
+    .card:hover {
+        transform: translateY(-3px);
+        border-color: #58a6ff;
+    }
+
+    .card h3 {
+        margin: 0 0 10px;
+        color: #58a6ff;
+    }
+</style>
+<link rel="stylesheet" href="multilingual/app-theme.css">
+</head>
+
+<body>
+
+<!-- SIDEBAR -->
+<div class="sidebar">
+    <div style="padding:0 25px 15px;">
+        <a href="maindashboard.html" style="color:#58a6ff;text-decoration:none;font-size:14px;font-weight:600;display:inline-flex;align-items:center;gap:6px;">← Back to Dashboard</a>
+    </div>
+    <h2>Settings</h2>
+    <div class="menu-item active" onclick="showSection('account')">Account</div>
+    <div class="menu-item" onclick="showSection('notifications')">Notification</div>
+    <div class="menu-item" onclick="showSection('privacy')">Privacy & Security</div>
+    <div class="menu-item" onclick="showSection('help')">Help & Support</div>
+    <div class="menu-item" onclick="showSection('about')">About</div>
+</div>
+
+<!-- MAIN CONTENT -->
+<div class="content">
+
+    <!-- ACCOUNT SECTION -->
+    <div id="account" class="section active">
+        <h1>Account Settings</h1>
+        <div class="card">
+            <h3>Profile Information</h3>
+            <p>Update your name, email address, and profile image.</p>
+        </div>
+        <div class="card">
+            <h3>Password</h3>
+            <p>Change your password to keep your account secure.</p>
+        </div>
+    </div>
+
+    <!-- NOTIFICATIONS -->
+    <div id="notifications" class="section">
+        <h1>Notification Settings</h1>
+        <div class="card">
+            <h3>Push Notifications</h3>
+            <p>Manage alerts you receive on your device.</p>
+        </div>
+        <div class="card">
+            <h3>Email Notifications</h3>
+            <p>Choose what updates you receive via email.</p>
+        </div>
+    </div>
+
+    <!-- PRIVACY & SECURITY -->
+    <div id="privacy" class="section">
+        <h1>Privacy & Security</h1>
+        <div class="card">
+            <h3>Two-Factor Authentication</h3>
+            <p>Add an extra layer of security to your account.</p>
+        </div>
+        <div class="card">
+            <h3>Data Controls</h3>
+            <p>Manage your data sharing and visibility.</p>
+        </div>
+    </div>
+
+    <!-- HELP & SUPPORT -->
+    <div id="help" class="section">
+        <h1>Help & Support</h1>
+        <div class="card">
+            <h3>FAQs</h3>
+            <p>Find answers to commonly asked questions.</p>
+        </div>
+        <div class="card">
+            <h3>Contact Support</h3>
+            <p>Reach out to our support team for assistance.</p>
+        </div>
+    </div>
+
+    <!-- ABOUT -->
+    <div id="about" class="section">
+        <h1>About</h1>
+        <div class="card">
+            <h3>Application Info</h3>
+            <p>Version 1.0 — Built for a seamless user experience.</p>
+        </div>
+        <div class="card">
+            <h3>Developers</h3>
+            <p>Created by a passionate team focused on innovation.</p>
+        </div>
+    </div>
+
+</div>
+
+<script>
+    function showSection(sectionId) {
+        document.querySelectorAll(".section").forEach(s => s.classList.remove("active"));
+        document.getElementById(sectionId).classList.add("active");
+
+        document.querySelectorAll(".menu-item").forEach(m => m.classList.remove("active"));
+        event.target.classList.add("active");
+    }
+</script>
+
+<script src="multilingual/site-i18n.js"></script>
+<script src="audio-manager.js"></script>
+</body>
+</html>

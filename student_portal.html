@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Algoplay | Student Portal</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800;900&display=swap" rel="stylesheet">
+
+<style>
+/* ===========================
+   PREMIUM DARK THEME + BACKGROUND
+=========================== */
+:root{
+    --bg:#0a0f1f;
+    --glass:rgba(255,255,255,0.06);
+    --border:rgba(255,255,255,0.12);
+    --accent:#3b82f6;
+    --accent-hover:#2563eb;
+    --yellow:#facc15;
+}
+body{
+    background:radial-gradient(circle at top,#18263b,#0a0f1f 60%);
+    font-family:'Inter',sans-serif;
+    color:white;
+    padding:40px;
+}
+
+/* FLOATING BACKGROUND BLOBS */
+.hero-bg{
+    position:fixed;top:0;left:0;width:100%;height:100%;z-index:-1;overflow:hidden;
+}
+.float{
+    width:200px;height:200px;border-radius:50%;
+    position:absolute;filter:blur(60px);
+    animation:float 12s infinite ease-in-out;
+    background:rgba(56,189,248,0.15);
+}
+.float:nth-child(2){left:70%;top:60%;background:rgba(99,102,241,0.12);animation-duration:15s;}
+.float:nth-child(3){left:20%;top:20%;background:rgba(16,185,129,0.12);animation-duration:18s;}
+@keyframes float{
+    0%{transform:translate(0,0);}
+    50%{transform:translate(-40px,25px);}
+    100%{transform:translate(0,0);}
+}
+
+/* BOXES */
+.box{
+    max-width:650px;margin:25px auto;padding:28px;
+    border-radius:18px;background:var(--glass);
+    border:1px solid var(--border);
+    backdrop-filter:blur(12px);
+}
+.screen{display:none;}
+.active{display:block;animation:fadeUp .5s ease;}
+@keyframes fadeUp{
+    from{opacity:0;transform:translateY(25px);}
+    to{opacity:1;transform:translateY(0);}
+}
+
+h1{text-align:center;font-size:40px;font-weight:900;margin-bottom:20px;
+    background:linear-gradient(to right,#3b82f6,#38bdf8);
+    -webkit-background-clip:text;color:transparent;}
+h2{font-size:26px;margin-bottom:10px;color:#38bdf8;font-weight:700;}
+
+/* BUTTONS */
+button{
+    width:100%;padding:14px;margin:10px 0;
+    border:none;border-radius:12px;cursor:pointer;
+    background:var(--accent);color:white;font-weight:600;font-size:16px;
+    transition:.25s;
+}
+button:hover{transform:scale(1.05);background:var(--accent-hover);}
+
+/* SKELETON */
+.skeleton{
+    background:linear-gradient(90deg,#1e293b 25%,#334155 37%,#1e293b 63%);
+    background-size:400% 100%;animation:skeleton 1.4s infinite;
+    border-radius:8px;
+}
+@keyframes skeleton{
+    0%{background-position:100% 50%;}
+    100%{background-position:0 50%;}
+}
+.skeleton-title{height:28px;width:60%;margin:10px 0;}
+.skeleton-box{height:18px;margin:10px 0;}
+.skeleton-big{height:45px;margin:10px 0;}
+
+/* EXAM OPTIONS */
+.option-btn{
+    background:#1e293b;padding:14px;border-radius:12px;margin:8px 0;
+    cursor:pointer;transition:.25s;
+}
+.option-btn:hover{transform:scale(1.03);}
+.correct-anim{background:#22c55e !important;animation:correct .5s ease;}
+@keyframes correct{0%{transform:scale(1);}50%{transform:scale(1.07);}100%{transform:scale(1);}}
+.wrong-anim{background:#e11d48 !important;animation:wrong .45s ease;}
+@keyframes wrong{0%,100%{transform:translateX(0);}30%{transform:translateX(-6px);}60%{transform:translateX(6px);}}
+.disabled-option{opacity:.4;pointer-events:none;}
+
+/* TIMER */
+#timer{text-align:center;color:var(--yellow);font-size:20px;font-weight:600;margin-top:10px;}
+.timer-bar{width:100%;height:8px;background:#1e293b;border-radius:6px;}
+.timer-fill{height:100%;background:#3b82f6;width:100%;border-radius:6px;}
+
+/* PROGRESS BAR */
+.progress-wrapper{width:100%;height:12px;background:#1e293b;border-radius:10px;margin-top:12px;}
+.progress-fill{height:100%;width:0%;background:linear-gradient(90deg,#3b82f6,#38bdf8);border-radius:10px;transition:.4s;}
+
+/* RESULT */
+.score-circle{
+    width:160px;height:160px;border-radius:50%;
+    border:10px solid #1e293b;margin:auto;margin-bottom:20px;
+    position:relative;display:flex;align-items:center;justify-content:center;
+    font-size:32px;font-weight:900;
+}
+.score-fill{
+    position:absolute;width:160px;height:160px;border-radius:50%;
+    border:10px solid var(--accent);
+    clip-path:polygon(50% 0,100% 0,100% 100%,0 100%,0 0);
+    transform:rotate(0deg);transition:transform 1.6s ease;
+}
+.suggestion-card{
+    background:var(--glass);border:1px solid var(--border);
+    padding:12px;border-radius:12px;margin:10px 0;animation:pop .4s ease;
+}
+@keyframes pop{from{transform:scale(.8);opacity:0;}to{transform:scale(1);opacity:1;}}
+</style>
+<link rel="stylesheet" href="multilingual/app-theme.css">
+</head>
+<body>
+
+<!-- FLOATING BG -->
+<div class="hero-bg">
+    <div class="float"></div>
+    <div class="float"></div>
+    <div class="float"></div>
+</div>
+
+<div style="max-width:650px;margin:0 auto 15px;display:flex;justify-content:space-between;align-items:center;">
+    <a href="maindashboard.html" style="color:#38bdf8;text-decoration:none;font-weight:600;padding:8px 16px;background:rgba(255,255,255,0.08);border-radius:10px;border:1px solid rgba(255,255,255,0.15);font-size:13px;">← Back to Dashboard</a>
+    <div></div>
+</div>
+
+<h1>Algoplay Student Portal</h1>
+
+<!-- SCREEN 1 -->
+<div id="screen-select" class="screen active box">
+    <h2>Select Your Exam</h2>
+    <button onclick="selectExam('navodaya')">Navodaya</button>
+    <button onclick="selectExam('sainik')">Sainik School</button>
+    <button onclick="selectExam('model')">Model School</button>
+    <button onclick="selectExam('jee')">JEE</button>
+    <button onclick="selectExam('neet')">NEET</button>
+    <button onclick="selectExam('olympiad')">Olympiad</button>
+    <button style="background:#10b981" onclick="selectTeacherExam()">Teacher Assigned Exam</button>
+</div>
+
+<!-- SCREEN 2 -->
+<div id="screen-instructions" class="screen box">
+    <h2 id="title"></h2>
+    <h3>Instructions</h3>
+    <div id="instrSkeleton">
+        <div class="skeleton skeleton-title"></div>
+        <div class="skeleton skeleton-box"></div>
+        <div class="skeleton skeleton-box"></div>
+    </div>
+    <ul id="instructionsList" style="display:none;"></ul>
+
+    <h3>Rules</h3>
+    <div id="rulesSkeleton">
+        <div class="skeleton skeleton-box"></div>
+        <div class="skeleton skeleton-box"></div>
+    </div>
+    <ul id="rulesList" style="display:none;"></ul>
+
+    <button onclick="startExam()">Start Exam</button>
+</div>
+
+<!-- SCREEN 3 -->
+<div id="screen-exam" class="screen box">
+    <h2 id="qtext"></h2>
+    <div id="questionSkeleton">
+        <div class="skeleton skeleton-title"></div>
+        <div class="skeleton skeleton-big"></div>
+        <div class="skeleton skeleton-big"></div>
+    </div>
+    <div id="options" style="display:none;"></div>
+
+    <div id="timer"></div>
+    <div class="timer-bar"><div id="timerFill" class="timer-fill"></div></div>
+
+    <h3 style="text-align:center;margin-top:12px;">
+        Question <span id="qNumber">1</span> / <span id="qTotal">0</span>
+    </h3>
+
+    <div class="progress-wrapper">
+        <div id="progressFill" class="progress-fill"></div>
+    </div>
+
+    <button onclick="submitExam()">Submit Exam</button>
+</div>
+
+<!-- SCREEN 4 -->
+<div id="screen-result" class="screen box">
+    <h2>Your Result</h2>
+    <div class="score-circle">
+        <div class="score-fill" id="scoreFill"></div>
+        <span id="scoreCounter">0</span>
+    </div>
+
+    <h3>Suggestions</h3>
+    <div id="suggestions"></div>
+
+    <button onclick="goReview()">Review Answers</button>
+    <button onclick="goHome()">Home</button>
+</div>
+
+<!-- SCREEN 5 -->
+<div id="screen-review" class="screen box">
+    <h2>Answer Review</h2>
+    <div id="reviewBox"></div>
+    <button onclick="goHome()">Back</button>
+</div>
+
+<!-- SOUND EFFECTS -->
+<audio id="startSound" src="https://assets.mixkit.co/sfx/preview/mixkit-video-game-mystery-alert-2344.mp3"></audio>
+<audio id="correctSound" src="https://assets.mixkit.co/sfx/preview/mixkit-correct-answer-tone-2870.mp3"></audio>
+<audio id="wrongSound" src="https://assets.mixkit.co/sfx/preview/mixkit-wrong-answer-buzz-952.mp3"></audio>
+<audio id="completeSound" src="https://assets.mixkit.co/sfx/preview/mixkit-winning-chimes-2011.mp3"></audio>
+
+<script>
+/* ================================
+   SCREEN HANDLER
+================================ */
+function showScreen(id){
+    document.querySelectorAll(".screen").forEach(s=>s.classList.remove("active"));
+    document.getElementById(id).classList.add("active");
+}
+
+/* ================================
+   EXAM SELECTION
+================================ */
+function selectExam(type){
+    localStorage.setItem("examType",type);
+    loadInstructions();
+    showScreen("screen-instructions");
+}
+function selectTeacherExam(){
+    // Mock teacher exam
+    alert("Teacher Assigned Exam feature requires backend.");
+    selectExam("custom");
+}
+
+/* ================================
+   LOAD INSTRUCTIONS (Mock)
+================================ */
+function loadInstructions(){
+    // Mock data
+    const data = {
+        title:"Sample Exam",
+        instructions:["Read all questions carefully","Do not switch tabs","Answer all questions"],
+        rules:["No cheating","Time is limited"],
+        duration:60
+    };
+    document.getElementById("title").innerText = data.title;
+    document.getElementById("instructionsList").innerHTML = data.instructions.map(i => `<li>${i}</li>`).join("");
+    document.getElementById("rulesList").innerHTML = data.rules.map(r => `<li>${r}</li>`).join("");
+    localStorage.setItem("duration", data.duration);
+    document.getElementById("instrSkeleton").style.display = "none";
+    document.getElementById("instructionsList").style.display = "block";
+    document.getElementById("rulesSkeleton").style.display = "none";
+    document.getElementById("rulesList").style.display = "block";
+}
+
+/* ================================
+   LOAD QUESTIONS (Mock)
+================================ */
+let questions=[
+    {id:"q1",question:"2+2=?",options:["3","4","5"],correct:"4"},
+    {id:"q2",question:"Capital of India?",options:["Delhi","Mumbai","Kolkata"],correct:"Delhi"}
+];
+let qIndex=0;
+let answers={};
+let warnings=0;
+
+function startExam(){
+    document.getElementById("startSound").play();
+    showScreen("screen-exam");
+    loadQuestion();
+    startTimer();
+    antiCheat();
+}
+
+function loadQuestion(){
+    document.getElementById("questionSkeleton").style.display="block";
+    document.getElementById("options").style.display="none";
+    const q = questions[qIndex];
+    setTimeout(()=>{
+        document.getElementById("questionSkeleton").style.display="none";
+        document.getElementById("options").style.display="block";
+        document.getElementById("qtext").innerText=q.question;
+        document.getElementById("options").innerHTML =
+            q.options.map((o,i) => `<div class="option-btn" id="opt${i}" onclick="answer('${q.id}','${o}',${i})">${o}</div>`).join("");
+        document.getElementById("qNumber").innerText=qIndex+1;
+        document.getElementById("qTotal").innerText=questions.length;
+        document.getElementById("progressFill").style.width = ((qIndex+1)/questions.length)*100+"%";
+    },400);
+}
+
+/* ================================
+   ANSWER HANDLING
+================================ */
+function answer(id,option,index){
+    const q = questions[qIndex];
+    answers[id]=option;
+    let btns=document.querySelectorAll(".option-btn");
+    btns.forEach(b=>b.classList.add("disabled-option"));
+    let clicked = document.getElementById(`opt${index}`);
+    if(option === q.correct){
+        clicked.classList.add("correct-anim");
+        document.getElementById("correctSound").play();
+    } else {
+        clicked.classList.add("wrong-anim");
+        document.getElementById("wrongSound").play();
+    }
+    setTimeout(()=>{
+        if(qIndex < questions.length-1){
+            qIndex++;
+            loadQuestion();
+        } else submitExam();
+    },700);
+}
+
+/* ================================
+   TIMER
+================================ */
+let timeLeft;
+function startTimer(){
+    timeLeft = Number(localStorage.getItem("duration"));
+    let timer=setInterval(()=>{
+        document.getElementById("timer").innerText = `Time Left: ${timeLeft}s`;
+        document.getElementById("timerFill").style.width=(timeLeft/Number(localStorage.getItem("duration"))*100)+"%";
+        if(timeLeft<=0){clearInterval(timer);submitExam();}
+        timeLeft--;
+    },1000);
+}
+
+/* ================================
+   ANTI-CHEATING
+================================ */
+function antiCheat(){
+    document.addEventListener("visibilitychange",()=>{
+        if(document.hidden) warnCheat();
+    });
+}
+function warnCheat(){
+    warnings++;
+    if(warnings===1) alert("⚠ Don't switch tabs!");
+    else if(warnings>=2) submitExam();
+}
+
+/* ================================
+   SUBMIT EXAM
+================================ */
+function submitExam(){
+    document.getElementById("completeSound").play();
+    // Mock result
+    let marks = 0;
+    questions.forEach(q=>{if(answers[q.id]===q.correct) marks++;});
+    let result={marks:marks,total:questions.length,suggestions:["Review weak topics"],answers:questions.map(q=>({question:q.question,your:answers[q.id],correct:q.correct,explanation:""}))};
+    localStorage.setItem("result",JSON.stringify(result));
+    loadResult();
+    showScreen("screen-result");
+}
+
+/* ================================
+   RESULT
+================================ */
+function loadResult(){
+    const r=JSON.parse(localStorage.getItem("result"));
+    let percent = (r.marks / r.total) * 360;
+    document.getElementById("scoreFill").style.transform = `rotate(${percent}deg)`;
+    let counter = document.getElementById("scoreCounter");
+    let i = 0;
+    let anim = setInterval(() => {
+        counter.innerText = i;
+        if(i >= r.marks) clearInterval(anim);
+        i++;
+    }, 20);
+    document.getElementById("suggestions").innerHTML = r.suggestions.map(s => `<div class="suggestion-card">${s}</div>`).join("");
+}
+
+/* ================================
+   REVIEW
+================================ */
+function goReview(){
+    let r=JSON.parse(localStorage.getItem("result"));
+    document.getElementById("reviewBox").innerHTML = r.answers.map(a=>`
+        <p><b>${a.question}</b><br>Your: ${a.your}<br>Correct: ${a.correct}<br><i>${a.explanation}</i></p>
+    `).join("");
+    showScreen("screen-review");
+}
+function goHome(){location.reload();}
+</script>
+<script src="multilingual/site-i18n.js"></script>
+<script src="audio-manager.js"></script>
+</body>
+
+</html>

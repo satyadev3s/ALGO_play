@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>AlgoPlay — Science Level 5</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg-dark: #061118;
+    --card-bg: rgba(12, 28, 36, 0.88);
+    --border: rgba(52, 211, 153, 0.25);
+    --primary: #059669;
+    --primary-light: #10b981;
+    --accent: #34d399;
+    --danger: #f43f5e;
+  }
+  * { box-sizing: border-box; font-family: 'Poppins', sans-serif; }
+  html, body {
+    height: 100%;
+    margin: 0;
+    background: radial-gradient(circle at top right, #0d282f, #050d12 90%);
+    color: #fff;
+  }
+  .wrap {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+  }
+  .header {
+    padding: 18px 28px;
+    background: rgba(10, 24, 30, 0.85);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+    font-size: 18px;
+    font-weight: 800;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .timer-badge {
+    background: rgba(52, 211, 153, 0.15);
+    border: 1px solid var(--accent);
+    color: #a7f3d0;
+    padding: 6px 14px;
+    border-radius: 999px;
+    font-size: 14px;
+    font-weight: 700;
+  }
+  .progress-bar {
+    height: 6px;
+    background: rgba(255, 255, 255, 0.08);
+    width: 100%;
+  }
+  .progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #10b981, #34d399);
+    transition: width 0.35s ease;
+  }
+  .content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    max-width: 680px;
+    width: 90%;
+    margin: 30px auto;
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 24px;
+    padding: 36px 30px;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.55);
+    backdrop-filter: blur(14px);
+  }
+  .question-text {
+    font-size: 22px;
+    font-weight: 700;
+    margin-bottom: 24px;
+    color: #f8fafc;
+    line-height: 1.4;
+  }
+  .answer-button {
+    display: block;
+    width: 100%;
+    padding: 16px 22px;
+    border-radius: 14px;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    margin: 12px 0;
+    background: rgba(255, 255, 255, 0.05);
+    color: #e2e8f0;
+    font-size: 16px;
+    font-weight: 600;
+    text-align: left;
+    cursor: pointer;
+    transition: all 0.25s ease;
+  }
+  .answer-button:hover:not(:disabled) {
+    background: rgba(16, 185, 129, 0.2);
+    border-color: var(--primary-light);
+    transform: translateY(-2px);
+  }
+  .correct {
+    background: rgba(16, 185, 129, 0.3) !important;
+    border-color: var(--accent) !important;
+    color: #a7f3d0 !important;
+  }
+  .incorrect {
+    background: rgba(244, 63, 94, 0.3) !important;
+    border-color: var(--danger) !important;
+    color: #fecdd3 !important;
+  }
+  .footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 18px 30px;
+    background: rgba(10, 24, 30, 0.85);
+    border-top: 1px solid var(--border);
+    font-size: 15px;
+    font-weight: 700;
+  }
+  .next-button {
+    background: linear-gradient(135deg, var(--primary), var(--primary-light));
+    padding: 12px 24px;
+    border-radius: 12px;
+    border: 0;
+    color: #fff;
+    font-weight: 800;
+    cursor: pointer;
+    display: none;
+    box-shadow: 0 4px 15px rgba(16, 185, 129, 0.4);
+  }
+  .next-button.show { display: inline-block; }
+  .back-button {
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid var(--border);
+    padding: 10px 20px;
+    border-radius: 12px;
+    color: #fff;
+    font-weight: 700;
+    cursor: pointer;
+  }
+  .back-button:disabled { opacity: 0.4; cursor: not-allowed; }
+</style>
+<link rel="stylesheet" href="multilingual/app-theme.css">
+</head>
+<body>
+<div class="wrap">
+  <div class="header">
+    <div id="qnum">🔬 Level 5 — Question 1</div>
+    <div class="timer-badge">⏳ <span id="timer">30</span>s</div>
+  </div>
+
+  <div class="progress-bar"><div id="progress" class="progress-fill" style="width:25%"></div></div>
+
+  <div class="content">
+    <div id="qtext" class="question-text">Loading question...</div>
+    <button class="answer-button" onclick="choose(this,'a')"></button>
+    <button class="answer-button" onclick="choose(this,'b')"></button>
+    <button class="answer-button" onclick="choose(this,'c')"></button>
+    <button class="answer-button" onclick="choose(this,'d')"></button>
+  </div>
+
+  <div class="footer">
+    <div>Score: <span id="score">0</span>/4</div>
+    <div style="display:flex;gap:12px;align-items:center">
+      <button id="back" class="back-button" onclick="back()" disabled>← Back</button>
+      <button id="next" class="next-button" onclick="nextQ()">Next →</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const LEVEL = 5;
+const TIME = 30;
+
+const Q = [
+  { number:1, text:"Which phenomenon explains rainbows?", answers:{a:"Reflection", b:"Refraction", c:"Diffusion", d:"Conduction"}, correct:"b", user:null, remaining:TIME },
+  { number:2, text:"Which organelle contains genetic material?", answers:{a:"Mitochondria", b:"Ribosome", c:"Nucleus", d:"Golgi apparatus"}, correct:"c", user:null, remaining:TIME },
+  { number:3, text:"Which particle has a negative charge?", answers:{a:"Proton", b:"Electron", c:"Neutron", d:"Photon"}, correct:"b", user:null, remaining:TIME },
+  { number:4, text:"Which vitamin is primarily produced in skin exposed to sunlight?", answers:{a:"Vitamin A", b:"Vitamin B12", c:"Vitamin C", d:"Vitamin D"}, correct:"d", user:null, remaining:TIME }
+];
+
+let index = 0;
+let timer = null;
+
+const qnum = document.getElementById("qnum");
+const qtext = document.getElementById("qtext");
+const buttons = document.querySelectorAll(".answer-button");
+const timerEl = document.getElementById("timer");
+const scoreEl = document.getElementById("score");
+const nextBtn = document.getElementById("next");
+const backBtn = document.getElementById("back");
+const progress = document.getElementById("progress");
+
+function render(){
+  const q = Q[index];
+  qnum.textContent = `🔬 Level 5 — Question ${q.number} of ${Q.length}`;
+  qtext.textContent = q.text;
+  scoreEl.textContent = Q.filter(x=>x.user===x.correct).length;
+  progress.style.width = ((index+1)/Q.length)*100 + "%";
+
+  buttons.forEach((btn,i)=>{
+    const key = ["a","b","c","d"][i];
+    btn.textContent = `${key}) ${q.answers[key]}`;
+    btn.dataset.key = key;
+    btn.disabled = q.user !== null;
+    btn.classList.remove("correct","incorrect");
+    btn.style.opacity = "1";
+    if(q.user !== null){
+      if(key === q.correct) btn.classList.add("correct");
+      else if(key === q.user) btn.classList.add("incorrect");
+      else btn.style.opacity = "0.5";
+    }
+  });
+
+  backBtn.disabled = index === 0;
+  if(q.user !== null) nextBtn.classList.add("show");
+  else nextBtn.classList.remove("show");
+
+  startTimer();
+}
+
+function startTimer(){
+  stopTimer();
+  const q = Q[index];
+  timerEl.textContent = q.remaining;
+  if(q.user !== null) return;
+
+  timer = setInterval(()=>{
+    q.remaining--;
+    timerEl.textContent = q.remaining;
+    if(q.remaining <= 0){
+      stopTimer();
+      timeOut();
+    }
+  },1000);
+}
+
+function stopTimer(){
+  if(timer){ clearInterval(timer); timer = null; }
+}
+
+function choose(btn, key){
+  const q = Q[index];
+  if(q.user !== null) return;
+  stopTimer();
+  q.user = key;
+
+  buttons.forEach(b=>b.disabled=true);
+  if(key === q.correct) btn.classList.add("correct");
+  else {
+    btn.classList.add("incorrect");
+    const correctBtn = [...buttons].find(b=>b.dataset.key===q.correct);
+    if(correctBtn) correctBtn.classList.add("correct");
+  }
+
+  scoreEl.textContent = Q.filter(x=>x.user===x.correct).length;
+  setTimeout(()=> nextBtn.classList.add("show"), 400);
+}
+
+function timeOut(){
+  const q = Q[index];
+  if(!q.user) q.user = "timeout";
+  buttons.forEach(b=>b.disabled=true);
+  const correctBtn = [...buttons].find(b=>b.dataset.key===q.correct);
+  if(correctBtn) correctBtn.classList.add("correct");
+  setTimeout(()=> nextQ(), 700);
+}
+
+function nextQ(){
+  stopTimer();
+  if(index < Q.length - 1){
+    index++;
+    render();
+  } else finish();
+}
+
+function back(){
+  stopTimer();
+  if(index > 0){
+    index--;
+    render();
+  }
+}
+
+function finish(){
+  stopTimer();
+  const s = Q.filter(x=>x.user===x.correct).length;
+  const t = Q.length;
+  const pct = (s/t)*100;
+  const msg = pct>=75 ? '🎉 Excellent!' : pct>=50 ? '👍 Good!' : '📚 Keep Learning!';
+
+  try {
+    const profile = JSON.parse(localStorage.getItem('algoplay_profile')) || { xp: 120, coins: 45, level: 1 };
+    profile.xp += (s * 25 + 30);
+    localStorage.setItem('algoplay_profile', JSON.stringify(profile));
+  } catch(e) {}
+
+  alert(`${msg}\n\nLevel ${LEVEL} Completed!\nFinal Score: ${s}/${t}\n${pct.toFixed(1)}%`);
+  sessionStorage.setItem("completedLevel", LEVEL);
+  location.href = "scilevel.html";
+}
+
+if(document.readyState === 'loading'){
+  document.addEventListener('DOMContentLoaded', render);
+} else {
+  render();
+}
+</script>
+<script src="multilingual/site-i18n.js"></script>
+<script src="audio-manager.js"></script>
+</body>
+</html>

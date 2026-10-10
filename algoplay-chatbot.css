@@ -1,0 +1,231 @@
+#algoplay-chatbot-root {
+  position: fixed;
+  right: 24px;
+  bottom: 24px;
+  z-index: 1000;
+  font-family: Poppins, Arial, sans-serif;
+}
+
+.algoplay-chat-launcher {
+  border: 0;
+  border-radius: 999px;
+  padding: 12px 16px 12px 12px;
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  color: #fff;
+  background: linear-gradient(135deg, #22d3ee, #6366f1, #ec4899);
+  box-shadow: 0 12px 30px rgba(99, 102, 241, .4);
+  cursor: pointer;
+  font-weight: 700;
+  transition: transform .2s ease, box-shadow .2s ease;
+}
+
+.algoplay-chat-launcher:hover,
+.algoplay-chat-launcher:focus-visible {
+  transform: translateY(-2px);
+  box-shadow: 0 16px 36px rgba(99, 102, 241, .55);
+  outline: none;
+}
+
+.algoplay-chat-launcher span:first-child {
+  width: 34px;
+  height: 34px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, .2);
+  font-size: 19px;
+}
+
+.algoplay-chat-panel {
+  width: min(380px, calc(100vw - 32px));
+  height: min(580px, calc(100vh - 110px));
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  border: 1px solid rgba(148, 163, 255, .28);
+  border-radius: 20px;
+  background: rgba(9, 13, 30, .97);
+  box-shadow: 0 24px 70px rgba(0, 0, 0, .55);
+  transform-origin: bottom right;
+  transition: opacity .2s ease, transform .2s ease;
+}
+
+.algoplay-chat-panel[hidden] {
+  display: none;
+}
+
+.algoplay-chat-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 16px;
+  border-bottom: 1px solid rgba(255, 255, 255, .1);
+}
+
+.algoplay-chat-avatar {
+  width: 38px;
+  height: 38px;
+  display: grid;
+  place-items: center;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #6366f1, #22d3ee);
+  font-size: 20px;
+}
+
+.algoplay-chat-title {
+  flex: 1;
+  color: #fff;
+  font-size: 14px;
+  font-weight: 800;
+}
+
+.algoplay-chat-status {
+  display: block;
+  margin-top: 2px;
+  color: #86efac;
+  font-size: 10px;
+  font-weight: 500;
+}
+
+.algoplay-chat-header button,
+.algoplay-chat-copy,
+.algoplay-chat-clear {
+  border: 0;
+  color: #cbd5e1;
+  background: transparent;
+  cursor: pointer;
+}
+
+.algoplay-chat-header button {
+  padding: 5px;
+  font-size: 18px;
+}
+
+.algoplay-chat-header button:hover,
+.algoplay-chat-copy:hover,
+.algoplay-chat-clear:hover {
+  color: #fff;
+}
+
+.algoplay-chat-messages {
+  flex: 1;
+  overflow-y: auto;
+  padding: 16px;
+}
+
+.algoplay-chat-message {
+  max-width: 88%;
+  margin: 0 0 12px;
+  padding: 10px 12px;
+  border-radius: 14px;
+  color: #e2e8f0;
+  font-size: 13px;
+  line-height: 1.5;
+  white-space: pre-wrap;
+}
+
+.algoplay-chat-message.ai {
+  border: 1px solid rgba(129, 140, 248, .18);
+  background: rgba(99, 102, 241, .16);
+}
+
+.algoplay-chat-message.user {
+  margin-left: auto;
+  color: #eff6ff;
+  background: linear-gradient(135deg, #2563eb, #4f46e5);
+}
+
+.algoplay-chat-copy {
+  display: block;
+  margin-top: 7px;
+  padding: 0;
+  font-size: 11px;
+}
+
+.algoplay-chat-suggestions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+  padding: 0 16px 10px;
+}
+
+.algoplay-chat-suggestions button {
+  border: 1px solid rgba(148, 163, 184, .25);
+  border-radius: 999px;
+  padding: 7px 10px;
+  color: #cbd5e1;
+  background: rgba(255, 255, 255, .06);
+  cursor: pointer;
+  font-size: 11px;
+}
+
+.algoplay-chat-suggestions button:hover {
+  border-color: #818cf8;
+  color: #fff;
+}
+
+.algoplay-chat-form {
+  display: flex;
+  gap: 8px;
+  padding: 12px;
+  border-top: 1px solid rgba(255, 255, 255, .1);
+}
+
+.algoplay-chat-form textarea {
+  min-height: 40px;
+  max-height: 100px;
+  flex: 1;
+  resize: none;
+  border: 1px solid rgba(148, 163, 184, .25);
+  border-radius: 12px;
+  padding: 10px;
+  color: #f8fafc;
+  background: rgba(15, 23, 42, .9);
+  font: inherit;
+  font-size: 12px;
+}
+
+.algoplay-chat-form textarea:focus {
+  border-color: #818cf8;
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(129, 140, 248, .2);
+}
+
+.algoplay-chat-form button {
+  align-self: flex-end;
+  border: 0;
+  border-radius: 11px;
+  padding: 10px 13px;
+  color: #fff;
+  background: #4f46e5;
+  cursor: pointer;
+  font-weight: 700;
+}
+
+.algoplay-chat-form button:disabled {
+  cursor: not-allowed;
+  opacity: .5;
+}
+
+.algoplay-chat-error {
+  margin: 0 16px 10px;
+  color: #fda4af;
+  font-size: 12px;
+}
+
+.algoplay-chat-loading {
+  color: #c4b5fd;
+}
+
+@media (max-width: 520px) {
+  #algoplay-chatbot-root {
+    right: 16px;
+    bottom: 16px;
+  }
+
+  .algoplay-chat-panel {
+    height: min(620px, calc(100vh - 90px));
+  }
+}

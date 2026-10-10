@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Heart Structure & Function Video Quiz</title>
+<style>
+ :root{
+  --bg:#0f172a; --card:#111827; --muted:#94a3b8; --text:#e5e7eb;
+  --primary:#22d3ee; --correct:#22c55e; --wrong:#ef4444;
+  --border: rgba(255,255,255,.10);
+  --radius-lg: 20px; --radius-md: 12px;
+  --shadow-1: 0 20px 80px rgba(0,0,0,.35);
+  --shadow-2: 0 10px 30px rgba(0,0,0,.35);
+}
+
+*{ box-sizing: border-box; }
+
+/* ===== Base / backdrop ===== */
+body{
+  margin:0; min-height:100vh; display:flex; justify-content:center; align-items:center;
+  background: radial-gradient(1200px 600px at 70% -10%, #1f2937 0%, var(--bg) 55%, #020617 100%);
+  color:var(--text); font-family:system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+  overflow:hidden; padding:0;
+}
+
+.game-container{ position:relative; width:100%; height:100vh; }
+
+video{
+  width:100%; height:100%; object-fit:cover;
+  filter:saturate(105%) contrast(105%) brightness(88%);
+  transition: transform .6s ease, filter .6s ease;
+}
+
+/* Optional: shrink-to-card preview */
+.video-small{
+  width:min(88vw, 420px) !important;
+  height:min(88vw, 420px) !important;
+  position:absolute; top:40%; left:50%; transform:translate(-50%,-50%);
+  border-radius:16px; object-fit:cover;
+  box-shadow: 0 0 0 1px var(--border), var(--shadow-2);
+}
+
+/* ===== Question panel (replaces #questionBox look with "card") ===== */
+#questionBox{
+  display:none; /* toggle via JS */
+  position:absolute; left:50%; top:50%; transform:translate(-50%,-50%);
+  width:min(96vw, 980px);
+  background: linear-gradient(180deg, rgba(255,255,255,.05), rgba(255,255,255,.02));
+  border:1px solid var(--border);
+  border-radius: var(--radius-lg);
+  text-align:left;
+  padding: 20px;
+  box-shadow: var(--shadow-1);
+  backdrop-filter: blur(6px);
+}
+
+/* Title / subtitle helpers (optional) */
+#questionBox .title{ font-size:18px; margin:0 0 6px; display:flex; align-items:center; gap:10px; }
+#questionBox .title::before{
+  content:""; width:10px; height:10px; border-radius:50%; background:var(--primary);
+  box-shadow:0 0 16px var(--primary);
+}
+#questionBox .subtitle{ color:var(--muted); font-size:14px; margin:0 0 14px; }
+
+/* ===== Layout inside questionBox: image + QA (optional) ===== */
+#questionBox .wrap{
+  display:grid; grid-template-columns:1.1fr .9fr; gap:22px;
+}
+@media (max-width:860px){ #questionBox .wrap{ grid-template-columns:1fr; } }
+
+/* Media area (optional) */
+#questionBox .image-box{
+  position:relative; border:1px solid var(--border); border-radius:16px; overflow:hidden;
+  background:#0b1220; min-height:300px; display:flex; align-items:center; justify-content:center;
+}
+#questionBox .image-box img{ display:block; width:100%; height:auto; }
+
+/* ===== Options (pro card-buttons) ===== */
+.options{ display:grid; gap:10px; margin:12px 0; }
+
+/* Map your .option button to a premium look */
+.option{
+  display:flex; align-items:center; gap:12px;
+  width:100%;
+  padding:12px 14px;
+  border:1px solid rgba(255,255,255,.1);
+  border-radius:12px;
+  background: linear-gradient(180deg, rgba(255,255,255,.03), rgba(255,255,255,.01));
+  color:var(--text); font-size:16px; font-weight:600;
+  cursor:pointer; user-select:none;
+  transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease, background .18s ease;
+  box-shadow: var(--shadow-2);
+}
+.option:hover{ transform:translateY(-2px); }
+.option:focus-visible{
+  outline:none; box-shadow:0 0 0 4px rgba(34,211,238,.28), var(--shadow-2);
+  border-color: rgba(34,211,238,.5);
+}
+
+/* Correct/Wrong states to toggle via JS */
+.option.correct{ outline:2px solid var(--correct); border-color: rgba(34,197,94,.35); }
+.option.wrong{ outline:2px solid var(--wrong); border-color: rgba(239,68,68,.35); }
+
+/* If you DON’T have a .options wrapper, keep margins tidy */
+.option:not(:first-child){ margin-top:10px; }
+
+/* Small badge (optional) */
+.option .badge{
+  display:inline-flex; align-items:center; justify-content:center;
+  width:28px; height:28px; border-radius:8px; background: rgba(255,255,255,.08);
+  color:#cbd5e1; font-size:13px; font-weight:700;
+}
+
+/* ===== Navigation buttons row ===== */
+.nav-buttons{
+  display:flex; gap:10px; margin-top:10px; justify-content:flex-end; flex-wrap:wrap;
+}
+
+/* Map your .nav-btn to themed buttons */
+.nav-btn{
+  border:none; padding:12px 14px; border-radius:12px; font-weight:700;
+  cursor:pointer; box-shadow:0 10px 18px rgba(34,211,238,.25);
+  background: var(--primary); color:#00212a;
+  transition: transform .12s ease, box-shadow .12s ease, filter .2s ease;
+}
+.nav-btn:hover{ transform:translateY(-1px); filter:brightness(1.04); }
+.nav-btn:active{ transform:translateY(0) scale(.98); }
+
+/* Secondary style (add class .secondary to your existing .nav-btn if needed) */
+.nav-btn.secondary{
+  background:#1f2937; color:var(--text);
+  box-shadow:none; border:1px solid var(--border);
+}
+
+/* Global buttons fallback (any bare <button> inside #questionBox) */
+#questionBox button{
+  font-family:inherit;
+}
+
+/* Motion preference */
+@media (prefers-reduced-motion: reduce){
+  *{ transition:none !important; animation:none !important; }
+}
+
+</style>
+<link rel="stylesheet" href="multilingual/app-theme.css">
+</head>
+<body>
+
+<div class="game-container">
+  <video id="gameVideo" autoplay muted>
+    <source src="heartvideo.mp4" type="video/mp4">
+  </video>
+
+  <div id="questionBox">
+    <h2 id="questionText"></h2>
+
+    <button class="option" onclick="checkAnswer('A')">A</button>
+    <button class="option" onclick="checkAnswer('B')">B</button>
+    <button class="option" onclick="checkAnswer('C')">C</button>
+    <button class="option" onclick="checkAnswer('D')">D</button>
+
+    <p id="result"></p>
+
+    <div class="nav-buttons">
+      <button class="nav-btn" id="backBtn">⬅ Back</button>
+      <button class="nav-btn" id="nextBtn">Next ➡</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const video = document.getElementById("gameVideo");
+const questionBox = document.getElementById("questionBox");
+const resultText = document.getElementById("result");
+
+let questions = [
+  {
+    q: "What is the primary function of the heart, and what bony structure protects it?",
+    opts: {
+      A: "To filter waste products; protected by the pelvis.",
+      B: "To produce hormones; protected by the vertebrae.",
+      C: "To pump blood; protected by the rib cage.",
+      D: "To store oxygen; protected by the skull."
+    },
+    answer: "C"
+  },
+  {
+    q: "How many chambers is the human heart divided into?",
+    opts: {
+      A: "Two chambers (one atrium and one ventricle)",
+      B: "Three chambers (two atria and one ventricle)",
+      C: "Four chambers (two atria and two ventricles)",
+      D: "Six chambers (three atria and three ventricles)"
+    },
+    answer: "C"
+  },
+  {
+    q: "In circulatory diagrams, what do blue and red colors typically represent?",
+    opts: {
+      A: "Blue = arterial (oxygenated); Red = venous (deoxygenated)",
+      B: "Blue = venous (deoxygenated); Red = arterial (oxygenated)",
+      C: "Blue = blood entering heart; Red = blood leaving heart",
+      D: "Blue = blood from upper body; Red = blood from lower body"
+    },
+    answer: "B"
+  }
+];
+
+let current = 0;
+
+function loadQuestion() {
+  let q = questions[current];
+  document.getElementById("questionText").innerText = q.q;
+
+  let opt = document.getElementsByClassName("option");
+  opt[0].innerText = q.opts.A;
+  opt[1].innerText = q.opts.B;
+  opt[2].innerText = q.opts.C;
+  opt[3].innerText = q.opts.D;
+
+  resultText.innerText = "";
+}
+
+function showQuestion() {
+  video.pause();
+  video.classList.add("video-small");
+  loadQuestion();
+  questionBox.style.display = "block";
+}
+
+setTimeout(showQuestion, 10000); // first question after 10 sec
+
+function checkAnswer(opt) {
+  if (opt === questions[current].answer) {
+    resultText.style.color = "green";
+    resultText.innerText = "✅ Correct!";
+  } else {
+    resultText.style.color = "red";
+    resultText.innerText = "❌ Wrong answer. Try again!";
+  }
+}
+
+function playVideoAgain() {
+  questionBox.style.display = "none";
+  video.classList.remove("video-small");
+  video.play();
+
+  setTimeout(() => {
+    showQuestion();
+  }, 10000);
+}
+
+document.getElementById("nextBtn").addEventListener("click", () => {
+  if (current < questions.length - 1) {
+    current++;
+    playVideoAgain();
+  } else {
+    window.location.href = "gameboard.html"; // after last Q → go next page
+  }
+});
+
+document.getElementById("backBtn").addEventListener("click", () => {
+  if (current > 0) {
+    current--;
+    playVideoAgain();
+  } else {
+    window.location.href = "sciencegame.html"; // before first → previous page
+  }
+});
+</script>
+<script src="multilingual/site-i18n.js"></script>
+<script src="audio-manager.js"></script>
+</body>
+</html>

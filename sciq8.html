@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>AlgoPlay — Science Level 8</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg-dark: #061118;
+    --card-bg: rgba(12, 28, 36, 0.88);
+    --border: rgba(52, 211, 153, 0.25);
+    --primary: #059669;
+    --primary-light: #10b981;
+    --accent: #34d399;
+    --danger: #f43f5e;
+  }
+  * { box-sizing: border-box; font-family: 'Poppins', sans-serif; }
+  html, body {
+    height: 100%;
+    margin: 0;
+    background: radial-gradient(circle at top right, #0d282f, #050d12 90%);
+    color: #fff;
+  }
+  .wrap {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+  }
+  .header {
+    padding: 18px 28px;
+    background: rgba(10, 24, 30, 0.85);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+    font-size: 18px;
+    font-weight: 800;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .timer-badge {
+    background: rgba(52, 211, 153, 0.15);
+    border: 1px solid var(--accent);
+    color: #a7f3d0;
+    padding: 6px 14px;
+    border-radius: 999px;
+    font-size: 14px;
+    font-weight: 700;
+  }
+  .progress-bar {
+    height: 6px;
+    background: rgba(255, 255, 255, 0.08);
+    width: 100%;
+  }
+  .progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #10b981, #34d399);
+    transition: width 0.35s ease;
+  }
+  .content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    max-width: 680px;
+    width: 90%;
+    margin: 30px auto;
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 24px;
+    padding: 36px 30px;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.55);
+    backdrop-filter: blur(14px);
+  }
+  .question-text {
+    font-size: 22px;
+    font-weight: 700;
+    margin-bottom: 24px;
+    color: #f8fafc;
+    line-height: 1.4;
+  }
+  .answer-button {
+    display: block;
+    width: 100%;
+    padding: 16px 22px;
+    border-radius: 14px;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    margin: 12px 0;
+    background: rgba(255, 255, 255, 0.05);
+    color: #e2e8f0;
+    font-size: 16px;
+    font-weight: 600;
+    text-align: left;
+    cursor: pointer;
+    transition: all 0.25s ease;
+  }
+  .answer-button:hover:not(:disabled) {
+    background: rgba(16, 185, 129, 0.2);
+    border-color: var(--primary-light);
+    transform: translateY(-2px);
+  }
+  .correct {
+    background: rgba(16, 185, 129, 0.3) !important;
+    border-color: var(--accent) !important;
+    color: #a7f3d0 !important;
+  }
+  .incorrect {
+    background: rgba(244, 63, 94, 0.3) !important;
+    border-color: var(--danger) !important;
+    color: #fecdd3 !important;
+  }
+  .footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 18px 30px;
+    background: rgba(10, 24, 30, 0.85);
+    border-top: 1px solid var(--border);
+    font-size: 15px;
+    font-weight: 700;
+  }
+  .next-button {
+    background: linear-gradient(135deg, var(--primary), var(--primary-light));
+    padding: 12px 24px;
+    border-radius: 12px;
+    border: 0;
+    color: #fff;
+    font-weight: 800;
+    cursor: pointer;
+    display: none;
+    box-shadow: 0 4px 15px rgba(16, 185, 129, 0.4);
+  }
+  .next-button.show { display: inline-block; }
+  .back-button {
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid var(--border);
+    padding: 10px 20px;
+    border-radius: 12px;
+    color: #fff;
+    font-weight: 700;
+    cursor: pointer;
+  }
+  .back-button:disabled { opacity: 0.4; cursor: not-allowed; }
+</style>
+<link rel="stylesheet" href="multilingual/app-theme.css">
+</head>
+<body>
+<div class="wrap">
+  <div class="header">
+    <div id="qnum">🤖 Level 8 — Question 1</div>
+    <div class="timer-badge">⏳ <span id="timer">30</span>s</div>
+  </div>
+
+  <div class="progress-bar"><div id="progress-fill" class="progress-fill" style="width:25%"></div></div>
+
+  <div class="content">
+    <div id="qtext" class="question-text">Loading question...</div>
+    <button class="answer-button" data-answer="a" onclick="select(this,'a')"></button>
+    <button class="answer-button" data-answer="b" onclick="select(this,'b')"></button>
+    <button class="answer-button" data-answer="c" onclick="select(this,'c')"></button>
+    <button class="answer-button" data-answer="d" onclick="select(this,'d')"></button>
+  </div>
+
+  <div class="footer">
+    <div>Score: <strong id="score">0</strong>/<span id="total">4</span></div>
+    <div style="display:flex;gap:12px;align-items:center">
+      <button id="back" class="back-button" onclick="goBack()" disabled>← Back</button>
+      <button id="next" class="next-button" onclick="goNext()">Next →</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const TIME_PER_Q=30, LEVEL=8;
+const questions=[
+  {number:1,text:"Which electronic sensor detects light intensity?",answers:[{l:'a',t:'Photoreceptor'},{l:'b',t:'Thermistor'},{l:'c',t:'Gyroscope'},{l:'d',t:'Microphone'}],correct:'a',user:null,remaining:TIME_PER_Q},
+  {number:2,text:"Which component converts Alternating Current (AC) to Direct Current (DC)?",answers:[{l:'a',t:'Transformer'},{l:'b',t:'Rectifier'},{l:'c',t:'Inverter'},{l:'d',t:'Capacitor'}],correct:'b',user:null,remaining:TIME_PER_Q},
+  {number:3,text:"What is the SI unit of electrical resistance?",answers:[{l:'a',t:'Ohm (Ω)'},{l:'b',t:'Volt (V)'},{l:'c',t:'Ampere (A)'},{l:'d',t:'Watt (W)'}],correct:'a',user:null,remaining:TIME_PER_Q},
+  {number:4,text:"What is the SI unit of wave frequency?",answers:[{l:'a',t:'Second'},{l:'b',t:'Hertz (Hz)'},{l:'c',t:'Newton'},{l:'d',t:'Pascal'}],correct:'b',user:null,remaining:TIME_PER_Q}
+];
+
+let state={idx:0,intv:null};
+const DOM={
+  qtext:document.getElementById('qtext'),
+  qnum:document.getElementById('qnum'),
+  buttons:document.querySelectorAll('.answer-button'),
+  score:document.getElementById('score'),
+  total:document.getElementById('total'),
+  next:document.getElementById('next'),
+  back:document.getElementById('back'),
+  timer:document.getElementById('timer'),
+  progress:document.getElementById('progress-fill')
+};
+
+function render(){
+  const q=questions[state.idx];
+  DOM.qnum.textContent=`🤖 Level 8 — Question ${q.number} of ${questions.length}`;
+  DOM.qtext.textContent=q.text;
+  DOM.total.textContent=questions.length;
+  DOM.score.textContent=questions.filter(x=>x.user===x.correct).length;
+  DOM.progress.style.width = (((state.idx+1)/questions.length)*100)+'%';
+
+  DOM.buttons.forEach((b,i)=>{
+    const a=q.answers[i];
+    b.textContent=`${a.l}) ${a.t}`;
+    b.dataset.answer=a.l;
+    b.classList.remove('correct','incorrect');
+    b.disabled = q.user!==null;
+    b.style.opacity='1';
+    if(q.user!==null){
+      if(a.l===q.correct) b.classList.add('correct');
+      else if(a.l===q.user) b.classList.add('incorrect');
+      else b.style.opacity='0.5';
+    }
+  });
+
+  DOM.next.classList[q.user!==null ? 'add' : 'remove']('show');
+  DOM.back.disabled = state.idx===0;
+  DOM.timer.textContent = q.remaining;
+  startTimer();
+}
+
+function startTimer(){
+  stopTimer();
+  const q=questions[state.idx];
+  DOM.timer.textContent=q.remaining;
+  if(q.user!==null) return;
+
+  state.intv=setInterval(()=>{
+    q.remaining--;
+    DOM.timer.textContent=q.remaining;
+    if(q.remaining<=0){
+      stopTimer();
+      onTimeUp();
+    }
+  },1000);
+}
+
+function stopTimer(){
+  if(state.intv){ clearInterval(state.intv); state.intv=null; }
+}
+
+function onTimeUp(){
+  const q=questions[state.idx];
+  if(q.user===null) q.user='timeout';
+  DOM.buttons.forEach(b=>b.disabled=true);
+  const cb=[...DOM.buttons].find(b=>b.dataset.answer===q.correct);
+  if(cb) cb.classList.add('correct');
+  setTimeout(()=> advanceOrFinish(),700);
+}
+
+function select(btn,choice){
+  const q=questions[state.idx];
+  if(q.user!==null) return;
+  stopTimer();
+  q.user=choice;
+  DOM.buttons.forEach(b=>b.disabled=true);
+  if(choice===q.correct) btn.classList.add('correct');
+  else {
+    btn.classList.add('incorrect');
+    const cb=[...DOM.buttons].find(b=>b.dataset.answer===q.correct);
+    if(cb) cb.classList.add('correct');
+  }
+  DOM.score.textContent=questions.filter(x=>x.user===x.correct).length;
+  setTimeout(()=> DOM.next.classList.add('show'),400);
+}
+
+function goNext(){ stopTimer(); advanceOrFinish(); }
+function goBack(){ stopTimer(); if(state.idx===0) return; state.idx--; render(); }
+function advanceOrFinish(){ if(state.idx<questions.length-1){ state.idx++; render(); } else finish(); }
+
+function finish(){
+  stopTimer();
+  const s=questions.filter(x=>x.user===x.correct).length;
+  const t=questions.length;
+  const pct=(s/t)*100;
+  const msg=pct>=75?'🎉 Excellent!':pct>=50?'👍 Good!':'📚 Keep Learning!';
+
+  try {
+    const profile = JSON.parse(localStorage.getItem('algoplay_profile')) || { xp: 120, coins: 45, level: 1 };
+    profile.xp += (s * 30 + 40);
+    localStorage.setItem('algoplay_profile', JSON.stringify(profile));
+  } catch(e) {}
+
+  alert(`${msg}\n\nLevel ${LEVEL} Completed!\nFinal Score: ${s}/${t}\n${pct.toFixed(1)}%`);
+  sessionStorage.setItem(`level${LEVEL}_completed`,'true');
+  sessionStorage.setItem('completedLevel', LEVEL);
+  location.href='scilevel.html';
+}
+
+if(document.readyState === 'loading'){
+  document.addEventListener('DOMContentLoaded', render);
+} else {
+  render();
+}
+</script>
+<script src="multilingual/site-i18n.js"></script>
+<script src="audio-manager.js"></script>
+</body>
+</html>

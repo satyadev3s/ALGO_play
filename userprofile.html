@@ -1,0 +1,471 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Edit Profile — AlgoPlay</title>
+
+<!-- Preconnect and preload fonts for better performance [web:7][web:13] -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preload" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'">
+<noscript><link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet"></noscript>
+
+<style>
+:root {
+    --bg: #0d1117;
+    --card: rgba(255, 255, 255, 0.05);
+    --border: rgba(255, 255, 255, 0.12);
+    --text: #e2e8f0;
+    --accent: #3b82f6;
+    --accent2: #06b6d4;
+    --radius: 16px;
+    --shadow: 0 0 25px rgba(59, 130, 246, 0.35);
+}
+
+*{box-sizing:border-box}
+html,body{
+ margin:0;
+ background:var(--bg);
+ color:var(--text);
+ font-family:Inter,system-ui;
+ overflow-x:hidden;
+ animation:fadeScreen 0.6s ease;
+}
+
+@keyframes fadeScreen {
+    from { opacity:0; }
+    to { opacity:1; }
+}
+
+#bgCanvas{
+ position:fixed;
+ inset:0;
+ z-index:0;
+}
+
+.center-wrap{
+ z-index:2;
+ position:relative;
+ height:100%;
+ width:100%;
+ display:flex;
+ justify-content:center;
+ align-items:center;
+ padding:20px;
+}
+
+.card{
+ width:100%;
+ max-width:900px;
+ border-radius:var(--radius);
+ padding:40px;
+ background:var(--card);
+ border:1px solid var(--border);
+ box-shadow:var(--shadow);
+ backdrop-filter:blur(16px);
+ animation:floatUp 0.7s ease;
+}
+
+@keyframes floatUp {
+    from { opacity:0; transform:translateY(25px); }
+    to   { opacity:1; transform:translateY(0); }
+}
+
+h1{
+ margin:0;
+ font-size:30px;
+ font-weight:800;
+ text-align:center;
+ background:linear-gradient(to right,var(--accent),var(--accent2));
+ -webkit-background-clip:text;
+ color:transparent;
+ animation:glowText 2s ease-in-out infinite alternate;
+}
+
+@keyframes glowText {
+    from { text-shadow:0 0 10px rgba(59,130,246,0.5); }
+    to   { text-shadow:0 0 20px rgba(6,182,212,0.7); }
+}
+
+.pic-wrap{
+ text-align:center;
+ margin-bottom:22px;
+}
+
+.profile-pic{
+ width:150px;
+ height:150px;
+ border-radius:50%;
+ object-fit:cover;
+ border:3px solid var(--accent);
+ box-shadow:0 0 20px rgba(59,130,246,0.5);
+ transition:0.25s;
+}
+
+.profile-pic:hover{
+ transform:scale(1.06);
+ box-shadow:0 0 25px rgba(6,182,212,0.7);
+}
+
+.button-row{
+ display:flex;
+ gap:12px;
+ justify-content:center;
+ margin-top:12px;
+}
+
+.btn{
+ flex:1;
+ padding:12px 18px;
+ border-radius:var(--radius);
+ border:0;
+ cursor:pointer;
+ font-weight:700;
+ background:linear-gradient(to right,var(--accent),var(--accent2));
+ color:white;
+ transition:0.3s;
+ box-shadow:0 4px 15px rgba(59,130,246,0.35);
+}
+
+.btn:hover{
+ transform:translateY(-3px);
+ box-shadow:0 0 25px rgba(6,182,212,0.55);
+}
+
+.remove-btn{
+   margin-top:14px;
+   background:linear-gradient(to right,#ef4444,#dc2626);
+   height:41px;
+}
+
+label{
+ font-size:13px;
+ font-weight:600;
+ margin-top:16px;
+ display:block;
+}
+
+.input-field{
+ width:100%;
+ padding:13px;
+ font-size:14px;
+ margin-top:6px;
+ border-radius:var(--radius);
+ border:1px solid var(--border);
+ background:rgba(255,255,255,0.06);
+ color:white;
+ backdrop-filter:blur(8px);
+ transition:0.25s;
+}
+
+.input-field::placeholder{
+ color:#9ca3af;
+}
+
+.input-field:focus{
+ outline:none;
+ border-color:var(--accent);
+ box-shadow:0 0 12px rgba(59,130,246,0.4);
+ transform:translateY(-2px);
+}
+
+.grid{
+ display:grid;
+ grid-template-columns:1fr 1fr;
+ gap:22px;
+ margin-top:30px;
+}
+
+.badges-section h2,
+.shop-section h2{
+ font-size:17px;
+ font-weight:700;
+ background:linear-gradient(to right,var(--accent),var(--accent2));
+ -webkit-background-clip:text;
+ color:transparent;
+ margin-bottom:10px;
+}
+
+.badges{
+ display:flex;
+ flex-wrap:wrap;
+ gap:10px;
+}
+
+.badge{
+ padding:6px 15px;
+ border-radius:20px;
+ font-size:13px;
+ background:rgba(255,255,255,0.08);
+ border:1px solid var(--border);
+ color:var(--text);
+ backdrop-filter:blur(6px);
+}
+
+.avatar-shop{
+ display:flex;
+ flex-wrap:wrap;
+ gap:18px;
+}
+
+.avatar-item{
+ width:120px;
+ padding:14px;
+ text-align:center;
+ border-radius:var(--radius);
+ background:rgba(255,255,255,0.05);
+ backdrop-filter:blur(8px);
+ border:1px solid var(--border);
+ transition:0.25s;
+ cursor:pointer;
+}
+
+.avatar-item:hover{
+ transform:translateY(-6px);
+ box-shadow:0 0 25px rgba(6,182,212,0.4);
+}
+
+.avatar-item img{
+ width:75px;
+ height:75px;
+ border-radius:12px;
+ object-fit:cover;
+}
+
+.price{
+ margin-top:8px;
+ font-weight:700;
+ color:#facc15;
+}
+
+.save-btn{
+ width:100%;
+ margin-top:30px;
+}
+
+@media(max-width:700px){
+ .grid{
+   grid-template-columns:1fr;
+ }
+}
+</style>
+
+<link rel="stylesheet" href="multilingual/app-theme.css">
+</head>
+
+<body>
+
+<canvas id="bgCanvas"></canvas>
+
+<div class="center-wrap">
+  <div class="card">
+    <div style="display:flex;justify-content:flex-start;margin-bottom:10px;">
+      <a href="maindashboard.html" style="color:#60a5fa;text-decoration:none;font-weight:600;padding:6px 14px;background:rgba(255,255,255,0.08);border-radius:8px;border:1px solid rgba(255,255,255,0.15);font-size:13px;">← Dashboard</a>
+    </div>
+
+    <h1>Student Profile</h1>
+    <br>
+
+    <div class="pic-wrap">
+      <img src="default_profile.png" id="profile-picture" class="profile-pic" alt="Profile Picture">
+
+      <div class="button-row">
+        <label class="btn">
+          Upload Photo
+          <input type="file" hidden id="upload-photo" accept="image/*">
+        </label>
+
+        <button class="btn remove-btn" id="remove-photo">Remove</button>
+      </div>
+    </div>
+
+    <label>Name</label>
+    <input class="input-field" id="name" placeholder="Enter your name">
+
+    <label>School</label>
+    <input class="input-field" id="school" placeholder="Enter your school name">
+
+    <label>Class & Section</label>
+    <input class="input-field" id="classsec" placeholder="Enter your class and section">
+
+    <label>Age</label>
+    <input class="input-field" id="age" type="number" placeholder="Enter your age">
+
+    <label>Interests</label>
+    <input class="input-field" id="interest" placeholder="Write your interests">
+
+    <div class="grid">
+
+      <div class="badges-section">
+        <h2>Your Badges</h2>
+        <div class="badges">
+          <div class="badge">🏆 Pioneer</div>
+          <div class="badge">💡 Thinker</div>
+          <div class="badge">🔥 Streak Pro</div>
+          <div class="badge">🥈 Problem Solver</div>
+        </div>
+      </div>
+
+      <div class="shop-section">
+        <h2>Avatar Shop</h2>
+
+        <div class="avatar-shop">
+
+          <div class="avatar-item">
+            <img src="https://thumbs.dreamstime.com/b/student-avatar-illustration-user-profile-icon-youth-avatar-student-avatar-illustration-simple-cartoon-user-portrait-user-profile-276214170.jpg" alt="Avatar 1">
+            <div class="price">120 🪙</div>
+          </div>
+
+          <div class="avatar-item">
+            <img src="https://img.freepik.com/premium-vector/student-avatar-illustration-user-profile-icon-youth-avatar_118339-4402.jpg" alt="Avatar 2">
+            <div class="price">200 🪙</div>
+          </div>
+
+          <div class="avatar-item">
+            <img src="https://thumbs.dreamstime.com/b/smiling-blonde-woman-illustration-green-blazer-clean-crisp-vector-portrait-circle-cheerful-businesswoman-student-avatar-399790419.jpg" alt="Avatar 3">
+            <div class="price">350 🪙</div>
+          </div>
+
+        </div>
+      </div>
+
+    </div>
+
+    <button class="btn save-btn" id="save-btn">Save Changes</button>
+
+  </div>
+</div>
+
+<script>
+const pic = document.getElementById("profile-picture");
+const upload = document.getElementById("upload-photo");
+const remove = document.getElementById("remove-photo");
+const saveBtn = document.getElementById("save-btn");
+
+// Fixed image upload handler [web:2]
+upload.onchange = e => {
+  const file = e.target.files[0];
+  if(!file) return;
+  const reader = new FileReader();
+  reader.onload = ev => pic.src = ev.target.result;
+  reader.readAsDataURL(file);
+};
+
+remove.onclick = () => pic.src = "default_profile.png";
+
+// Fixed canvas matrix rain animation [web:3][web:8]
+(function initCanvas(){
+  const canvas = document.getElementById("bgCanvas");
+  const ctx = canvas.getContext("2d");
+  let w,h,D;
+
+  function resize(){
+    D = window.devicePixelRatio || 1;
+    w = canvas.width = innerWidth * D;
+    h = canvas.height = innerHeight * D;
+    canvas.style.width = innerWidth+"px";
+    canvas.style.height = innerHeight+"px";
+  }
+  resize();
+  window.onresize = resize;
+
+  const streams=[];
+  for(let i=0;i<80;i++){
+    streams.push({
+      x:Math.random()*w,
+      y:Math.random()*-h,
+      len:8+Math.random()*40,
+      speed:0.6+Math.random()*2,
+      color: Math.random()>0.5 ? "rgba(59,130,246," : "rgba(6,182,212,"
+    });
+  }
+
+  function draw(){
+    ctx.clearRect(0,0,w,h);
+    streams.forEach(s=>{
+      s.y+=s.speed;
+      if(s.y>h+s.len*4){
+        s.y=-Math.random()*h;
+        s.x=Math.random()*w;
+      }
+      for(let i=0;i<s.len;i++){
+        // Fixed template literal syntax [web:2][web:3]
+        ctx.fillStyle = s.color + (0.18*(1-i/s.len));
+        ctx.fillRect(s.x, s.y+i*4, 2*D, 3*D);
+      }
+    });
+    requestAnimationFrame(draw);
+  }
+  draw();
+})();
+
+// Load saved profile data on page load
+window.addEventListener('load', () => {
+  const saved = JSON.parse(localStorage.getItem('studentProfile') || '{}');
+  const storedName = localStorage.getItem('student_name') || sessionStorage.getItem('student_name');
+
+  if (saved.name || storedName) {
+    document.getElementById("name").value = saved.name || storedName;
+  }
+  if (saved.school) {
+    document.getElementById("school").value = saved.school;
+  }
+  if (saved.classsec) {
+    document.getElementById("classsec").value = saved.classsec;
+  }
+  if (saved.age) {
+    document.getElementById("age").value = saved.age;
+  }
+  if (saved.interest) {
+    document.getElementById("interest").value = saved.interest;
+  }
+  if (saved.picture) {
+    document.getElementById("profile-picture").src = saved.picture;
+  }
+
+  document.getElementById("name").focus();
+});
+
+// Save profile function with localStorage
+function saveProfile() {
+  const nameVal = document.getElementById("name").value.trim();
+  const schoolVal = document.getElementById("school").value.trim();
+  const classVal = document.getElementById("classsec").value.trim();
+  const ageVal = document.getElementById("age").value.trim();
+  const interestVal = document.getElementById("interest").value.trim();
+  const picSrc = document.getElementById("profile-picture").src;
+
+  const profile = {
+    name: nameVal || "Student",
+    school: schoolVal,
+    classsec: classVal,
+    age: ageVal,
+    interest: interestVal,
+    picture: picSrc
+  };
+
+  localStorage.setItem('studentProfile', JSON.stringify(profile));
+  if (nameVal) {
+    localStorage.setItem('student_name', nameVal);
+    sessionStorage.setItem('student_name', nameVal);
+    sessionStorage.setItem('profileName', nameVal);
+  }
+  if (schoolVal) {
+    sessionStorage.setItem('profileSchool', schoolVal);
+  }
+  if (classVal) {
+    sessionStorage.setItem('profileClass', classVal);
+  }
+
+  alert("Profile changes saved successfully! 🎉");
+  window.location.href="maindashboard.html";
+}
+
+saveBtn.onclick = saveProfile;
+</script>
+
+<script src="multilingual/site-i18n.js"></script>
+<script src="audio-manager.js"></script>
+</body>
+</html>

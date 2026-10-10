@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AlgoPlay – Continuous Chase Quiz</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+
+<style>
+*{box-sizing:border-box}
+body{
+margin:0;
+font-family:Inter,system-ui,sans-serif;
+background:#0f172a;
+color:#e5e7eb;
+min-height:100vh;
+display:flex;
+align-items:center;
+justify-content:center
+}
+.container{
+width:100%;
+max-width:720px;
+background:#020617;
+border-radius:18px;
+padding:24px;
+box-shadow:0 25px 60px rgba(0,0,0,.6)
+}
+.header{text-align:center}
+.header h1{margin:0;font-size:26px;font-weight:800}
+.header p{margin-top:6px;font-size:14px;color:#94a3b8}
+
+.track{
+position:relative;
+height:90px;
+border-radius:12px;
+border:1px solid #1e293b;
+margin:22px 0;
+overflow:hidden
+}
+
+.child,.dog{
+position:absolute;
+bottom:10px;
+font-size:30px;
+transition:transform .1s linear
+}
+
+.status{
+display:flex;
+justify-content:space-between;
+font-size:13px;
+color:#cbd5f5
+}
+
+.quiz{margin-top:20px}
+.question{font-size:16px;margin-bottom:12px}
+.options{
+display:grid;
+grid-template-columns:1fr 1fr;
+gap:10px
+}
+.option{
+background:#020617;
+border:1px solid #1e293b;
+border-radius:12px;
+padding:10px;
+cursor:pointer;
+transition:.2s;
+text-align:center
+}
+.option:hover{border-color:#38bdf8}
+
+.result{
+text-align:center;
+font-size:22px;
+font-weight:800;
+margin-top:22px
+}
+
+/* ✅ FIXED BUTTON CONTAINER */
+.but{
+display:flex;
+justify-content:space-between;
+margin-top:30px;
+gap:16px;
+}
+
+.but button{
+flex:1;
+padding:12px;
+font-size:14px;
+font-weight:600;
+border:none;
+border-radius:10px;
+cursor:pointer;
+background:#1e293b;
+color:#e5e7eb;
+transition:.2s;
+}
+
+.but button:hover{
+background:#38bdf8;
+color:#020617;
+}
+</style>
+<link rel="stylesheet" href="multilingual/app-theme.css">
+</head>
+
+<body>
+<div class="container">
+
+<div class="header">
+<h1>Chase Quiz</h1>
+<p>The dog never stops chasing</p>
+</div>
+
+<div class="track" id="track">
+<div class="dog">🐶</div>
+<div class="child">🧒</div>
+</div>
+
+<div class="status">
+<div>Question: <span id="qno">1</span>/10</div>
+<div>Distance: <span id="distance">10</span> m</div>
+</div>
+
+<div class="quiz" id="quiz"></div>
+<div class="result" id="result"></div>
+
+<!-- ✅ BUTTONS MOVED INSIDE CONTAINER -->
+<div class="but"> 
+<button onclick="back()">Back</button>
+<button onclick="nextlevel()">Next Level</button>
+</div>
+
+</div>
+
+<script>
+function back(){
+location.href="manbattle.html";
+}
+function nextlevel(){
+location.href="maindashboard.html";
+}
+
+const questions=[
+{q:"2 + 2 = ?",o:["3","4","5","6"],a:1},
+{q:"5 × 3 = ?",o:["8","10","15","20"],a:2},
+{q:"10 − 4 = ?",o:["5","6","7","8"],a:1},
+{q:"6 ÷ 2 = ?",o:["2","3","4","5"],a:1},
+{q:"9 + 1 = ?",o:["9","10","11","12"],a:1},
+{q:"7 − 3 = ?",o:["3","4","5","6"],a:1},
+{q:"4 × 2 = ?",o:["6","7","8","9"],a:2},
+{q:"12 ÷ 3 = ?",o:["3","4","5","6"],a:1},
+{q:"5 + 5 = ?",o:["8","9","10","11"],a:2},
+{q:"10 − 5 = ?",o:["3","4","5","6"],a:2}
+]
+
+const DOG_SPEED = 2
+const CHILD_SPEED = 1
+const BOOST = 10
+const PX_PER_METER = 14
+
+let dogPos = 0
+let childPos = 10
+let qIndex = 0
+let running = true
+let lastTime = null
+
+const dog = document.querySelector(".dog")
+const child = document.querySelector(".child")
+const track = document.getElementById("track")
+const TRACK_LIMIT = track.clientWidth / PX_PER_METER - 2
+
+function loop(time){
+if(!running) return
+if(!lastTime) lastTime = time
+const dt = (time - lastTime) / 1000
+lastTime = time
+
+dogPos += DOG_SPEED * dt
+childPos += CHILD_SPEED * dt
+
+dogPos = Math.min(dogPos, TRACK_LIMIT)
+childPos = Math.min(childPos, TRACK_LIMIT)
+
+dog.style.left = dogPos * PX_PER_METER + "px"
+child.style.left = childPos * PX_PER_METER + "px"
+
+dog.style.transform = dogPos < childPos ? "scaleX(1)" : "scaleX(-1)"
+
+const gap = Math.max(childPos - dogPos, 0)
+document.getElementById("distance").innerText = gap.toFixed(1)
+
+if(dogPos >= childPos){
+endGame("💀 Game Over! The dog caught you.")
+return
+}
+
+requestAnimationFrame(loop)
+}
+
+function endGame(msg){
+running = false
+document.getElementById("quiz").innerHTML = ""
+document.getElementById("result").innerText = msg
+}
+
+function renderQuestion(){
+if(qIndex >= questions.length){
+endGame("🎉 You Escaped! You Win!")
+return
+}
+document.getElementById("qno").innerText = qIndex + 1
+const q = questions[qIndex]
+document.getElementById("quiz").innerHTML =
+`<div class="question">${q.q}</div>
+ <div class="options">
+ ${q.o.map((x,i)=>`<div class="option" onclick="answer(${i})">${x}</div>`).join("")}
+ </div>`
+}
+
+function answer(i){
+if(!running) return
+if(i === questions[qIndex].a){
+childPos += BOOST
+}
+qIndex++
+renderQuestion()
+}
+
+renderQuestion()
+requestAnimationFrame(loop)
+</script>
+
+<script src="multilingual/site-i18n.js"></script>
+<script src="audio-manager.js"></script>
+</body>
+</html>

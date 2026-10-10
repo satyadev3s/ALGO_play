@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+    body {
+        margin: 0;
+        padding: 0;
+        background: linear-gradient(to right, #19141e, #151516);
+        font-family: Arial, sans-serif;
+        
+    }
+    .cc{
+        color: white;
+        font-size: 24px;
+        text-align: center;
+        margin-top: 20%;
+        border:1px solid rgb(9, 9, 26);
+        padding:20px;
+        border-radius:10px;
+        margin-left: auto;
+        margin-right: auto;
+       background: linear-gradient(135deg, rgba(18, 18, 39, 0.9), rgba(26, 20, 61, 0.92));
+        backdrop-filter: blur(18px);
+        border: 1px solid rgba(155, 126, 255, 0.5);
+        box-shadow:
+            0 0 40px rgba(101, 80, 255, 0.7),
+            0 30px 80px rgba(0, 0, 0, 0.65);
+        position: relative;
+        z-index: 1;
+        display:flex;
+
+        width:60%;
+        justify-content:center;
+
+    }
+    .left, .right {
+        flex: 1;
+        padding: 20px;
+    }
+    .illustration {
+        width: 100%;
+        max-width: 300px;
+        margin-top: 20px;
+    }
+    .right h1 {
+        font-size: 2.5em;
+        margin-bottom: 10px;
+    }
+    .right h3 {
+        font-size: 1.5em;
+        margin-bottom: 20px;
+        font-weight: normal;
+    }
+    
+    </style>
+<link rel="stylesheet" href="multilingual/app-theme.css">
+</head>
+<body>
+    <div class="cc">
+   <div class="left">
+    <form id="hh">
+        <label for="name-input" data-i18n="label_name">Your User Name</label>
+        <input type="text" id="name-input" 
+               placeholder="enter your user name" 
+               data-i18n-placeholder="ph_fullname">
+        <label for="email-input" data-i18n="label_email">Your Email Address</label>
+        <input type="text" id="email-input"
+                placeholder="enter your email address" 
+                data-i18n-placeholder="ph_email">       
+    </form>
+   </div>
+    <div class="right">
+        <div class="badge">
+            <span class="dot"></span>
+            <span>Welcome back to Algoplay</span>
+        </div>
+
+        <h1>Level up your logic.</h1>
+        <h3>Practice. Play. Master algorithms.</h3>
+        <p>
+            Solve interactive coding challenges, visualize data structures,
+            and track your progress with a clean, distraction-free dashboard.
+        </p>
+
+        <div class="tags">
+            <span class="tag">DSA Practice</span>
+            <span class="tag">Visual Explanations</span>
+            <span class="tag">Progress Tracking</span>
+            <span class="tag">Competitive Prep</span>
+        </div>
+
+        <img src="https://illustrations.popsy.co/white/student.svg" class="illustration" alt="Student Illustration">
+    </div>
+    </div>
+    
+<script src="multilingual/site-i18n.js"></script>
+<script src="audio-manager.js"></script>
+</body>
+</html>

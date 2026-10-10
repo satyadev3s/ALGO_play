@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Auto-Run Mario Learning Game</title>
+
+<style>
+    /* ---------------------------------- */
+    /* 1. MARIO STYLES & LAYOUT (Improved CSS) */
+    /* ---------------------------------- */
+    body {
+        margin: 0;
+        overflow: hidden;
+        background: #6b8cff; /* Classic Mario Sky Color */
+        font-family: 'Press Start 2P', monospace; 
+        color: #333;
+        image-rendering: pixelated; 
+    }
+
+    .game-area {
+        width: 100vw;
+        height: 100vh;
+        position: relative;
+        overflow: hidden;
+    }
+
+    /* 2. GROUND & BACKGROUND STYLING */
+    .ground-texture {
+        position: absolute;
+        bottom: 0;
+        width: 200%; 
+        height: 120px;
+        /* Animation to simulate running */
+        background: 
+            linear-gradient(to bottom, #87b22d 0%, #87b22d 70%, #6c3e16 70%, #6c3e16 100%);
+        box-shadow: inset 0 5px 10px rgba(0, 0, 0, 0.4);
+        animation: scrollGround 6s linear infinite; 
+    }
+    
+    @keyframes scrollGround {
+        0% { transform: translateX(0); }
+        100% { transform: translateX(-50%); } 
+    }
+
+    /* 3. MARIO CHARACTER */
+    #mario {
+        position: absolute;
+        bottom: 120px;
+        left: 20px;
+        width: 60px; /* Adjusted size */
+        height: auto;
+        z-index: 10;
+        transition: bottom 0.15s ease-out, left 0.1s linear;
+    }
+    
+    /* 4. QUESTION BLOCK */
+    .question-box {
+        position: absolute;
+        bottom: 180px; 
+        width: 64px; 
+        height: 64px;
+        z-index: 5;
+        transition: transform 0.1s ease-in-out;
+    }
+    .block-hit {
+        transform: translateY(-10px); /* Bounce effect */
+    }
+
+    /* 5. LEVEL OBJECTS (Removed complex class usage in CSS) */
+    .level-object {
+        /* This class is now unused since level creation was removed from JS logic */
+        display: none;
+    }
+
+
+    /* 6. POPUP (MARIO GAME OVERLAY STYLE) */
+    .question-popup {
+        display: none;
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background: #f7f7f7; 
+        border: 4px solid #cc8d1a; 
+        box-shadow: 8px 8px 0px rgba(0, 0, 0, 0.7); 
+        width: 350px;
+        padding: 25px;
+        border-radius: 5px;
+        text-align: center;
+        z-index: 100;
+        animation: popupGrow 0.3s ease-out;
+    }
+
+    @keyframes popupGrow {
+        from { opacity: 0; transform: translate(-50%, -50%) scale(0.8); }
+        to { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+    }
+
+    .question-popup h2 {
+        font-size: 16px;
+        color: #c0392b; 
+        margin-bottom: 20px;
+        line-height: 1.4;
+    }
+
+    /* 7. BUTTONS (OPTIONS & NAV) */
+    .btn {
+        background: #ffe38a;
+        color: #333;
+        padding: 12px;
+        margin: 8px auto;
+        font-size: 14px;
+        border-radius: 5px;
+        cursor: pointer;
+        border: 3px solid #cc8d1a;
+        box-shadow: 2px 2px 0px rgba(0, 0, 0, 0.5);
+        transition: background 0.1s, box-shadow 0.1s, transform 0.1s;
+        width: 80%;
+        display: block;
+        font-family: inherit;
+    }
+
+    .btn:hover {
+        background: #ffcf33;
+        box-shadow: 4px 4px 0px rgba(0, 0, 0, 0.5);
+        transform: translateY(-2px);
+    }
+    
+    .back-btn {
+        background: #c0392b; 
+        color: white;
+        border-color: #7d261e;
+        margin-top: 20px;
+    }
+    .next-btn {
+        background: #2ecc71; 
+        color: white;
+        border-color: #24995a;
+    }
+
+    /* 8. FEEDBACK STYLES */
+    .hint, .correct {
+        font-weight: bold;
+        margin-top: 15px;
+        font-size: 12px;
+        display: none;
+        padding: 5px;
+    }
+    .hint { color: #e74c3c; } 
+    .correct { color: #2ecc71; }
+</style>
+<link rel="stylesheet" href="multilingual/app-theme.css">
+</head>
+<body>
+
+<div class="game-area">
+
+    <img id="mario" src="supermario.jpg" alt="Mario"> 
+
+    <img id="qBlock" class="question-box" src="question_block.png" style="left: 600px; display: none;" alt="Question Block">
+
+    <div id="popup" class="question-popup">
+        <h2>A circle has a diameter of 10 cm.<br>What is the radius?</h2>
+        
+        <div id="options-container">
+            <div class="btn option-btn" data-answer="2">2 cm</div>
+            <div class="btn option-btn" data-answer="5">5 cm</div>
+            <div class="btn option-btn" data-answer="10">10 cm</div>
+        </div>
+
+        <div id="hint" class="hint">Hint: Radius = Diameter ÷ 2</div>
+        <div id="correct" class="correct">Correct Answer: 5 cm ✔</div>
+        
+        <button id="back-to-game1" class="btn back-btn" onclick="window.location.href='maindashboard.html'">
+            < BACK TO QUIZ 1
+        </button>
+        <button id="next-to-stulog" class="btn next-btn" style="display: none;" >
+            NEXT LEVEL >
+        </button>
+    </div>
+
+    <div class="ground-texture"></div> 
+
+</div>
+
+<script>
+let mario = document.getElementById("mario");
+let block = document.getElementById("qBlock");
+let popup = document.getElementById("popup");
+let hint = document.getElementById("hint");
+let correct = document.getElementById("correct");
+let nextBtn = document.getElementById("next-to-stulog");
+let options = document.querySelectorAll(".option-btn");
+const gameArea = document.querySelector(".game-area");
+
+// --- Image Assets (CONSOLIDATED TO ONE IMAGE) ---
+const MARIO_IMAGE = "supermario.jpg"; 
+
+// All states use the same image file
+const IMG_RUN = MARIO_IMAGE; 
+const IMG_STOP = MARIO_IMAGE; 
+const IMG_HAPPY = MARIO_IMAGE; 
+const IMG_SAD = MARIO_IMAGE; 
+
+
+let marioX = 10;
+let running = true;
+const BLOCK_POSITION_X = 600; 
+const STOP_THRESHOLD = BLOCK_POSITION_X - 100; 
+const SCROLL_SPEED = 3; 
+
+// Set initial running image
+mario.src = IMG_RUN;
+
+// --- Removed Level Object Creation and management as per request ---
+
+
+// Attach event listeners to all option buttons
+options.forEach(btn => {
+    btn.addEventListener('click', () => answer(parseInt(btn.getAttribute('data-answer'))));
+});
+
+// Navigation for Next Button
+nextBtn.addEventListener('click', () => {
+    window.location.href = 'videogame1.html'; 
+});
+
+
+function loop() {
+    if (running) {
+        // --- 1. Move Mario ---
+        marioX += SCROLL_SPEED; 
+        mario.style.left = marioX + "px"; 
+        
+        // --- 2. Scroll Question Block ---
+        // This makes the block move towards Mario, simulating world movement
+        let currentBlockX = parseFloat(block.style.left) - SCROLL_SPEED;
+        block.style.left = currentBlockX + 'px';
+
+
+        // --- 3. Collision Check ---
+        // Mario stops when he is 100px away from the scrolling block
+        if (marioX > (currentBlockX - 100) && running) {
+            running = false;
+            
+            mario.src = IMG_STOP; // Use the single image for stop pose
+            
+            // Simulate block hit
+            block.classList.add('block-hit');
+            setTimeout(() => {
+                block.classList.remove('block-hit');
+                popup.style.display = "block"; // Show the question
+            }, 300); 
+        }
+
+    }
+
+    requestAnimationFrame(loop);
+}
+
+loop();
+
+function answer(val) {
+    options.forEach(btn => btn.style.pointerEvents = 'none');
+    
+    const correctAnswer = 5;
+
+    if (val === correctAnswer) {
+        if (window.AlgoPlayAudio) AlgoPlayAudio.win('game2-radius-answer');
+        // Correct feedback
+        mario.src = IMG_HAPPY; // Use the single image for happy pose
+        hint.style.display = "none";
+        correct.style.display = "block";
+    } else {
+        // Wrong feedback
+        mario.src = IMG_SAD; // Use the single image for sad pose
+        hint.style.display = "block";
+        correct.style.display = "block";
+    }
+    
+    // Show the "Next Level" button 
+    nextBtn.style.display = "block";
+}
+</script>
+
+<script src="multilingual/site-i18n.js"></script>
+<script src="audio-manager.js"></script>
+</body>
+</html>

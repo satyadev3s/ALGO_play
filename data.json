@@ -1,0 +1,70 @@
+{
+  "exams": {
+    "jee": {
+      "title": "JEE Mock Test",
+      "duration": 60,
+      "instructions": [
+        "Do not switch tabs.",
+        "Stay in fullscreen mode.",
+        "Auto-submit on cheating."
+      ],
+      "rules": [
+        "Negative marking: -1",
+        "No calculators allowed."
+      ]
+    },
+
+    "navodaya": {
+      "title": "Navodaya Entrance Test",
+      "duration": 45,
+      "instructions": ["Follow exam rules.", "No cheating."],
+      "rules": ["MCQ only", "No electronic gadgets"]
+    }
+  },
+
+  "questions": {
+    "jee": [
+      {
+        "id": "q1",
+        "question": "What is 2 + 2?",
+        "options": ["2", "3", "4", "5"],
+        "correct": "4",
+        "explanation": "Basic addition."
+      }
+    ],
+
+    "navodaya": [
+      {
+        "id": "q1",
+        "question": "Which is the smallest prime number?",
+        "options": ["1", "2", "3", "5"],
+        "correct": "2",
+        "explanation": "2 is the smallest prime."
+      }
+    ]
+  },
+
+  "customExams": {
+    "maths_test_001": {
+      "title": "Teacher Assigned Maths Test",
+      "duration": 40,
+      "instructions": ["Solve all questions.", "No cheating."],
+      "rules": ["No negative marking."],
+      "questions": [
+        {
+          "id": "q1",
+          "question": "15 × 12 = ?",
+          "options": ["120", "160", "180", "200"],
+          "correct": "180",
+          "explanation": "15 × 12 = 180"
+        }
+      ]
+    }
+  },
+
+  "assignedExams": {
+    "student01": {
+      "examCode": "maths_test_001"
+    }
+  }
+}

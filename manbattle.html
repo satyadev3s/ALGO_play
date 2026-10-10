@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Cartoon Math Battle – Combo Edition</title>
+
+<style>
+body{
+  margin:0;
+  background:#0b1220;
+  color:#fff;
+  font-family:Inter,sans-serif;
+  text-align:center;
+  overflow:hidden;
+}
+body::before{
+  content:"";
+  position:fixed;
+  inset:0;
+  background:
+    radial-gradient(circle at 20% 30%,#243b55,transparent 40%),
+    radial-gradient(circle at 80% 60%,#141e30,transparent 45%),
+    linear-gradient(#0b1220,#020617);
+  z-index:-1;
+}
+#arena{
+  width:900px;
+  margin:60px auto 0;
+  display:flex;
+  justify-content:space-between;
+  align-items:flex-end;
+}
+.char{position:relative;width:300px}
+.sprite{width:220px}
+#hero{animation:heroIdle 2s infinite ease-in-out}
+#boss{animation:bossIdle 3s infinite ease-in-out}
+@keyframes heroIdle{50%{transform:translateY(-6px)}}
+@keyframes bossIdle{50%{transform:translateY(8px)}}
+.hero-run{animation:heroRun .35s forwards}
+.hero-back{animation:heroBack .35s forwards}
+@keyframes heroRun{to{transform:translateX(130px)}}
+@keyframes heroBack{from{transform:translateX(130px)}to{transform:translateX(0)}}
+.sword{
+  position:absolute;width:130px;height:6px;
+  background:linear-gradient(90deg,#fff,#facc15);
+  top:120px;left:160px;
+  transform-origin:left center;
+  border-radius:6px;
+  animation:swing .25s forwards;
+}
+.super .sword{
+  background:linear-gradient(90deg,#60a5fa,#a78bfa,#facc15);
+  height:10px;box-shadow:0 0 20px #a78bfa;
+}
+@keyframes swing{
+  from{transform:rotate(-40deg) scaleX(.2);opacity:0}
+  to{transform:rotate(20deg) scaleX(1);opacity:1}
+}
+.knock{animation:knock .3s}
+@keyframes knock{40%{transform:translateX(30px) rotate(-4deg)}}
+.flash{animation:flash .25s}
+@keyframes flash{50%{filter:brightness(2)}}
+.damage{
+  position:absolute;font-size:28px;font-weight:900;
+  color:#facc15;animation:dmg .8s forwards;
+}
+.super .damage{color:#a78bfa;font-size:34px}
+@keyframes dmg{to{transform:translateY(-50px);opacity:0}}
+.shake{animation:shake .3s}
+@keyframes shake{
+  25%{transform:translate(-6px,4px)}
+  50%{transform:translate(6px,-4px)}
+}
+.hpbar{width:200px;height:18px;background:#222;border-radius:10px;overflow:hidden}
+.hpfill{height:100%;background:#4ade80;transition:.3s}
+#bossHP{background:#ef4444}
+#comboBox{
+  margin:15px auto;width:260px;height:16px;
+  background:#1e293b;border-radius:8px;overflow:hidden;
+}
+#comboFill{
+  height:100%;width:0%;
+  background:linear-gradient(90deg,#60a5fa,#a78bfa);
+  transition:.3s;
+}
+.but{
+    margin:40px;
+    display:flex;
+    justify-content: space-between;
+}
+
+input,button{padding:10px 16px;border:none;border-radius:8px}
+button{background:#facc15;font-weight:700;cursor:pointer}
+</style>
+<link rel="stylesheet" href="multilingual/app-theme.css">
+</head>
+
+<body>
+
+<h1>⚔ Math Battle</h1>
+
+<div style="display:flex;justify-content:center;gap:40px">
+  <div>Hero HP<div class="hpbar"><div id="heroHP" class="hpfill"></div></div></div>
+  <div>Boss HP<div class="hpbar"><div id="bossHP" class="hpfill"></div></div></div>
+</div>
+
+<p>🔥 Combo</p>
+<div id="comboBox"><div id="comboFill"></div></div>
+
+<h2 id="question"></h2>
+<h3 id="timer"></h3>
+
+<input id="answer" type="number" placeholder="Answer">
+<br><br>
+<button onclick="submitAnswer()">Attack</button>
+<p id="status"></p>
+
+<div id="arena">
+  <div class="char"><img id="hero" class="sprite" src="https://img.freepik.com/premium-vector/2d-side-view-character-valiant-knight-wearing-shiny-steel-armor-with-intricate-designs_969863-322990.jpg"></div>
+  <div class="char"><img id="boss" class="sprite" src="https://th.bing.com/th/id/OIP.dV6U2HIsPzq1YZjsbNxBRgAAAA"></div>
+</div>
+<div class="but"> 
+    <button onclick="back()">Back</button>
+    <button onclick="nextlevel()">Next Level</button>
+</div>
+<script>
+    function back(){
+        location.href="sciencegame.html";
+    }
+    function nextlevel(){
+        location.href="maindashboard.html"
+    }
+/* ===== AUDIO ===== */
+const audioCtx=new (window.AudioContext||window.webkitAudioContext)();
+function playSound(freq,type="sine",dur=.15){
+  const o=audioCtx.createOscillator();
+  const g=audioCtx.createGain();
+  o.type=type;o.frequency.value=freq;
+  o.connect(g);g.connect(audioCtx.destination);
+  o.start();
+  g.gain.exponentialRampToValueAtTime(.001,audioCtx.currentTime+dur);
+  o.stop(audioCtx.currentTime+dur);
+}
+
+/* ===== DOM ===== */
+const answer=document.getElementById("answer");
+const status=document.getElementById("status");
+const comboFill=document.getElementById("comboFill");
+const heroHPEl=document.getElementById("heroHP");
+const bossHPEl=document.getElementById("bossHP");
+const timerEl=document.getElementById("timer");
+
+/* ===== GAME ===== */
+let correct,heroHP=100,bossHP=100,combo=0,time=10,timer;
+
+function q(){
+  const a=Math.floor(Math.random()*10+1);
+  const b=Math.floor(Math.random()*10+1);
+  correct=a+b;
+  document.getElementById("question").innerText = `${a} + ${b} = ?`;
+  time=10;
+  clearInterval(timer);
+  timer=setInterval(()=>{
+    time--;
+    timerEl.innerText="⏳ "+time;
+    if(time<=0){bossAttack();q()}
+  },1000);
+}
+
+function heroAttack(superHit=false){
+  const hero=document.getElementById("hero");
+  const boss=document.getElementById("boss");
+  hero.classList.add("hero-run");
+  if(superHit) hero.classList.add("super");
+
+  setTimeout(()=>{
+    const sword=document.createElement("div");
+    sword.className="sword";
+    hero.parentElement.appendChild(sword);
+
+    boss.classList.add("knock","flash");
+
+    const dmg=document.createElement("div");
+    dmg.className="damage";
+    dmg.innerText=superHit?"-30":"-12";
+    boss.parentElement.appendChild(dmg);
+
+    playSound(superHit?180:320,superHit?"sawtooth":"square");
+
+    setTimeout(()=>{
+      sword.remove();dmg.remove();
+      boss.classList.remove("knock","flash");
+      hero.classList.remove("super");
+    },300);
+  },200);
+
+  setTimeout(()=>{
+    hero.classList.remove("hero-run");
+    hero.classList.add("hero-back");
+    setTimeout(()=>hero.classList.remove("hero-back"),300);
+  },450);
+}
+
+function bossAttack(){
+  document.body.classList.add("shake");
+  playSound(90,"triangle",.3);
+  heroHP-=10;
+  update();
+  setTimeout(()=>document.body.classList.remove("shake"),300);
+}
+
+function submitAnswer(){
+  const v=Number(answer.value);
+  if(v===correct){
+    combo++;
+    comboFill.style.width=Math.min(combo*33,100)+"%";
+    if(combo>=3){
+      bossHP-=30;
+      heroAttack(true);
+      combo=0;
+      comboFill.style.width="0%";
+      status.innerText="🔥 SUPER SLASH!";
+    }else{
+      bossHP-=12;
+      heroAttack();
+      status.innerText="Hit!";
+    }
+  }else{
+    combo=0;
+    comboFill.style.width="0%";
+    bossAttack();
+    status.innerText="Miss!";
+  }
+  update();
+  answer.value="";
+  q();
+}
+
+function update(){
+  heroHP=Math.max(heroHP,0);
+  bossHP=Math.max(bossHP,0);
+  heroHPEl.style.width=heroHP+"%";
+  bossHPEl.style.width=bossHP+"%";
+  if(heroHP<=0){if(window.AlgoPlayAudio) AlgoPlayAudio.over(); alert("You Lost");location.reload()}
+  if(bossHP<=0){if(window.AlgoPlayAudio) AlgoPlayAudio.win("manbattle-win"); alert("You Win");location.reload()}
+}
+
+q();
+</script>
+
+<script src="multilingual/site-i18n.js"></script>
+<script src="audio-manager.js"></script>
+</body>
+</html>

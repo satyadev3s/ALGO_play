@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+<link rel="stylesheet" href="multilingual/app-theme.css">
+</head>
+<body>
+    <h2>Teacher Profile Setup</h2>
+    <h3 id="hh"></h3>
+    <button id="submit-button">get data</button>
+<script src="multilingual/site-i18n.js"></script>
+<script src="audio-manager.js"></script>
+</body>
+<script>
+   document.getElementById('submit-button').addEventListener('click', function() {
+
+    fetch('/users')
+        .then(res => res.json())
+        .then(users => {
+
+            let output = "";
+
+            users.forEach(user => {
+                output += `Name: ${user.name}, Email: ${user.email}\n`;
+            });
+
+            document.getElementById('hh').innerText = output;
+        })
+        .catch(error => console.error("Error:", error));
+});
+
+
+</script>
+</html>

@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Biology Chapters</title>
+
+<style>
+    /* Page fade + slide animation */
+    @keyframes fadeSlideIn {
+        0% { opacity: 0; transform: translateY(30px); }
+        100% { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Button staggered entry animation */
+    @keyframes buttonPop {
+        0% { opacity: 0; transform: scale(0.7) translateY(20px); }
+        100% { opacity: 1; transform: scale(1) translateY(0); }
+    }
+
+    body {
+        font-family: Arial, sans-serif; /* Added sans-serif fallback */
+        background: #0d0d12; /* deep dark background */
+        padding: 20px;
+        animation: fadeSlideIn 1.2s ease-out;
+        color: #f2f2f2;
+
+        /* Subtle gradient overlay */
+        background: linear-gradient(135deg, #0b0b10 30%, #151520 100%);
+        min-height: 100vh; /* Ensures background covers the whole viewport */
+    }
+
+    h2 {
+        text-align: center;
+        margin-bottom: 25px;
+        padding: 15px;
+
+        /* Neon glow text */
+        color: #ad8cff;
+        text-shadow: 0 0 8px #8c5bff, 0 0 15px #bba3ff;
+
+        /* Dark-glass header */
+        background: rgba(255,255,255,0.05);
+        backdrop-filter: blur(10px);
+        border-radius: 12px;
+        width: 90%; /* Adjusted for better responsiveness */
+        max-width: 600px;
+        margin: 0 auto 25px auto; /* Centering with margin */
+        box-shadow: 0 0 12px rgba(140, 91, 255, 0.3);
+    }
+
+    .container {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        max-width: 1000px;
+        margin: auto;
+    }
+
+    .btn {
+        width: 45%; /* Adjusted for small spacing */
+        min-width: 250px; /* Minimum width for readability on small screens */
+        margin: 12px;
+        padding: 15px;
+        text-align: center; /* Ensure text is centered */
+        box-sizing: border-box; /* Include padding/border in width calculation */
+
+        /* Soft neon color */
+        background: rgba(210, 180, 255, 0.15);
+        color: #e8d7ff;
+
+        font-size: 16px;
+        border: 1px solid rgba(180, 120, 255, 0.4);
+        border-radius: 12px;
+        cursor: pointer;
+
+        /* Glass effect */
+        backdrop-filter: blur(10px);
+
+        /* Glow + shadow */
+        box-shadow: 0 0 8px rgba(150, 100, 255, 0.3);
+
+        /* Smooth transitions */
+        transition: 
+            transform 0.3s ease,
+            box-shadow 0.3s ease,
+            background 0.3s ease,
+            border 0.3s ease,
+            color 0.3s ease;
+
+        /* Entry animation */
+        opacity: 0;
+        animation: buttonPop 0.8s ease forwards;
+    }
+
+    /* Stagger the animations */
+    .btn:nth-child(1) { animation-delay: 0.1s; }
+    .btn:nth-child(2) { animation-delay: 0.2s; }
+    .btn:nth-child(3) { animation-delay: 0.3s; }
+    .btn:nth-child(4) { animation-delay: 0.4s; }
+    .btn:nth-child(5) { animation-delay: 0.5s; }
+    .btn:nth-child(6) { animation-delay: 0.6s; }
+    .btn:nth-child(7) { animation-delay: 0.7s; }
+    .btn:nth-child(8) { animation-delay: 0.8s; }
+    .btn:nth-child(9) { animation-delay: 0.9s; }
+    .btn:nth-child(10) { animation-delay: 1s; }
+
+    /* Advanced hover animation */
+    .btn:hover {
+        transform: scale(1.03) translateY(-3px); /* Slightly less dramatic hover for better UX */
+
+        /* Neon glow */
+        box-shadow:
+            0 0 10px rgba(160, 120, 255, 0.7),
+            0 0 18px rgba(180, 140, 255, 0.6);
+
+        /* Lighten the glass button */
+        background: rgba(220, 190, 255, 0.25);
+        border: 1px solid rgba(220, 180, 255, 0.8);
+        color: #ffffff;
+    }
+
+</style>
+
+<script>
+    function goToscilevel() {
+        // This line changes the current page to the specified URL
+        window.location.href = "scilevel.html";
+    }
+</script>
+
+<link rel="stylesheet" href="multilingual/app-theme.css">
+</head>
+<body>
+
+<h2>Biology – Class 8</h2>
+
+<div class="container">
+    <button class="btn" onclick="goToscilevel()">What is Science?</button>
+    <button class="btn" onclick="goToscilevel()">Cell – Basic Unit of Life</button>
+
+    <button class="btn" onclick="goToscilevel()">Micro-organisms</button>
+    <button class="btn" onclick="goToscilevel()">Reproduction in Animals</button>
+
+    <button class="btn" onclick="goToscilevel()">Adolescence</button>
+    <button class="btn" onclick="goToscilevel()">Biodiversity & Conservation</button>
+
+    <button class="btn" onclick="goToscilevel()">Ecosystems</button>
+    <button class="btn" onclick="goToscilevel()">Food Production in Plants</button>
+
+    <button class="btn" onclick="goToscilevel()">Food Production in Animals</button>
+    <button class="btn" onclick="goToscilevel()">Why Do We Fall Ill</button>
+</div>
+
+<script src="multilingual/site-i18n.js"></script>
+<script src="audio-manager.js"></script>
+</body>
+</html>

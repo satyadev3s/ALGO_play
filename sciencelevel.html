@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Algoplay — Ultra Science Quiz (Final Fixed Version)</title>
+
+<style>
+/* BACKGROUND */
+body {
+    margin: 0;
+    padding: 40px;
+    font-family: Arial;
+    text-align: center;
+    color: white;
+    background: linear-gradient(135deg,#0f172a,#0a1224);
+    overflow-x: hidden;
+}
+
+/* STAR PARTICLES */
+#stars div {
+    position: absolute;
+    width: 3px; height: 3px;
+    background: white;
+    border-radius: 50%;
+    opacity: 0.6;
+    animation: twinkle 3s infinite ease-in-out;
+}
+@keyframes twinkle { 0%{opacity:.2} 50%{opacity:1} 100%{opacity:.2} }
+
+/* TITLE */
+h2 {
+    font-size: 32px;
+    margin-bottom: 10px;
+    text-shadow: 0 0 12px #3b82f6;
+}
+
+#progress {
+    font-size: 15px;
+    font-weight: 700;
+    color: #94a3b8;
+    margin-bottom: 15px;
+}
+
+#quiz {
+    max-width: 650px;
+    margin: 20px auto;
+    background: rgba(30, 41, 59, 0.7);
+    border: 1px solid rgba(255,255,255,0.12);
+    border-radius: 20px;
+    padding: 30px 24px;
+    box-shadow: 0 15px 45px rgba(0,0,0,0.5);
+    backdrop-filter: blur(10px);
+}
+
+#quiz h3 {
+    font-size: 22px;
+    margin-bottom: 25px;
+    line-height: 1.4;
+    color: #f8fafc;
+}
+
+/* QUIZ BUTTONS */
+button {
+    display:block;
+    margin:12px auto;
+    padding:14px 20px;
+    background:rgba(255,255,255,0.06);
+    color:white;
+    border:1px solid rgba(255,255,255,0.15);
+    border-radius:12px;
+    width:90%;
+    font-size:17px;
+    font-weight:600;
+    text-align:left;
+    cursor:pointer;
+    transition:0.25s;
+}
+button:hover { background:rgba(59, 130, 246, 0.2); border-color:#3b82f6; transform:translateY(-2px); }
+
+.correct { background:#16a34a !important; border-color:#22c55e !important; }
+.wrong   { background:#dc2626 !important; border-color:#ef4444 !important; }
+
+#next { background:linear-gradient(135deg, #3b82f6, #1d4ed8); width:50%; text-align:center; font-weight:700; margin-top:20px; }
+
+/* FLOATING MUTE BUTTON */
+#muteBtn {
+    position: fixed;
+    right: 20px;
+    top: 120px;
+    width: 55px;
+    height: 55px;
+    border-radius: 50%;
+    background:#0ea5e9;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    font-size:26px;
+    cursor:pointer;
+    border:none;
+    box-shadow:0 0 10px #0ea5e9;
+    z-index:999;
+}
+#muteBtn:hover { transform:scale(1.1); }
+
+/* BOTTOM HUD */
+#bottomHUD {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    background:#1e293b;
+    padding: 12px 0;
+    display:flex;
+    justify-content: space-around;
+    font-size:20px;
+    color:white;
+    box-shadow:0 -4px 12px rgba(0,0,0,.4);
+}
+.timerText { color:#facc15; }
+
+/* CONFETTI CANVAS */
+#confetti {
+    position: fixed;
+    top:0; left:0;
+    width:100%; height:100%;
+    pointer-events:none;
+}
+</style>
+<link rel="stylesheet" href="multilingual/app-theme.css">
+</head>
+
+<body>
+
+<!-- STARS -->
+<div id="stars"></div>
+<canvas id="confetti"></canvas>
+
+<h2>Class 8 Science Quiz</h2>
+
+<!-- FLOATING MUTE BUTTON -->
+<button id="muteBtn">🔊</button>
+
+<!-- PROGRESS -->
+<div id="progress"></div>
+
+<!-- QUIZ AREA -->
+<div id="quiz"></div>
+
+<button id="next">Next</button>
+
+<!-- BOTTOM HUD -->
+<div id="bottomHUD">
+    <div>Score: <span id="score">0</span></div>
+    <div>XP: <span id="xp">0</span></div>
+    <div class="timerText">⏳ <span id="time">12</span>s</div>
+</div>
+
+<!-- AUDIO -->
+<audio id="bgMusic" src="https://cdn.pixabay.com/download/audio/2022/03/15/audio_9e297da01d.mp3" loop></audio>
+<audio id="correctSound" src="https://assets.mixkit.co/sfx/preview/mixkit-video-game-treasure-2066.mp3"></audio>
+<audio id="wrongSound" src="https://assets.mixkit.co/sfx/preview/mixkit-click-error-1110.mp3"></audio>
+
+<script>
+/* =============== CONFETTI ENGINE =============== */
+const canvas = document.getElementById("confetti");
+const ctx = canvas.getContext("2d");
+canvas.width = innerWidth;
+canvas.height = innerHeight;
+
+let confetti = [];
+function popConfetti() {
+    for (let i = 0; i < 25; i++) {
+        confetti.push({
+            x: Math.random() * innerWidth,
+            y: -20,
+            r: Math.random() * 6 + 2,
+            dx: (Math.random() - 0.5) * 4,
+            dy: Math.random() * 4 + 1,
+            c: `hsl(${Math.random()*360},100%,60%)`
+        });
+    }
+}
+function confettiLoop() {
+    ctx.clearRect(0,0,innerWidth,innerHeight);
+    confetti.forEach((p,i)=>{
+        ctx.beginPath();
+        ctx.arc(p.x,p.y,p.r,0,Math.PI*2);
+        ctx.fillStyle=p.c;
+        ctx.fill();
+        p.x+=p.dx;
+        p.y+=p.dy;
+        if(p.y > innerHeight) confetti.splice(i,1);
+    });
+    requestAnimationFrame(confettiLoop);
+}
+confettiLoop();
+
+/* STAR BACKGROUND */
+const stars = document.getElementById("stars");
+for (let i = 0; i < 60; i++) {
+    let s = document.createElement("div");
+    s.style.top = Math.random() * 100 + "vh";
+    s.style.left = Math.random() * 100 + "vw";
+    s.style.animationDuration = (2 + Math.random() * 3) + "s";
+    stars.appendChild(s);
+}
+
+/* =============== 50-QUESTION QUESTION BANK =============== */
+const fullSet = [
+ {q:"Unit of Pressure?",o:["Newton","Pascal","Joule","Watt"],a:1},
+ {q:"Pressure formula?",o:["F×A","F/A","A/F","M/A"],a:1},
+ {q:"SI unit of Force?",o:["Newton","Watt","Ampere","Joule"],a:0},
+ {q:"Direction of pressure in liquids?",o:["One direction","Downward","All directions","Up only"],a:2},
+ {q:"Friction acts in?",o:["Same","Opposite","Upward","Random"],a:1},
+ {q:"Least friction surface?",o:["Glass","Wood","Carpet","Concrete"],a:0},
+ {q:"Sound travels through?",o:["Vacuum","Medium","Fire","Light"],a:1},
+ {q:"Frequency unit?",o:["Newton","Hertz","Volt","Pascal"],a:1},
+ {q:"Human hearing?",o:["20–20,000 Hz","2–200 Hz","100–400 Hz","500–5000 Hz"],a:0},
+ {q:"Supports combustion?",o:["CO₂","Oxygen","Hydrogen","Nitrogen"],a:1},
+ {q:"Hottest flame?",o:["Blue","Yellow","Red","Orange"],a:0},
+ {q:"Cell powerhouse?",o:["Nucleus","Mitochondria","Ribosome","Golgi"],a:1},
+ {q:"Control of cell?",o:["Chloroplast","Membrane","Nucleus","Mitochondria"],a:2},
+ {q:"Animals lack?",o:["Cell wall","Membrane","Cytoplasm","Mitochondria"],a:0},
+ {q:"Amoeba divides by?",o:["Budding","Binary fission","Fragment","Spore"],a:1},
+ {q:"Sperm formed in?",o:["Ovary","Testis","Uterus","Liver"],a:1},
+ {q:"Curd forms due to?",o:["Fungi","Virus","Lactobacillus","Mold"],a:2},
+ {q:"Main greenhouse gas?",o:["O₂","CO₂","Hydrogen","Nitrogen"],a:1},
+ {q:"Cause of water pollution?",o:["Soap","Rain","Wind","Sun"],a:0},
+ {q:"Force formula?",o:["m×a","m÷a","m+a","a−m"],a:0},
+ {q:"Friction increases with?",o:["Smoothness","Roughness","Heat","Light"],a:1},
+ {q:"Pitch depends on?",o:["Loudness","Force","Frequency","Speed"],a:2},
+ {q:"Loudness unit?",o:["dB","Hz","N","W"],a:0},
+ {q:"Combustion needs?",o:["Water","Oxygen","Salt","Carbon"],a:1},
+ {q:"Rusting needs?",o:["CO₂ & Water","O₂ & Water","CO₂ only","O₂ only"],a:1},
+ {q:"Cell membrane function?",o:["Support","Entry control","Energy","Protein"],a:1},
+ {q:"Chlorophyll used for?",o:["Hearing","Photosynthesis","Respiration","Movement"],a:1},
+ {q:"Air mainly?",o:["O₂","CO₂","N₂","H₂"],a:2},
+ {q:"Purify water?",o:["Filtering","Burning","Freezing","Evap."],a:0},
+ {q:"Light travels?",o:["Curved","Straight","Zig-zag","Circular"],a:1},
+ {q:"Shadow forms?",o:["No light","Transparent","Opaque blocks light","Light bends"],a:2},
+ {q:"Heat in fluids?",o:["Radiation","Conduction","Convection","Absorption"],a:2},
+ {q:"Electricity unit?",o:["Ampere","Newton","Joule","Meter"],a:0},
+ {q:"Fuse for?",o:["Decoration","Safety","Voltage","Cooling"],a:1},
+ {q:"Coal is?",o:["Metal","Fossil fuel","Plant","Mineral"],a:1},
+ {q:"Petrol is?",o:["Gas","Liquid fuel","Mineral","Solid"],a:1},
+ {q:"Acid taste?",o:["Bitter","Sour","Sweet","Salty"],a:1},
+ {q:"Base turns litmus?",o:["Red","Blue","White","Green"],a:1},
+ {q:"Photosynthesis needs?",o:["CO₂","Light","Water","All"],a:3},
+ {q:"Heart pumps?",o:["Air","Blood","Food","Hormones"],a:1},
+ {q:"Blood has?",o:["Cells","Plasma","Platelets","All"],a:3},
+ {q:"Microorganisms include?",o:["Bacteria","Virus","Fungi","All"],a:3},
+ {q:"Sound cannot travel in?",o:["Water","Air","Vacuum","Metal"],a:2},
+ {q:"Coal formed from?",o:["Animals","Dead plants","Soil","Gas"],a:1},
+ {q:"Evaporation rises with?",o:["Cold","Wind","Rain","Dark"],a:1},
+ {q:"Deforestation causes?",o:["Rain","Floods","Snow","Sun"],a:1},
+ {q:"Largest cell?",o:["Egg","Neuron","Blood","Skin"],a:0},
+ {q:"Boiling point?",o:["50°C","100°C","150°C","0°C"],a:1}
+];
+
+/* SELECT 10 RANDOM QUESTIONS */
+const questions = fullSet.sort(()=>Math.random() - 0.5).slice(0, 10);
+
+let index = 0;
+let scoreVal = 0;
+let xpVal = 0;
+
+/* DOM Elements */
+const muteBtn = document.getElementById("muteBtn");
+const progress = document.getElementById("progress");
+const quiz = document.getElementById("quiz");
+const correctSound = document.getElementById("correctSound");
+const wrongSound = document.getElementById("wrongSound");
+
+/* MUSIC */
+const bgMusic = document.getElementById("bgMusic");
+if (bgMusic) {
+    bgMusic.volume = 0.25;
+    bgMusic.play().catch(()=>{});
+}
+let muted = false;
+
+if (muteBtn) {
+    muteBtn.onclick = () => {
+        muted = !muted;
+        if (bgMusic) bgMusic.muted = muted;
+        if (correctSound) correctSound.muted = muted;
+        if (wrongSound) wrongSound.muted = muted;
+        muteBtn.innerHTML = muted ? "🔇" : "🔊";
+    };
+}
+
+/* TIMER FIXED */
+let timeLeft = 12;
+let timer;
+
+const timeDisplay = document.getElementById("time"); // FIXED
+
+function startTimer() {
+    timeLeft = 12;
+    timeDisplay.textContent = timeLeft;
+
+    timer = setInterval(() => {
+        timeLeft--;
+        timeDisplay.textContent = timeLeft;
+
+        if (timeLeft <= 0) {
+            clearInterval(timer);
+            nextQuestion();
+        }
+    }, 1000);
+}
+
+/* LOAD QUESTION */
+function loadQ() {
+    progress.innerHTML = `Question ${index + 1} of ${questions.length}`;
+
+    let q = questions[index];
+    quiz.innerHTML =
+        `<h3>${q.q}</h3>` +
+        q.o.map((x, i) =>
+            `<button class='option' onclick='choose(${i},this)'>${x}</button>`
+        ).join("");
+
+    startTimer();
+}
+
+/* ANSWER SELECTION (ONE CLICK ONLY) */
+function choose(i, btn) {
+    clearInterval(timer);
+
+    document.querySelectorAll(".option").forEach(b => b.disabled = true);
+
+    if (i === questions[index].a) {
+        btn.classList.add("correct");
+        scoreVal += 10;
+        xpVal += 5;
+        correctSound.play();
+        popConfetti();
+    } else {
+        btn.classList.add("wrong");
+        wrongSound.play();
+    }
+
+    score.textContent = scoreVal;
+    xp.textContent = xpVal;
+}
+
+/* NEXT QUESTION */
+next.onclick = nextQuestion;
+
+function nextQuestion() {
+    index++;
+    if (index < questions.length) {
+        loadQ();
+    } else {
+        endGame();
+    }
+}
+
+/* END GAME */
+function endGame() {
+    bgMusic.pause();
+    popConfetti();
+    popConfetti();
+
+    quiz.innerHTML = `
+        <h2>🎉 Quiz Completed 🎉</h2>
+        <h3>Score: ${scoreVal}</h3>
+        <h3>XP: ${xpVal}</h3>
+    `;
+    next.style.display = "none";
+}
+
+/* START QUIZ */
+loadQ();
+</script>
+
+<script src="multilingual/site-i18n.js"></script>
+<script src="audio-manager.js"></script>
+</body>
+</html>

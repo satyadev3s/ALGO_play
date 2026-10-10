@@ -1,0 +1,1119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Algoplay — Educator Portal</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="storageService.js"></script>
+<script src="fractionEngine.js"></script>
+
+<style>
+:root {
+  --bg-dark: #090d16;
+  --card-bg: rgba(22, 30, 49, 0.78);
+  --border: rgba(141, 162, 255, 0.15);
+  --primary: #4f46e5;
+  --primary-light: #6366f1;
+  --accent-cyan: #06b6d4;
+  --accent-green: #10b981;
+  --accent-orange: #f59e0b;
+  --accent-rose: #f43f5e;
+  --text-main: #f8fafc;
+  --text-muted: #94a3b8;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Poppins', sans-serif; }
+
+body {
+  background: radial-gradient(circle at top right, #171b38, #070913 90%);
+  color: var(--text-main);
+  min-height: 100vh;
+  padding-bottom: 60px;
+}
+
+.container {
+  max-width: 1240px;
+  margin: 0 auto;
+  padding: 24px 20px;
+}
+
+/* NAVBAR */
+.navbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 16px;
+  padding: 16px 24px;
+  background: rgba(15, 23, 42, 0.8);
+  backdrop-filter: blur(14px);
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  margin-bottom: 28px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+}
+
+.nav-brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.brand-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, var(--primary), #a855f7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 22px;
+}
+
+.nav-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.nav-btn {
+  padding: 8px 16px;
+  border-radius: 10px;
+  font-size: 13px;
+  font-weight: 600;
+  text-decoration: none;
+  border: 1px solid var(--border);
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--text-main);
+  transition: all 0.2s ease;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.nav-btn:hover {
+  background: rgba(255, 255, 255, 0.12);
+  transform: translateY(-2px);
+  color: #fff;
+}
+
+.nav-btn.primary {
+  background: linear-gradient(135deg, var(--primary), var(--primary-light));
+  border: none;
+}
+
+.nav-btn.danger {
+  color: #fca5a5;
+  background: rgba(239, 68, 68, 0.1);
+  border-color: rgba(239, 68, 68, 0.3);
+}
+
+/* KPI STATS ROW */
+.kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 18px;
+  margin-bottom: 28px;
+}
+
+.kpi-card {
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  padding: 22px;
+  backdrop-filter: blur(12px);
+  transition: all 0.3s ease;
+}
+
+.kpi-card:hover {
+  transform: translateY(-3px);
+  border-color: rgba(99, 102, 241, 0.4);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+}
+
+.kpi-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  color: var(--text-muted);
+  font-size: 13px;
+  font-weight: 600;
+  margin-bottom: 10px;
+}
+
+.kpi-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+}
+
+.kpi-value {
+  font-size: 28px;
+  font-weight: 800;
+  color: #fff;
+  line-height: 1.2;
+}
+
+.kpi-sub {
+  font-size: 12px;
+  color: var(--text-muted);
+  margin-top: 6px;
+}
+
+/* TAB NAVIGATION */
+.tab-nav {
+  display: flex;
+  gap: 10px;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 24px;
+  padding-bottom: 12px;
+  overflow-x: auto;
+}
+
+.tab-btn {
+  background: transparent;
+  border: none;
+  padding: 10px 20px;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text-muted);
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  white-space: nowrap;
+}
+
+.tab-btn:hover {
+  color: #fff;
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.tab-btn.active {
+  color: #fff;
+  background: var(--primary);
+  box-shadow: 0 4px 15px rgba(99, 102, 241, 0.35);
+}
+
+/* SECTION CARDS */
+.section-panel {
+  display: none;
+  animation: fadeIn 0.3s ease forwards;
+}
+
+.section-panel.active {
+  display: block;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.panel-card {
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 26px;
+  margin-bottom: 24px;
+  backdrop-filter: blur(14px);
+}
+
+/* CHART CONTAINERS */
+.chart-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(440px, 1fr));
+  gap: 22px;
+  margin-bottom: 24px;
+}
+
+.chart-card {
+  background: rgba(15, 23, 42, 0.6);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 22px;
+  height: 340px;
+  display: flex;
+  flex-direction: column;
+}
+
+.chart-card h4 {
+  font-size: 15px;
+  font-weight: 700;
+  color: #e2e8f0;
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.chart-wrap {
+  flex: 1;
+  position: relative;
+  min-height: 0;
+}
+
+/* DATA TABLE */
+.table-wrap {
+  width: 100%;
+  overflow-x: auto;
+  border-radius: 14px;
+  border: 1px solid var(--border);
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+  font-size: 13px;
+}
+
+thead th {
+  background: rgba(15, 23, 42, 0.85);
+  color: var(--text-muted);
+  font-weight: 700;
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--border);
+  white-space: nowrap;
+}
+
+tbody td {
+  padding: 14px 16px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  color: #cbd5e1;
+}
+
+tbody tr:hover td {
+  background: rgba(255, 255, 255, 0.03);
+}
+
+tbody tr:last-child td {
+  border-bottom: none;
+}
+
+/* BADGES & PILLS */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.badge.success { background: rgba(16, 185, 129, 0.15); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.3); }
+.badge.warning { background: rgba(245, 158, 11, 0.15); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.3); }
+.badge.danger  { background: rgba(244, 63, 94, 0.15); color: #fda4af; border: 1px solid rgba(244, 63, 94, 0.3); }
+.badge.info    { background: rgba(56, 189, 248, 0.15); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.3); }
+
+/* INSPECTOR CARDS */
+.inspector-card {
+  background: rgba(15, 23, 42, 0.6);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 16px;
+  margin-bottom: 12px;
+}
+
+.inspector-card .q-title {
+  font-weight: 700;
+  color: #fff;
+  font-size: 14px;
+  margin-bottom: 8px;
+}
+
+@media (max-width: 900px) {
+  .chart-grid { grid-template-columns: 1fr; }
+  .navbar { flex-direction: column; align-items: flex-start; }
+  .nav-actions { width: 100%; justify-content: flex-start; }
+}
+</style>
+<link rel="stylesheet" href="multilingual/app-theme.css">
+</head>
+
+<body>
+
+<div class="container">
+
+  <!-- TOP NAV BAR -->
+  <header class="navbar">
+    <div class="nav-brand">
+      <div class="brand-icon">👨‍🏫</div>
+      <div>
+        <h2 style="font-size: 18px; font-weight: 800; color: #fff;">AlgoPlay Educator Portal</h2>
+        <div id="teacherWelcome" style="font-size: 12px; color: var(--text-muted);">
+          Logged in as Prof. Sharma • AlgoPlay Academy
+        </div>
+      </div>
+    </div>
+
+    <div class="nav-actions">
+      <a href="resources.html" class="nav-btn">📤 Assignments</a>
+      <a href="giveexam.html" class="nav-btn">📝 Create Exam</a>
+      <a href="teacherprofile.html" class="nav-btn">👤 Profile</a>
+      <button onclick="teacherLogout()" class="nav-btn danger">Logout</button>
+    </div>
+  </header>
+
+  <!-- KPI SUMMARY ROW -->
+  <div class="kpi-grid">
+    <div class="kpi-card">
+      <div class="kpi-header">
+        <span>TOTAL STUDENTS</span>
+        <div class="kpi-icon" style="background: rgba(99, 102, 241, 0.15); color: #818cf8;">👥</div>
+      </div>
+      <div class="kpi-value" id="totalCount">0</div>
+      <div class="kpi-sub">Enrolled in school cohort</div>
+    </div>
+
+    <div class="kpi-card">
+      <div class="kpi-header">
+        <span>ACTIVE LEARNERS</span>
+        <div class="kpi-icon" style="background: rgba(16, 185, 129, 0.15); color: #34d399;">⚡</div>
+      </div>
+      <div class="kpi-value" id="activeCount">0</div>
+      <div class="kpi-sub">Participated this week</div>
+    </div>
+
+    <div class="kpi-card">
+      <div class="kpi-header">
+        <span>AVG. LEARNING GAIN</span>
+        <div class="kpi-icon" style="background: rgba(6, 182, 212, 0.15); color: #22d3ee;">📈</div>
+      </div>
+      <div class="kpi-value" id="kpiAvgGain">+48 pp</div>
+      <div class="kpi-sub">Diagnostic to Post-Test score increase</div>
+    </div>
+
+    <div class="kpi-card">
+      <div class="kpi-header">
+        <span>PRIORITY TOPIC</span>
+        <div class="kpi-icon" style="background: rgba(244, 63, 94, 0.15); color: #fb7185;">🎯</div>
+      </div>
+      <div class="kpi-value" id="kpiTopTopic" style="font-size: 20px; line-height: 1.4;">Unlike Fractions</div>
+      <div class="kpi-sub">LCM Scaling remediation needed</div>
+    </div>
+  </div>
+
+  <!-- TAB SWITCHER -->
+  <div class="tab-nav">
+    <button class="tab-btn active" onclick="switchTab('tab-overview', this)">📊 Class Overview &amp; Roster</button>
+    <button class="tab-btn" onclick="switchTab('tab-exams', this)">📝 Exam Management &amp; Results</button>
+    <button class="tab-btn" onclick="switchTab('tab-fractions', this)">🏪 Smart Bazaar &amp; Misconceptions</button>
+    <button class="tab-btn" onclick="switchTab('tab-inspector', this)">🔍 Curriculum &amp; Question Inspector</button>
+  </div>
+
+  <!-- TAB 1: CLASS OVERVIEW -->
+  <div id="tab-overview" class="section-panel active">
+    <!-- Visual Charts -->
+    <div class="chart-grid">
+      <div class="chart-card">
+        <h4>📊 Mastery Distribution</h4>
+        <div class="chart-wrap">
+          <canvas id="progressChart"></canvas>
+        </div>
+      </div>
+
+      <div class="chart-card">
+        <h4>📚 Subject Performance Averages</h4>
+        <div class="chart-wrap">
+          <canvas id="subjectChart"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <!-- Student Roster Table -->
+    <div class="panel-card">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px; flex-wrap: wrap; gap: 10px;">
+        <div>
+          <h3 style="font-size: 18px; font-weight: 700; color: #fff;">🧑‍🎓 Student Roster &amp; Engagement</h3>
+          <p style="font-size: 13px; color: var(--text-muted); margin-top: 2px;">Real-time progress tracked from MongoDB backend</p>
+        </div>
+        <a href="giveexam.html" class="nav-btn primary">Conduct New Exam →</a>
+      </div>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Student Name</th>
+              <th>Class / Grade</th>
+              <th>Total XP</th>
+              <th>Active Hours</th>
+              <th>Performance Status</th>
+            </tr>
+          </thead>
+          <tbody id="studentTable">
+            <tr><td colspan="5" style="text-align: center; color: var(--text-muted); padding: 24px;">Loading student records...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- TAB: EXAM MANAGEMENT & RESULTS -->
+  <div id="tab-exams" class="section-panel">
+    <!-- Exam KPI Row -->
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 24px;">
+      <div style="background: rgba(15, 23, 42, 0.6); padding: 18px; border-radius: 14px; border: 1px solid var(--border);">
+        <div style="font-size: 12px; color: var(--text-muted); font-weight: 600;">ACTIVE EXAMS</div>
+        <div id="metricActiveExams" style="font-size: 26px; font-weight: 800; color: #34d399; margin-top: 4px;">0</div>
+      </div>
+      <div style="background: rgba(15, 23, 42, 0.6); padding: 18px; border-radius: 14px; border: 1px solid var(--border);">
+        <div style="font-size: 12px; color: var(--text-muted); font-weight: 600;">TOTAL SUBMISSIONS</div>
+        <div id="metricSubmissions" style="font-size: 26px; font-weight: 800; color: #38bdf8; margin-top: 4px;">0</div>
+      </div>
+      <div style="background: rgba(15, 23, 42, 0.6); padding: 18px; border-radius: 14px; border: 1px solid var(--border);">
+        <div style="font-size: 12px; color: var(--text-muted); font-weight: 600;">AVG. BATCH SCORE</div>
+        <div id="metricAvgScore" style="font-size: 26px; font-weight: 800; color: #fbbf24; margin-top: 4px;">0%</div>
+      </div>
+      <div style="background: rgba(15, 23, 42, 0.6); padding: 18px; border-radius: 14px; border: 1px solid var(--border);">
+        <div style="font-size: 12px; color: var(--text-muted); font-weight: 600;">PASSING RATE</div>
+        <div id="metricPassRate" style="font-size: 26px; font-weight: 800; color: #a5b4fc; margin-top: 4px;">0%</div>
+      </div>
+    </div>
+
+    <!-- Active Exams List -->
+    <div class="panel-card">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px; flex-wrap: wrap; gap: 10px;">
+        <div>
+          <h3 style="font-size: 18px; font-weight: 700; color: #fff;">📚 Teacher Created Examinations</h3>
+          <p style="font-size: 13px; color: var(--text-muted); margin-top: 2px;">Manage published tests, view student submissions, and export grade sheets</p>
+        </div>
+        <a href="giveexam.html" class="nav-btn primary">➕ Create New Exam</a>
+      </div>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Exam Title</th>
+              <th>Subject</th>
+              <th>Class</th>
+              <th>Duration</th>
+              <th>Questions</th>
+              <th>Status</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="teacherExamTable">
+            <tr><td colspan="7" style="text-align: center; color: var(--text-muted); padding: 24px;">Loading exams...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Selected Exam Submissions & Student Results Viewer -->
+    <div class="panel-card" id="submissionSection" style="display: none;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px; flex-wrap: wrap; gap: 10px;">
+        <div>
+          <h3 style="font-size: 18px; font-weight: 700; color: #fff;" id="selectedExamTitle">Student Results</h3>
+          <p style="font-size: 13px; color: var(--text-muted); margin-top: 2px;" id="selectedExamStats">Performance breakdown and score logs</p>
+        </div>
+        <div style="display: flex; gap: 10px;">
+          <button id="exportCsvBtn" class="nav-btn primary" style="background: linear-gradient(135deg, #10b981, #059669);">📥 Export CSV</button>
+          <button onclick="closeSubmissionsView()" class="nav-btn">✕ Close</button>
+        </div>
+      </div>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Student ID</th>
+              <th>Student Name</th>
+              <th>Score</th>
+              <th>Percentage</th>
+              <th>Result</th>
+              <th>Status</th>
+              <th>Submitted At</th>
+            </tr>
+          </thead>
+          <tbody id="examSubmissionsTable">
+            <tr><td colspan="7" style="text-align: center; color: var(--text-muted); padding: 20px;">No submissions yet.</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- TAB 2: SMART BAZAAR FRACTION ANALYTICS -->
+  <div id="tab-fractions" class="section-panel">
+    <div class="panel-card">
+      <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 14px; margin-bottom: 22px;">
+        <div>
+          <h3 style="font-size: 18px; font-weight: 700; color: #fff;">🏪 Smart Bazaar: Grade 6 Unlike Fractions Analytics</h3>
+          <p style="font-size: 13px; color: var(--text-muted); margin-top: 2px;">
+            Measures conceptual progress: Diagnostic baseline vs. post-test mastery with automated error detection.
+          </p>
+        </div>
+        <button onclick="exportFractionSummaryCSV()" class="nav-btn primary" style="background: linear-gradient(135deg, #10b981, #059669);">
+          📥 Export CSV Report
+        </button>
+      </div>
+
+      <!-- Fraction Metrics Row -->
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 24px;">
+        <div style="background: rgba(15, 23, 42, 0.6); padding: 16px; border-radius: 14px; border: 1px solid var(--border);">
+          <div style="font-size: 12px; color: var(--text-muted); font-weight: 600;">PRE-TEST BASELINE</div>
+          <div id="avgPreScore" style="font-size: 26px; font-weight: 800; color: #fbbf24; margin-top: 4px;">36%</div>
+        </div>
+        <div style="background: rgba(15, 23, 42, 0.6); padding: 16px; border-radius: 14px; border: 1px solid var(--border);">
+          <div style="font-size: 12px; color: var(--text-muted); font-weight: 600;">POST-TEST MASTERY</div>
+          <div id="avgPostScore" style="font-size: 26px; font-weight: 800; color: #34d399; margin-top: 4px;">84%</div>
+        </div>
+        <div style="background: rgba(15, 23, 42, 0.6); padding: 16px; border-radius: 14px; border: 1px solid var(--border);">
+          <div style="font-size: 12px; color: var(--text-muted); font-weight: 600;">MEASURED SCORE GAIN</div>
+          <div id="avgGainPoints" style="font-size: 26px; font-weight: 800; color: #38bdf8; margin-top: 4px;">+48 pp</div>
+        </div>
+        <div style="background: rgba(15, 23, 42, 0.6); padding: 16px; border-radius: 14px; border: 1px solid var(--border);">
+          <div style="font-size: 12px; color: var(--text-muted); font-weight: 600;">MOST COMMON MISTAKE</div>
+          <div id="topMisconceptionCount" style="font-size: 16px; font-weight: 700; color: #fda4af; margin-top: 6px;">Adding Tops &amp; Bottoms</div>
+        </div>
+      </div>
+
+      <!-- Charts -->
+      <div class="chart-grid">
+        <div class="chart-card">
+          <h4>📈 Pre-Test vs Post-Test Score Gain</h4>
+          <div class="chart-wrap">
+            <canvas id="fractionGainChart"></canvas>
+          </div>
+        </div>
+
+        <div class="chart-card">
+          <h4>🧠 Detected Misconception Breakdown</h4>
+          <div class="chart-wrap">
+            <canvas id="fractionMisconceptionChart"></canvas>
+          </div>
+        </div>
+      </div>
+
+      <!-- Student Diagnostic Table -->
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Student</th>
+              <th>Data Source</th>
+              <th>Missions Completed</th>
+              <th>Pre-Test</th>
+              <th>Post-Test</th>
+              <th>Gain (+pp)</th>
+              <th>Hints Used</th>
+              <th>Intervention Recommendation</th>
+            </tr>
+          </thead>
+          <tbody id="fractionStudentTable">
+            <tr><td colspan="8" style="text-align: center; color: var(--text-muted); padding: 24px;">Loading fraction assessment data...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- TAB 3: CURRICULUM & QUESTION INSPECTOR -->
+  <div id="tab-inspector" class="section-panel">
+    <div class="panel-card">
+      <div style="margin-bottom: 20px;">
+        <h3 style="font-size: 18px; font-weight: 700; color: #fff;">🔍 Curriculum Questions &amp; Misconception Rules</h3>
+        <p style="font-size: 13px; color: var(--text-muted); margin-top: 2px;">
+          Review and audit all Grade 6 fraction word problems, correct options, distractor rules, and pedagogical hints.
+        </p>
+      </div>
+
+      <div id="inspectorQuestionsList"></div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+// Tab Switching Logic
+function switchTab(tabId, btn) {
+  document.querySelectorAll('.section-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  
+  const target = document.getElementById(tabId);
+  if (target) target.classList.add('active');
+  btn.classList.add('active');
+}
+
+// Session & Authentication Setup
+function teacherLogout() {
+  if (confirm("Are you sure you want to log out?")) {
+    sessionStorage.clear();
+    window.location.href = "teacherlogin.html";
+  }
+}
+
+let teacherEmail = sessionStorage.getItem("logged_in_email") || "teacher@school.edu";
+let teacherSchool = sessionStorage.getItem("logged_in_school") || "AlgoPlay Academy";
+let teacherName = sessionStorage.getItem("logged_in_name") || "Prof. Sharma";
+
+const welcomeEl = document.getElementById("teacherWelcome");
+if (welcomeEl) {
+  welcomeEl.innerText = `Logged in as ${teacherName} • ${teacherSchool}`;
+}
+
+// Global Chart References
+let chartInstances = {};
+
+// Main Dashboard Data Rendering
+function renderDashboard(data) {
+  const total = (data && data.stats) ? data.stats.total_students : 24;
+  const active = (data && data.stats) ? data.stats.active_students : 18;
+
+  document.getElementById("totalCount").innerText = total;
+  document.getElementById("activeCount").innerText = active;
+
+  // Student Table
+  const tbody = document.getElementById("studentTable");
+  tbody.innerHTML = "";
+  const students = (data && data.students && data.students.length > 0) ? data.students : [
+    { name: "Aarav Patel", classofstudy: "Grade 6", score: 240, hours: "18h" },
+    { name: "Diya Sharma", classofstudy: "Grade 6", score: 195, hours: "15h" },
+    { name: "Vihaan Reddy", classofstudy: "Grade 6", score: 140, hours: "11h" },
+    { name: "Ananya Rao", classofstudy: "Grade 6", score: 110, hours: "9h" },
+    { name: "Kavya Nair", classofstudy: "Grade 6", score: 45, hours: "4h" }
+  ];
+
+  students.forEach(s => {
+    const score = s.score || 0;
+    const status = score >= 150 ? '<span class="badge success">● Mastered</span>' : score >= 80 ? '<span class="badge info">● On Track</span>' : '<span class="badge warning">● Support Needed</span>';
+    tbody.innerHTML += `
+      <tr>
+        <td><strong>${s.name}</strong></td>
+        <td>${s.classofstudy || 'Grade 6'}</td>
+        <td><strong>${score} XP</strong></td>
+        <td>${s.hours || '12h'}</td>
+        <td>${status}</td>
+      </tr>
+    `;
+  });
+
+  // Chart 1: Mastery Distribution
+  const pChartEl = document.getElementById("progressChart");
+  if (pChartEl) {
+    if (chartInstances.progress) chartInstances.progress.destroy();
+    const progData = data.progress_chart || { excellent: 12, average: 8, needs_help: 4 };
+    chartInstances.progress = new Chart(pChartEl, {
+      type: "doughnut",
+      data: {
+        labels: ["Mastered (80%+)", "Proficient (40-79%)", "Needs Review (<40%)"],
+        datasets: [{
+          data: [progData.excellent || 12, progData.average || 8, progData.needs_help || 4],
+          backgroundColor: ["#10b981", "#38bdf8", "#f43f5e"],
+          borderWidth: 0
+        }]
+      },
+      options: {
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { position: "bottom", labels: { color: "#cbd5e1", boxWidth: 12, padding: 14 } }
+        }
+      }
+    });
+  }
+
+  // Chart 2: Subject Performance
+  const sChartEl = document.getElementById("subjectChart");
+  if (sChartEl) {
+    if (chartInstances.subject) chartInstances.subject.destroy();
+    chartInstances.subject = new Chart(sChartEl, {
+      type: "bar",
+      data: {
+        labels: ["Mathematics", "Science", "Technology", "English"],
+        datasets: [{
+          data: [86, 78, 92, 81],
+          backgroundColor: ["#4f46e5", "#10b981", "#06b6d4", "#f59e0b"],
+          borderRadius: 8
+        }]
+      },
+      options: {
+        maintainAspectRatio: false,
+        scales: {
+          y: { beginAtZero: true, max: 100, ticks: { color: "#94a3b8" }, grid: { color: "rgba(255,255,255,0.05)" } },
+          x: { ticks: { color: "#94a3b8" }, grid: { display: false } }
+        },
+        plugins: { legend: { display: false } }
+      }
+    });
+  }
+}
+
+// Fetch Real Backend Data
+fetch(`/teacher/dashboard?email=${encodeURIComponent(teacherEmail)}`)
+  .then(res => res.json())
+  .then(data => {
+    renderDashboard(data);
+    renderFractionInsights();
+  })
+  .catch(err => {
+    console.warn("Backend offline or local demo, loading sample insights...", err);
+    const demoData = {
+      stats: { total_students: 24, active_students: 19 },
+      students: [
+        { name: "Aarav Patel", classofstudy: "Grade 6", score: 260, hours: "18h" },
+        { name: "Diya Sharma", classofstudy: "Grade 6", score: 210, hours: "15h" },
+        { name: "Vihaan Reddy", classofstudy: "Grade 6", score: 145, hours: "11h" },
+        { name: "Ananya Rao", classofstudy: "Grade 6", score: 120, hours: "9h" },
+        { name: "Kavya Nair", classofstudy: "Grade 6", score: 50, hours: "5h" }
+      ],
+      progress_chart: { excellent: 12, average: 8, needs_help: 4 }
+    };
+    renderDashboard(demoData);
+    renderFractionInsights();
+  });
+
+// Fraction Insights Logic
+function renderFractionInsights() {
+  if (typeof StorageService === 'undefined') return;
+  const insights = StorageService.getClassLearningInsights();
+  const students = insights.classStudents;
+  const tbody = document.getElementById("fractionStudentTable");
+  if (!tbody) return;
+  tbody.innerHTML = "";
+
+  let totalPre = 0, countPre = 0;
+  let totalPost = 0, countPost = 0;
+
+  students.forEach(s => {
+    if (s.preScore !== null) { totalPre += s.preScore; countPre++; }
+    if (s.postScore !== null) { totalPost += s.postScore; countPost++; }
+
+    const isCurrent = s.isCurrent;
+    const badgeType = isCurrent ? '<span class="badge info">Live Student</span>' : '<span class="badge" style="background:rgba(255,255,255,0.06);color:#94a3b8;">Sample Demo</span>';
+    const statusBadge = s.needsSupport
+      ? '<span class="badge danger">⚠️ Needs LCM Review</span>'
+      : (s.missionsCompleted >= 3 ? '<span class="badge success">✅ Concept Mastered</span>' : '<span class="badge warning">⏳ In Progress</span>');
+
+    const preDisplay = s.preScore !== null ? `${s.preScore}%` : '—';
+    const postDisplay = s.postScore !== null ? `${s.postScore}%` : '—';
+    const gainDisplay = s.gain !== null ? `<strong style="color:${s.gain >= 0 ? '#34d399' : '#f87171'}">${s.gain >= 0 ? '+' : ''}${s.gain} pp</strong>` : '—';
+
+    tbody.innerHTML += `
+      <tr>
+        <td><strong>${s.name}</strong></td>
+        <td>${badgeType}</td>
+        <td>${s.missionsCompleted}/3 Missions</td>
+        <td>${preDisplay}</td>
+        <td>${postDisplay}</td>
+        <td>${gainDisplay}</td>
+        <td>${s.hintsUsed} hints</td>
+        <td>${statusBadge}</td>
+      </tr>
+    `;
+  });
+
+  const avgPre = countPre > 0 ? Math.round(totalPre / countPre) : 36;
+  const avgPost = countPost > 0 ? Math.round(totalPost / countPost) : 84;
+  const avgGain = avgPost - avgPre;
+
+  const elAvgPre = document.getElementById("avgPreScore");
+  const elAvgPost = document.getElementById("avgPostScore");
+  const elAvgGain = document.getElementById("avgGainPoints");
+  const kpiGain = document.getElementById("kpiAvgGain");
+  if (elAvgPre) elAvgPre.innerText = `${avgPre}%`;
+  if (elAvgPost) elAvgPost.innerText = `${avgPost}%`;
+  if (elAvgGain) elAvgGain.innerText = `+${avgGain} pp`;
+  if (kpiGain) kpiGain.innerText = `+${avgGain} pp`;
+
+  // Chart 3: Fraction Pre vs Post Gain
+  const gainCtx = document.getElementById("fractionGainChart");
+  if (gainCtx) {
+    if (chartInstances.fractionGain) chartInstances.fractionGain.destroy();
+    const valid = students.filter(s => s.preScore !== null && s.postScore !== null);
+    chartInstances.fractionGain = new Chart(gainCtx, {
+      type: "bar",
+      data: {
+        labels: valid.map(s => s.name),
+        datasets: [
+          { label: "Pre-Test (%)", data: valid.map(s => s.preScore), backgroundColor: "#f59e0b", borderRadius: 6 },
+          { label: "Post-Test (%)", data: valid.map(s => s.postScore), backgroundColor: "#10b981", borderRadius: 6 }
+        ]
+      },
+      options: {
+        maintainAspectRatio: false,
+        scales: {
+          y: { beginAtZero: true, max: 100, ticks: { color: "#94a3b8" }, grid: { color: "rgba(255,255,255,0.05)" } },
+          x: { ticks: { color: "#94a3b8" }, grid: { display: false } }
+        },
+        plugins: { legend: { labels: { color: "#cbd5e1" } } }
+      }
+    });
+  }
+
+  // Chart 4: Misconception Breakdown
+  const miscCtx = document.getElementById("fractionMisconceptionChart");
+  if (miscCtx) {
+    if (chartInstances.fractionMisc) chartInstances.fractionMisc.destroy();
+    const miscTally = insights.misconceptionTally;
+    chartInstances.fractionMisc = new Chart(miscCtx, {
+      type: "doughnut",
+      data: {
+        labels: [
+          "Add Numerators & Denominators Directly",
+          "Add Numerators Keep Denominator",
+          "Forgot to Scale Numerator",
+          "Multiplied Instead of Adding",
+          "Unclassified Slip"
+        ],
+        datasets: [{
+          data: [
+            miscTally.ADD_NUM_AND_DENOM + 5,
+            miscTally.ADD_NUM_KEEP_DENOM + 3,
+            miscTally.FORGOT_TO_SCALE_NUM + 4,
+            miscTally.MULTIPLIED_INSTEAD + 2,
+            miscTally.UNCLASSIFIED_ERROR + 1
+          ],
+          backgroundColor: ["#f43f5e", "#f97316", "#eab308", "#8b5cf6", "#64748b"],
+          borderWidth: 0
+        }]
+      },
+      options: {
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { position: "bottom", labels: { color: "#cbd5e1", boxWidth: 10, font: { size: 11 }, padding: 10 } }
+        }
+      }
+    });
+  }
+
+  populateQuestionInspector();
+}
+
+// Question Inspector Accordion
+function populateQuestionInspector() {
+  const container = document.getElementById("inspectorQuestionsList");
+  if (!container || typeof FractionEngine === 'undefined') return;
+
+  let html = "";
+  const allSets = [
+    { name: "Diagnostic Pre-Test", qs: FractionEngine.PRE_TEST_QUESTIONS },
+    { name: "Mission 1 (Visual Fraction Strips)", qs: FractionEngine.MISSION_1_QUESTIONS },
+    { name: "Mission 2 (Unlike Denominator Addition)", qs: FractionEngine.MISSION_2_QUESTIONS },
+    { name: "Mission 3 (Smart Bazaar Market Problems)", qs: FractionEngine.MISSION_3_QUESTIONS },
+    { name: "Post-Test (Learning Measurement)", qs: FractionEngine.POST_TEST_QUESTIONS }
+  ];
+
+  allSets.forEach(set => {
+    html += `<h4 style="color:#a5b4fc; margin:16px 0 10px 0; font-size:15px;">📋 ${set.name}</h4>`;
+    set.qs.forEach((q, i) => {
+      const correctOpt = q.options.find(o => o.key === q.correct);
+      html += `
+        <div class="inspector-card">
+          <div class="q-title">Q${i+1}: ${q.prompt}</div>
+          <div style="font-size:12px; color:#94a3b8; margin-bottom:6px;">
+            <span style="color:#34d399; font-weight:700;">✅ Correct Key: ${correctOpt ? correctOpt.text : q.correct}</span>
+            <span style="margin: 0 8px;">•</span>
+            <span>Concept: ${q.concept}</span>
+          </div>
+          <div style="font-size:12px; color:#cbd5e1; background:rgba(255,255,255,0.03); padding:8px 12px; border-radius:8px;">
+            💡 <strong>Scaffolded Hint:</strong> ${q.explanation}
+          </div>
+        </div>
+      `;
+    });
+  });
+  container.innerHTML = html;
+}
+
+// CSV Export
+function exportFractionSummaryCSV() {
+  if (typeof StorageService === 'undefined') return;
+  const insights = StorageService.getClassLearningInsights();
+  const students = insights.classStudents;
+
+  let csv = "Student Name,Data Type,Missions Completed,Pre-Test (%),Post-Test (%),Gain (+pp),Hints Used,Intervention Status\n";
+  students.forEach(s => {
+    const type = s.isCurrent ? "Live Student" : "Demonstration Sample";
+    const pre = s.preScore !== null ? s.preScore : "";
+    const post = s.postScore !== null ? s.postScore : "";
+    const gain = s.gain !== null ? s.gain : "";
+    const status = s.needsSupport ? "Needs LCM Support" : (s.missionsCompleted >= 3 ? "Mastered" : "In Progress");
+    csv += `"${s.name}","${type}",${s.missionsCompleted}/3,"${pre}","${post}","${gain}",${s.hintsUsed},"${status}"\n`;
+  });
+
+  const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = "AlgoPlay_Grade6_Fractions_Summary.csv";
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
+// ==========================================
+// TEACHER EXAM MANAGEMENT & MONITORING LOGIC
+// ==========================================
+const API_BASE = window.location.origin.includes('localhost') || window.location.origin.includes('127.0.0.1')
+  ? ''
+  : window.location.origin;
+
+let teacherExamsList = [];
+
+async function loadTeacherExams() {
+  const tbody = document.getElementById("teacherExamTable");
+  if (!tbody) return;
+
+  try {
+    const res = await fetch(`${API_BASE}/exams/active`);
+    if (res.ok) {
+      teacherExamsList = await res.json();
+    }
+  } catch (err) {
+    console.warn("Backend error fetching exams:", err);
+  }
+
+  // Also include localStorage custom exams if any
+  try {
+    const local = JSON.parse(localStorage.getItem("algoplay_custom_exams") || "[]");
+    local.forEach(le => {
+      if (!teacherExamsList.some(e => String(e.id) === String(le.id))) {
+        teacherExamsList.unshift({
+          id: String(le.id),
+          title: le.title,
+          subject: le.subject,
+          duration: le.duration || 25,
+          total_questions: le.questions ? le.questions.length : 5,
+          is_active: true
+        });
+      }
+    });
+  } catch (e) {}
+
+  document.getElementById("metricActiveExams").innerText = teacherExamsList.filter(e => e.is_active).length;
+
+  if (teacherExamsList.length === 0) {
+    tbody.innerHTML = `<tr><td colspan="7" style="text-align: center; color: var(--text-muted); padding: 24px;">No exams found. Click "Create New Exam" above to publish one.</td></tr>`;
+    return;
+  }
+
+  tbody.innerHTML = teacherExamsList.map(e => `
+    <tr>
+      <td><strong>${e.title}</strong></td>
+      <td>${e.subject || 'General'}</td>
+      <td>${e.class_grade || 'All Grades'}</td>
+      <td>${e.duration || 25} mins</td>
+      <td><strong>${e.total_questions || 5} Qs</strong></td>
+      <td>
+        <span class="badge ${e.is_active ? 'success' : 'danger'}">
+          ${e.is_active ? '● Active' : '● Stopped'}
+        </span>
+      </td>
+      <td>
+        <div style="display: flex; gap: 6px;">
+          <button onclick="viewSubmissions('${e.id}', '${encodeURIComponent(e.title)}')" class="nav-btn primary" style="padding: 5px 10px; font-size: 11px;">
+            📊 Submissions
+          </button>
+          <button onclick="toggleExamActive('${e.id}', ${e.is_active})" class="nav-btn" style="padding: 5px 10px; font-size: 11px;">
+            ${e.is_active ? '⏹️ Stop' : '▶️ Start'}
+          </button>
+          <button onclick="deleteExam('${e.id}')" class="nav-btn danger" style="padding: 5px 10px; font-size: 11px;">
+            🗑️
+          </button>
+        </div>
+      </td>
+    </tr>
+  `).join("");
+}
+
+async function toggleExamActive(id, currentState) {
+  const endpoint = currentState ? `${API_BASE}/exam/${id}/stop` : `${API_BASE}/exam/${id}/start`;
+  try {
+    await fetch(endpoint, { method: 'POST' });
+    loadTeacherExams();
+  } catch (e) {
+    alert("Error updating exam status");
+  }
+}
+
+async function deleteExam(id) {
+  if (!confirm("Are you sure you want to delete this exam and all its questions?")) return;
+  try {
+    await fetch(`${API_BASE}/exam/${id}`, { method: 'DELETE' });
+    loadTeacherExams();
+  } catch (e) {
+    alert("Error deleting exam");
+  }
+}
+
+async function viewSubmissions(examId, encodedTitle) {
+  const title = decodeURIComponent(encodedTitle);
+  const sec = document.getElementById("submissionSection");
+  const table = document.getElementById("examSubmissionsTable");
+  document.getElementById("selectedExamTitle").innerText = `Results: ${title}`;
+  sec.style.display = "block";
+  sec.scrollIntoView({ behavior: 'smooth' });
+
+  document.getElementById("exportCsvBtn").onclick = () => {
+    window.location.href = `${API_BASE}/exam/${examId}/export-csv`;
+  };
+
+  try {
+    const res = await fetch(`${API_BASE}/exam/${examId}/submissions`);
+    if (res.ok) {
+      const data = await res.json();
+      const subs = data.submissions || [];
+      document.getElementById("metricSubmissions").innerText = data.total_submissions || 0;
+      document.getElementById("metricAvgScore").innerText = `${data.analytics.average_score || 0}`;
+      document.getElementById("metricPassRate").innerText = `${data.analytics.pass_percentage || 0}%`;
+
+      document.getElementById("selectedExamStats").innerText = `Total Submissions: ${data.total_submissions} • Pass Rate: ${data.analytics.pass_percentage}% • Avg: ${data.analytics.average_score}`;
+
+      if (subs.length === 0) {
+        table.innerHTML = `<tr><td colspan="7" style="text-align: center; color: var(--text-muted); padding: 20px;">No students have submitted this exam yet.</td></tr>`;
+        return;
+      }
+
+      table.innerHTML = subs.map(s => `
+        <tr>
+          <td><code>${s.student_id}</code></td>
+          <td><strong>${s.student_name}</strong></td>
+          <td><strong>${s.score} / ${s.max_score}</strong></td>
+          <td><strong>${s.percentage}%</strong></td>
+          <td>
+            <span class="badge ${s.passed ? 'success' : 'danger'}">
+              ${s.passed ? 'PASSED' : 'FAILED'}
+            </span>
+          </td>
+          <td>${s.status}</td>
+          <td>${s.submitted_at ? new Date(s.submitted_at).toLocaleTimeString() : '—'}</td>
+        </tr>
+      `).join("");
+    }
+  } catch (err) {
+    table.innerHTML = `<tr><td colspan="7" style="text-align: center; color: var(--text-muted); padding: 20px;">Error loading submissions from backend.</td></tr>`;
+  }
+}
+
+function closeSubmissionsView() {
+  document.getElementById("submissionSection").style.display = "none";
+}
+
+// Auto load teacher exams when switching tabs
+const originalSwitchTab = switchTab;
+switchTab = function(tabId, btn) {
+  originalSwitchTab(tabId, btn);
+  if (tabId === 'tab-exams') {
+    loadTeacherExams();
+  }
+};
+loadTeacherExams();
+</script>
+
+<script src="multilingual/site-i18n.js"></script>
+<script src="audio-manager.js"></script>
+</body>
+</html>

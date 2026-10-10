@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>AlgoPlay – Arcade Game Universe</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#020617;
+  --glass:rgba(255,255,255,0.06);
+  --border:rgba(255,255,255,0.12);
+  --primary:#38bdf8;
+  --accent:#a855f7;
+}
+
+*{
+  margin:0;
+  padding:0;
+  box-sizing:border-box;
+  font-family:'Poppins',system-ui,sans-serif;
+}
+
+body{
+  min-height:100vh;
+  background:radial-gradient(circle at top, #0f172a, #020617 90%);
+  color:#e5e7eb;
+}
+
+/* TOP NAV */
+.top-nav {
+  padding: 20px 40px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: rgba(15, 23, 42, 0.7);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border);
+}
+.back-link {
+  color: var(--primary);
+  text-decoration: none;
+  font-weight: 700;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: 0.2s;
+}
+.back-link:hover {
+  transform: translateX(-4px);
+  color: #fff;
+}
+
+/* HEADER */
+header{
+  padding:40px 20px 20px;
+  text-align:center;
+}
+
+header h1{
+  font-size:38px;
+  font-weight:800;
+  background:linear-gradient(90deg,#38bdf8,#a855f7);
+  -webkit-background-clip:text;
+  color:transparent;
+}
+
+header p{
+  margin-top:8px;
+  color:#94a3b8;
+  font-size: 15px;
+}
+
+/* GRID */
+.subjects{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(280px,1fr));
+  gap:26px;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding:30px 24px;
+}
+
+/* CARD */
+.card{
+  background:var(--glass);
+  backdrop-filter:blur(16px);
+  border:1px solid var(--border);
+  border-radius:22px;
+  padding:28px 22px;
+  text-align:center;
+  transition:.35s ease;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.card:hover{
+  transform:translateY(-8px);
+  box-shadow:0 15px 40px rgba(56,189,248,.2);
+  border-color: rgba(56,189,248,0.4);
+}
+
+/* ICON */
+.icon{
+  font-size:52px;
+  margin-bottom:12px;
+}
+
+/* TEXT */
+.card h2{
+  font-size:20px;
+  font-weight: 700;
+  margin-bottom:8px;
+  color: #fff;
+}
+
+.card p{
+  font-size:13px;
+  color:#94a3b8;
+  margin-bottom:20px;
+  line-height: 1.5;
+}
+
+.badge {
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 800;
+  padding: 4px 10px;
+  border-radius: 999px;
+  margin-bottom: 12px;
+  text-transform: uppercase;
+}
+
+/* BUTTON */
+.card button{
+  padding:12px 28px;
+  border:none;
+  border-radius:999px;
+  background:linear-gradient(90deg,#38bdf8,#a855f7);
+  color:#020617;
+  font-weight:700;
+  cursor:pointer;
+  transition:.25s;
+  font-size: 14px;
+  width: 100%;
+}
+
+.card button:hover{
+  transform:scale(1.03);
+  box-shadow:0 0 25px rgba(56,189,248,.6);
+}
+
+/* SUBJECT CARD THEMES */
+.maths { border-top: 4px solid #3b82f6; }
+.fractions { border-top: 4px solid #f97316; }
+.chase { border-top: 4px solid #eab308; }
+.physics { border-top: 4px solid #a855f7; }
+.chemistry { border-top: 4px solid #22c55e; }
+.biology { border-top: 4px solid #06b6d4; }
+.video { border-top: 4px solid #ec4899; }
+
+/* FOOTER */
+footer{
+  text-align:center;
+  padding:30px;
+  color:#64748b;
+  font-size: 13px;
+}
+</style>
+<link rel="stylesheet" href="multilingual/app-theme.css">
+</head>
+
+<body>
+
+<div class="top-nav">
+  <a href="maindashboard.html" class="back-link">← Back to Dashboard</a>
+  <span style="font-size: 12px; color: #94a3b8; font-weight: 600;">⭐ 8 Active Game Modules</span>
+</div>
+
+<header>
+  <h1>🎮 Arcade Game Universe</h1>
+  <p>Play interactive educational games, run simulations, and level up your mastery!</p>
+</header>
+
+<main class="subjects">
+  <!-- Mario Math -->
+  <div class="card maths">
+    <div>
+      <span class="badge" style="background: rgba(59, 130, 246, 0.2); color: #93c5fd;">Math • Speed Runner</span>
+      <div class="icon">🍄</div>
+      <h2>Mario Math Runner</h2>
+      <p>Sprint across animated obstacle tracks, collect power-ups, and solve rapid-fire math operations!</p>
+    </div>
+    <button onclick="location.href='game2.html'">Play Game →</button>
+  </div>
+
+  <!-- Smart Bazaar -->
+  <div class="card fractions">
+    <div>
+      <span class="badge" style="background: rgba(249, 115, 22, 0.2); color: #fdba74;">Math • Market Sim</span>
+      <div class="icon">🏪</div>
+      <h2>Smart Bazaar Quest</h2>
+      <p>Master fraction additions using visual fraction bars and realistic Indian marketplace trade scenarios.</p>
+    </div>
+    <button onclick="location.href='fraction_mission.html'">Enter Market →</button>
+  </div>
+
+  <!-- Speed Chase -->
+  <div class="card chase">
+    <div>
+      <span class="badge" style="background: rgba(234, 179, 8, 0.2); color: #fde047;">Action • Continuous Chase</span>
+      <div class="icon">🏃‍♂️</div>
+      <h2>Continuous Chase Quiz</h2>
+      <p>Dodge obstacles in an animated chase sprint while answering rapid logic questions under pressure.</p>
+    </div>
+    <button onclick="location.href='newgame.html'">Start Chase →</button>
+  </div>
+
+  <!-- Physics Lab -->
+  <div class="card physics">
+    <div>
+      <span class="badge" style="background: rgba(168, 85, 247, 0.2); color: #d8b4fe;">Physics • Sandbox Sim</span>
+      <div class="icon">🪐</div>
+      <h2>Physics Lab Engine</h2>
+      <p>Interactive simulations for Gravitation, Inertia, Momentum collisions, Sound Waves, and Archimedes principles.</p>
+    </div>
+    <button onclick="location.href='phyg1.html'">Open Lab →</button>
+  </div>
+
+  <!-- Chemistry Lab -->
+  <div class="card chemistry">
+    <div>
+      <span class="badge" style="background: rgba(34, 197, 94, 0.2); color: #86efac;">Chemistry • Molecule Lab</span>
+      <div class="icon">🧪</div>
+      <h2>Chemistry Reaction Lab</h2>
+      <p>Explore states of matter, atomic electron structures, and molecular combinations in an interactive lab.</p>
+    </div>
+    <button onclick="location.href='cheg1.html'">Enter Lab →</button>
+  </div>
+
+  <!-- Biology Explorer -->
+  <div class="card biology">
+    <div>
+      <span class="badge" style="background: rgba(6, 182, 212, 0.2); color: #67e8f9;">Biology • Visual Anatomy</span>
+      <div class="icon">🧬</div>
+      <h2>Anatomy Pin Explorer</h2>
+      <p>Explore organ diagrams, place pins, and verify biological systems step-by-step with immediate feedback.</p>
+    </div>
+    <button onclick="location.href='sciencegame.html'">Explore Anatomy →</button>
+  </div>
+
+  <!-- Video Challenge -->
+  <div class="card video">
+    <div>
+      <span class="badge" style="background: rgba(236, 72, 153, 0.2); color: #f472b6;">Interactive Media</span>
+      <div class="icon">🎬</div>
+      <h2>Video Quiz Arena</h2>
+      <p>Watch science video demonstrations that pause dynamically for high-stakes problem solving!</p>
+    </div>
+    <button onclick="location.href='videogame1.html'">Play Video Quiz →</button>
+  </div>
+
+  <!-- Ultra Science Quiz -->
+  <div class="card physics">
+    <div>
+      <span class="badge" style="background: rgba(99, 102, 241, 0.2); color: #a5b4fc;">Science • Cosmic Arena</span>
+      <div class="icon">✨</div>
+      <h2>Cosmic Science Arena</h2>
+      <p>Interactive animated starfield science challenge testing multi-disciplinary physics and chemistry concepts.</p>
+    </div>
+    <button onclick="location.href='sciencelevel.html'">Launch Arena →</button>
+  </div>
+
+  <!-- SUTRA Math Cannon -->
+  <div class="card math">
+    <div>
+      <span class="badge" style="background: rgba(99, 102, 241, 0.2); color: #a5b4fc;">Mathematics • Bubble Shooter</span>
+      <div class="icon">🎯</div>
+      <h2>SUTRA Math Cannon</h2>
+      <p>Aim, fire, and solve the math bubble question before the cannon overheats.</p>
+    </div>
+    <button onclick="location.href='math_bubble_shoot.html'">Play Cannon →</button>
+  </div>
+</main>
+
+<footer>
+  ⭐ 9 High-Energy Educational Games • 🎯 Daily XP • 🏆 Coins &amp; Badges
+</footer>
+
+<script src="multilingual/site-i18n.js"></script>
+<script src="audio-manager.js"></script>
+</body>
+</html>

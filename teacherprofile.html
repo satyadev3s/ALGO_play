@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Profile</title>
+
+<style>
+    /* ------------------------------
+       Variables (Theme Colors)
+    -------------------------------- */
+    :root {
+        --bg: #0d1117;
+        --card: rgba(255, 255, 255, 0.05);
+        --border: rgba(255, 255, 255, 0.12);
+        --text: #e2e8f0;
+        --accent: #3b82f6;
+        --accent2: #06b6d4;
+        --radius: 16px;
+        --shadow: 0 0 25px rgba(59, 130, 246, 0.35);
+    }
+
+    body {
+        margin: 0;
+        background: var(--bg);
+        font-family: "Inter", sans-serif;
+        color: var(--text);
+        animation: fadeScreen 0.6s ease;
+    }
+
+    @keyframes fadeScreen {
+        from { opacity: 0; }
+        to { opacity: 1; }
+    }
+
+    /* Page Container */
+    .container {
+        max-width: 550px;
+        margin: 50px auto;
+        padding: 25px;
+        background: var(--card);
+        border-radius: var(--radius);
+        border: 1px solid var(--border);
+        box-shadow: var(--shadow);
+        backdrop-filter: blur(18px);
+        animation: floatUp 0.7s ease;
+    }
+
+    @keyframes floatUp {
+        from { opacity: 0; transform: translateY(20px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Heading */
+    h1 {
+        text-align: center;
+        margin-bottom: 25px;
+        font-size: 28px;
+        font-weight: 700;
+        background: linear-gradient(to right, var(--accent), var(--accent2));
+        color: transparent;
+        -webkit-background-clip: text;
+        animation: glowText 2.5s ease-in-out infinite alternate;
+    }
+
+    @keyframes glowText {
+        from { text-shadow: 0 0 10px rgba(59,130,246,0.5); }
+        to { text-shadow: 0 0 18px rgba(6,182,212,0.7); }
+    }
+
+    /* Avatar Upload */
+    .avatar-box {
+        text-align: center;
+        margin-bottom: 25px;
+    }
+
+    .avatar-box img {
+        width: 120px;
+        height: 120px;
+        border-radius: 50%;
+        border: 3px solid var(--accent);
+        box-shadow: 0 0 18px rgba(59,130,246,0.5);
+        object-fit: cover;
+        transition: 0.25s;
+        cursor: pointer;
+    }
+
+    .avatar-box img:hover {
+        transform: scale(1.06);
+        box-shadow: 0 0 25px rgba(6,182,212,0.6);
+    }
+
+    .avatar-box input {
+        display: none;
+    }
+
+    /* Inputs */
+    textarea, input[type="text"] {
+        width: 100%;
+        padding: 12px;
+        margin-bottom: 16px;
+        background: rgba(255,255,255,0.06);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        color: var(--text);
+        resize: none;
+        font-size: 15px;
+        transition: 0.25s;
+    }
+
+    textarea:focus, input[type="text"]:focus {
+        outline: none;
+        border-color: var(--accent);
+        box-shadow: 0 0 12px rgba(59,130,246,0.4);
+        transform: translateY(-2px);
+    }
+
+    /* Button */
+    .btn {
+        width: 100%;
+        background: var(--accent);
+        border: none;
+        padding: 12px;
+        border-radius: var(--radius);
+        color: white;
+        font-size: 16px;
+        font-weight: 700;
+        cursor: pointer;
+        margin-top: 8px;
+        transition: 0.3s;
+        box-shadow: 0 0 15px rgba(59,130,246,0.35);
+    }
+
+    .btn:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 0 25px rgba(6,182,212,0.5);
+    }
+</style>
+<link rel="stylesheet" href="multilingual/app-theme.css">
+</head>
+<body>
+
+<div class="container">
+
+    <div style="display:flex;justify-content:flex-start;margin-bottom:12px;">
+        <a href="teacherdash.html" style="color:#60a5fa;text-decoration:none;font-weight:600;padding:6px 14px;background:rgba(255,255,255,0.08);border-radius:8px;border:1px solid rgba(255,255,255,0.15);font-size:13px;">← Teacher Dashboard</a>
+    </div>
+
+    <h1>Teacher Profile</h1>
+
+    <!-- Avatar Upload -->
+    <div class="avatar-box">
+        <label for="avatarInput">
+            <img id="avatarPreview" src="https://via.placeholder.com/120" alt="Avatar">
+        </label>
+        <input type="file" id="avatarInput" accept="image/*">
+    </div>
+
+    <!-- Text Inputs -->
+    <textarea id="name" rows="1" placeholder="Enter your name"></textarea>
+    <textarea id="email" rows="1" placeholder="Enter your email address"></textarea>
+    <textarea id="school" rows="1" placeholder="Enter your school name"></textarea>
+    <textarea id="subject" rows="1" placeholder="Enter your respective subject"></textarea>
+    <textarea id="class" rows="1" placeholder="Enter your class"></textarea>
+    <textarea id="experience" rows="3" placeholder="Write about your experience"></textarea>
+
+    <!-- Save Button -->
+    <button class="btn" onclick="savebtn()">Save Profile</button>
+
+</div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", () => {
+        const tName = sessionStorage.getItem("logged_in_name") || "Prof. Sharma";
+        const tEmail = sessionStorage.getItem("logged_in_email") || "teacher@school.edu";
+        const tSchool = sessionStorage.getItem("logged_in_school") || "AlgoPlay Academy";
+        const savedProf = JSON.parse(localStorage.getItem("teacherProfile") || "{}");
+
+        document.getElementById("name").value = savedProf.name || tName;
+        document.getElementById("email").value = savedProf.email || tEmail;
+        document.getElementById("school").value = savedProf.school || tSchool;
+        document.getElementById("subject").value = savedProf.subject || "Mathematics & Science";
+        document.getElementById("class").value = savedProf.class || "Class 8";
+        document.getElementById("experience").value = savedProf.experience || "Senior educator focusing on gamified STEM learning.";
+    });
+
+    // Avatar Image Preview
+    document.getElementById("avatarInput").addEventListener("change", function() {
+        const file = this.files[0];
+        if (file) {
+            document.getElementById("avatarPreview").src = URL.createObjectURL(file);
+        }
+    });
+
+    function savebtn(){
+        const nameVal = document.getElementById("name").value.trim();
+        const emailVal = document.getElementById("email").value.trim();
+        const schoolVal = document.getElementById("school").value.trim();
+        const subVal = document.getElementById("subject").value.trim();
+        const classVal = document.getElementById("class").value.trim();
+        const expVal = document.getElementById("experience").value.trim();
+
+        const profile = {
+            name: nameVal,
+            email: emailVal,
+            school: schoolVal,
+            subject: subVal,
+            class: classVal,
+            experience: expVal
+        };
+
+        localStorage.setItem("teacherProfile", JSON.stringify(profile));
+        if (nameVal) sessionStorage.setItem("logged_in_name", nameVal);
+        if (emailVal) sessionStorage.setItem("logged_in_email", emailVal);
+        if (schoolVal) sessionStorage.setItem("logged_in_school", schoolVal);
+
+        alert("Profile updated successfully! 🎉");
+        location.href = "teacherdash.html";
+    }
+</script>
+
+<script src="multilingual/site-i18n.js"></script>
+<script src="audio-manager.js"></script>
+</body>
+</html>

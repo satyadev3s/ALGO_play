@@ -1,0 +1,620 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Algoplay — Learn. Play. Level Up.</title>
+<link rel="stylesheet" href="algoplay-chatbot.css">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='64' height='64'%3E%3Crect width='64' height='64' rx='12' fill='%23A64BFF'/%3E%3Ctext x='50%25' y='55%25' font-size='32' text-anchor='middle' fill='%23FFF' font-family='Poppins, sans-serif'%3EA%3C/text%3E%3C/svg%3E">
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700;800&display=swap');
+
+:root {
+  --bg: #030712;
+  --card: rgba(15, 23, 42, 0.65);
+  --accent1: #8B5CF6; 
+  --accent2: #EC4899; 
+  --accent3: #3B82F6; 
+  --text: #F8FAFC;
+  --muted: #94A3B8;
+  --glass-border: rgba(255, 255, 255, 0.1);
+  --glow: 0 0 20px rgba(139, 92, 246, 0.2);
+  --radius: 18px;
+  --ease: cubic-bezier(.2,.9,.2,1);
+}
+
+* { box-sizing: border-box; font-family: "Poppins", sans-serif; }
+
+html, body {
+  height: 100%;
+  margin: 0;
+  background: radial-gradient(circle at 0% 0%, #1a1440 0, transparent 50%),
+              radial-gradient(circle at 100% 100%, #2b1038 0, transparent 50%),
+              var(--bg);
+  color: var(--text);
+  scroll-behavior: smooth;
+  overflow-x: hidden;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 8px; }
+::-webkit-scrollbar-track { background: var(--bg); }
+::-webkit-scrollbar-thumb { background: var(--glass-border); border-radius: 10px; }
+
+.container { max-width: 1200px; margin: 0 auto; padding: 20px; position: relative; z-index: 10; }
+
+/* Header & Nav */
+.header {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 16px 24px; border-radius: 20px;
+  background: rgba(15, 23, 42, 0.8); backdrop-filter: blur(12px);
+  border: 1px solid var(--glass-border); position: sticky; top: 20px; z-index: 100;
+  margin-bottom: 40px; box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+}
+.brand { display: flex; gap: 15px; align-items: center; }
+.logo {
+  width: 45px; height: 45px; border-radius: 12px;
+  background: linear-gradient(135deg, var(--accent1), var(--accent2));
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 800; font-size: 20px; color: #fff;
+}
+.nav { display: flex; gap: 10px; }
+.nav button {
+  background: transparent; border: none; color: var(--muted);
+  cursor: pointer; font-size: 14px; font-weight: 600; padding: 8px 12px;
+  transition: 0.3s;
+}
+.nav button:hover { color: #fff; transform: translateY(-2px); }
+
+/* Hero */
+.hero {
+  display: grid; grid-template-columns: 1fr 450px; gap: 40px; align-items: center;
+  padding: 60px 40px; border-radius: 32px; margin-bottom: 40px;
+  background: radial-gradient(circle at 10% 0%, rgba(139,92,246,0.15), transparent 50%), var(--card);
+  backdrop-filter: blur(12px); border: 1px solid var(--glass-border);
+}
+.hero h2 {
+  font-size: 48px; margin: 0; line-height: 1.1; font-weight: 800;
+  background: linear-gradient(90deg, #fff, var(--accent1), var(--accent2));
+  background-clip: text; -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+}
+.hero p { color: var(--muted); font-size: 18px; margin: 20px 0; max-width: 500px; }
+
+/* Components */
+.card {
+  background: var(--card); border-radius: var(--radius);
+  padding: 24px; border: 1px solid var(--glass-border);
+  transition: all 0.4s var(--ease); backdrop-filter: blur(8px);
+}
+.card:hover { transform: translateY(-8px); border-color: var(--accent1); box-shadow: var(--glow); }
+
+.btn {
+  padding: 12px 24px; border-radius: 12px; font-weight: 700; cursor: pointer;
+  border: none; transition: 0.3s; display: inline-flex; align-items: center; gap: 8px;
+}
+.btn-primary { background: linear-gradient(135deg, var(--accent1), var(--accent2)); color: white; }
+.btn-outline { background: rgba(255,255,255,0.05); color: white; border: 1px solid var(--glass-border); }
+.btn:hover { filter: brightness(1.2); transform: scale(1.05); }
+
+/* Progress Bars */
+.level-container { width: 100%; background: rgba(255,255,255,0.05); border-radius: 99px; height: 6px; margin: 10px 0; overflow: hidden; }
+.level-bar { height: 100%; background: linear-gradient(90deg, var(--accent1), var(--accent3)); transition: width 1s ease; }
+
+/* Grid Systems */
+.grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; margin-top: 20px; }
+.section-head { margin-bottom: 24px; display: flex; justify-content: space-between; align-items: flex-end; }
+.section-head h3 { font-size: 28px; margin: 0; }
+
+/* Subject Icons */
+.subject-icon { font-size: 40px; margin-bottom: 15px; display: block; }
+
+/* Carousel */
+.carousel { position: relative; overflow: hidden; border-radius: var(--radius); }
+.carousel-track { display: flex; transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1); }
+.carousel-item { min-width: 100%; padding: 40px; text-align: center; }
+.carousel-dots { display: flex; justify-content: center; gap: 8px; margin-top: 15px; }
+.carousel-dots div { width: 8px; height: 8px; background: #334155; border-radius: 50%; cursor: pointer; }
+.carousel-dots .active { background: var(--accent1); width: 24px; border-radius: 4px; }
+
+/* Floating UI */
+.top-right-chips { position: fixed; right: 30px; top: 100px; display: flex; flex-direction: column; gap: 12px; z-index: 90; }
+.top-chip { 
+  background: rgba(15, 23, 42, 0.9); padding: 10px 18px; border-radius: 50px; 
+  border: 1px solid var(--glass-border); backdrop-filter: blur(10px);
+  display: flex; align-items: center; gap: 10px; font-weight: 700;
+}
+
+/* Animations */
+.reveal { opacity: 0; transform: translateY(30px); transition: 0.8s var(--ease); }
+.reveal.show { opacity: 1; transform: translateY(0); }
+
+/* Particles */
+.particle { position: absolute; pointer-events: none; z-index: 1000; border-radius: 50%; }
+.coin { width: 20px; height: 20px; background: #FFD700; box-shadow: 0 0 10px #FFD700; color: #000; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 800; }
+
+@media (max-width: 900px) {
+  .hero { grid-template-columns: 1fr; text-align: center; }
+  .hero p { margin: 20px auto; }
+  .header { flex-direction: column; gap: 15px; }
+}
+</style>
+<link rel="stylesheet" href="multilingual/app-theme.css">
+</head>
+<body>
+
+<div class="container">
+  <header class="header">
+    <div class="brand">
+      <div class="logo">A</div>
+      <div>
+        <strong style="font-size: 18px;">Algoplay</strong>
+        <div style="font-size: 11px; color: var(--muted)">Gamified Learning 6–10</div>
+      </div>
+    </div>
+    <nav class="nav">
+      <button onclick="gotogames()">Games</button>
+      <button onclick="gotoexam()">Exams</button>
+      <button onclick="settings()">Settings</button>
+      <button onclick="visitprofile()">Profile</button>
+    </nav>
+  </header>
+
+  <section id="hero" class="hero reveal">
+   <div>
+  <h2>Welcome, <span id="displayUserName" style="color: var(--accent1);">Explorer</span>!</h2>
+  
+  <h2>Level Up Your Education.</h2>
+  <p>Transform your syllabus into an epic quest. Master subjects, earn XP, and unlock real-world knowledge through play.</p>
+  
+  <div style="display: flex; gap: 15px;">
+    <button class="btn btn-primary" id="startBtn" onclick="gotoexam()">Start Exam</button>
+    <button class="btn btn-outline" onclick="gotogames()">Browse Games</button>
+  </div>
+</div>
+    <div style="position: relative; display: flex; justify-content: center;">
+      <div class="card" style="width: 300px; text-align: center; background: linear-gradient(135deg, rgba(255,255,255,0.05), rgba(255,255,255,0.01));">
+        <div id="heroLevelBadge" style="font-size: 50px;">🌟</div>
+        <h3 id="heroLevelText" style="margin: 10px 0;">Level 1 Explorer</h3>
+        <div class="level-container"><div id="heroXPBar" class="level-bar" style="width: 20%;"></div></div>
+        <div class="small" style="color: var(--muted)">120 / 500 XP to Level 2</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SMART BAZAAR FRACTION QUEST -->
+  <section class="reveal" style="margin-top: 30px;">
+    <div class="card" style="background: var(--card); border: 1px solid var(--glass-border); padding: 22px 26px; border-radius: 20px;">
+      <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px;">
+        <div>
+          <h3 style="margin: 0 0 6px; font-size: 20px; color: #fff; display: flex; align-items: center; gap: 10px;">
+            <span>🏪</span> Smart Bazaar: Fractions Quest
+          </h3>
+          <p style="color: var(--muted); font-size: 13px; max-width: 580px; margin: 0 0 10px;">
+            Learn to add unlike fractions through Indian marketplace trade, interactive visual strips, and real-time guidance.
+          </p>
+          <div style="display: flex; gap: 10px; font-size: 11px; color: #94a3b8; flex-wrap: wrap;">
+            <span>🎯 Diagnostic Quiz</span>
+            <span>•</span>
+            <span>📏 Visual Strips</span>
+            <span>•</span>
+            <span>💡 Step-by-Step Hints</span>
+            <span>•</span>
+            <span>🏆 +150 XP</span>
+          </div>
+        </div>
+        <div>
+          <a href="fraction_mission.html" class="btn btn-primary" style="font-size: 13px; font-weight: 700; padding: 10px 22px; text-decoration: none;">
+            Start Quest →
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="subjects" class="reveal">
+    <div class="section-head">
+      <h3>Your Universe</h3>
+      <div style="color: var(--muted)">Master each domain to earn unique badges</div>
+    </div>
+    <div class="grid" id="subjectsGrid"></div>
+  </section>
+
+  <section class="reveal" style="margin-top: 40px;">
+    <div class="section-head">
+      <h3>📅 Class Assignments</h3>
+      <div style="color: var(--muted)">Tasks assigned for your grade</div>
+    </div>
+    <div id="assignmentList" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px;">
+      <p style="color: var(--muted); font-size: 14px;">Loading assignments...</p>
+    </div>
+  </section>
+
+<script>
+  function startexam(){
+    location.href="examconduct.html";
+  }
+  function gotogames(){
+    location.href="gameboard.html";
+  }
+  function gotoexam(){
+    location.href="examconduct.html";
+  }
+    // Load Student Info
+    const studentName = sessionStorage.getItem('student_name') || localStorage.getItem('student_name') || "Explorer";
+    const studentSchool = sessionStorage.getItem('profileSchool') || "AlgoPlay Academy";
+    const studentNameEl = document.getElementById('studentName');
+    if (studentNameEl) studentNameEl.innerText = studentName;
+
+    function renderAssignmentsList(tasks) {
+      const list = document.getElementById('assignmentList');
+      if (!list) return;
+      list.innerHTML = "";
+
+      if (!tasks || tasks.length === 0) {
+          list.innerHTML = "<p style='color:#94a3b8;font-size:14px;'>No assignments posted yet.</p>";
+          return;
+      }
+
+      tasks.forEach(task => {
+          const title = task.title || task.filename || `${task.subject} Worksheet`;
+          const downloadUrl = task.url && task.url !== '#' ? task.url : null;
+          const isVideo = /\.mp4$/i.test(task.filename || task.url || '');
+          list.innerHTML += `
+            <div class="card" style="padding: 18px 20px; border-left: 4px solid var(--accent1); display:flex; flex-direction:column; justify-content:space-between; gap:12px;">
+              <div>
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+                  <span style="font-size:11px; font-weight:700; text-transform:uppercase; padding:3px 8px; border-radius:6px; background:rgba(139,92,246,0.2); color:#c4b5fd;">${task.subject}</span>
+                  <span style="font-size:11px; color:#64748b;">${task.date || 'Today'}</span>
+                </div>
+                <h4 style="margin:0 0 4px 0; color:#fff; font-size:15px; font-weight:600;">${title}</h4>
+                <p style="font-size: 12px; margin: 2px 0; color:var(--muted);">By ${task.teacher_name || 'Prof. Sharma'}</p>
+              </div>
+              ${isVideo && downloadUrl ? `
+                <video controls preload="metadata" style="width:100%; max-height:220px; border-radius:10px; background:#020617;">
+                  <source src="${downloadUrl}" type="video/mp4">
+                  Your browser cannot play this MP4 video.
+                </video>
+              ` : ''}
+              <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
+                ${downloadUrl ? `
+                  <a href="${downloadUrl}" target="_blank" style="display:inline-flex; align-items:center; gap:6px; padding:7px 14px; border-radius:8px; background:rgba(56,189,248,0.2); border:1px solid rgba(56,189,248,0.4); color:#38bdf8; font-size:12px; font-weight:700; text-decoration:none;">
+                    ${isVideo ? '▶️ Watch Video' : '👁️ Open File'}
+                  </a>
+                  <a href="${downloadUrl}" download style="display:inline-flex; align-items:center; gap:6px; padding:7px 14px; border-radius:8px; background:rgba(255,255,255,0.08); border:1px solid rgba(255,255,255,0.15); color:#cbd5e1; font-size:12px; font-weight:600; text-decoration:none;">
+                    ⬇️ Download
+                  </a>
+                ` : `
+                  <span style="display:inline-flex; align-items:center; gap:6px; padding:6px 12px; border-radius:8px; background:rgba(255,255,255,0.06); color:#94a3b8; font-size:12px;">
+                    📄 Class Assignment
+                  </span>
+                `}
+              </div>
+            </div>
+          `;
+      });
+    }
+
+    // Fetch Assignments
+    fetch("/assignments")
+      .then(res => res.json())
+      .then(data => {
+        renderAssignmentsList(data);
+      })
+      .catch(err => {
+        console.warn("Backend offline, using local assignments...", err);
+        const localTasks = JSON.parse(localStorage.getItem("algoplay_assignments") || "[]");
+        const defaultTasks = [
+          { subject: "Science", teacher_name: "Prof. Sharma", date: "Oct 10, 2026" },
+          { subject: "Mathematics", teacher_name: "Prof. Sharma", date: "Oct 9, 2026" },
+          { subject: "Technology", teacher_name: "Mrs. Sen", date: "Oct 8, 2026" }
+        ];
+        renderAssignmentsList(localTasks.length > 0 ? localTasks : defaultTasks);
+      });
+
+        function startgame(){
+    location.href='sciencegame.html';
+        }
+       
+</script>
+
+
+  <section id="games" class="reveal" style="margin-top: 60px;">
+    <div class="section-head">
+      <h3>Daily Quests</h3>
+      <button class="btn btn-outline" style="font-size: 12px;">View All</button>
+    </div>
+    <div class="grid" id="gamesGrid"></div>
+  </section>
+
+  <section class="reveal" style="margin-top: 60px;">
+    <div class="carousel card" id="featureCarousel">
+      <div class="carousel-track">
+        <div class="carousel-item">
+          <h2>Adaptive Challenges</h2>
+          <p>The game gets smarter as you do. Problems adjust in real-time to your skill level.</p>
+        </div>
+        <div class="carousel-item">
+          <h2>Streak Rewards</h2>
+          <p>Maintain your daily learning streak to unlock rare profile icons and coin multipliers.</p>
+        </div>
+        <div class="carousel-item">
+          <h2>Safe Social</h2>
+          <p>Collaborate with classmates in a secure, moderated environment.</p>
+        </div>
+      </div>
+      <div class="carousel-dots" id="featureDots"></div>
+    </div>
+  </section>
+
+  <footer style="margin-top: 80px; padding: 40px 0; border-top: 1px solid var(--glass-border);">
+    <div class="grid" style="grid-template-columns: repeat(4, 1fr);">
+      <div style="text-align: center;">
+        <div style="font-size: 24px; font-weight: 800; color: var(--accent1);">450K+</div>
+        <div class="small" style="color: var(--muted)">Active Players</div>
+      </div>
+      <div style="text-align: center;">
+        <div style="font-size: 24px; font-weight: 800; color: var(--accent2);">98%</div>
+        <div class="small" style="color: var(--muted)">Score Improve</div>
+      </div>
+      <div style="text-align: center;">
+        <div style="font-size: 24px; font-weight: 800; color: var(--accent3);">12M+</div>
+        <div class="small" style="color: var(--muted)">Quests Done</div>
+      </div>
+      <div style="text-align: center;">
+        <div style="font-size: 24px; font-weight: 800; color: #10B981;">Gold</div>
+        <div class="small" style="color: var(--muted)">Industry Standard</div>
+      </div>
+    </div>
+    <div style="text-align: center; margin-top: 40px; color: var(--muted); font-size: 12px;">
+      © 2025 Algoplay Education. Safe. Secure. Fun.
+    </div>
+  </footer>
+</div>
+
+<div class="top-right-chips" id="topChips"></div>
+
+<div id="particlesRoot"></div>
+
+<script>
+  function visitprofile(){  
+    location.href='userprofile.html';
+  }
+  function loadUserGreeting() {
+    let name = "Explorer";
+    try {
+        const stored = localStorage.getItem('student_name') || sessionStorage.getItem('student_name');
+        if (stored) {
+            if (stored.startsWith('{')) {
+                const parsed = JSON.parse(stored);
+                name = parsed.name || name;
+            } else {
+                name = stored;
+            }
+        }
+    } catch(e) {}
+
+    const nameElement = document.getElementById('displayUserName');
+    if (nameElement) {
+        nameElement.innerText = name;
+    }
+  }
+
+function gotochatbox(){
+    location.href="chatbox.html";
+}
+// 3. Run this function as soon as the page loads
+window.addEventListener('DOMContentLoaded', loadUserGreeting);
+  function settings(){
+    location.href='settings.html'
+  }
+  function lead(){
+    location.href='leaderboard.html'
+  }
+/* Data Store */
+const store = {
+  profile: JSON.parse(localStorage.getItem('algoplay_profile')) || { xp: 120, coins: 45, level: 1 },
+  streak: JSON.parse(localStorage.getItem('algoplay_streak')) || { count: 3, last: null },
+  subjects: [
+    { id: 'science', label: 'Science', icon: '🧪', meta: 'Physics & Chemistry' },
+    { id: 'maths', label: 'Mathematics', icon: '📐', meta: 'Algebra & Geometry' },
+    { id: 'technology', label: 'Technology', icon: '💻', meta: 'Coding & AI' },
+    { id: 'english', label: 'English', icon: '📖', meta: 'Grammar & Prose' },
+    { id: 'biology', label: 'Biology', icon: '🧬', meta: 'Human Body & Life' }
+  ],
+  games: [
+    { id: 'g1', title: 'Mario Math Runner', sub: 'Mathematics • Speed Arcade', icon: '🍄', url: 'game2.html', xp: 50, tag: 'Arcade Runner' },
+    { id: 'g2', title: 'Smart Bazaar: Market Quest', sub: 'Fractions • Visual Trade', icon: '🏪', url: 'fraction_mission.html', xp: 75, tag: 'Market Sim' },
+    { id: 'g3', title: 'Continuous Chase Quiz', sub: 'Logic • Speed Challenge', icon: '🏃‍♂️', url: 'newgame.html', xp: 45, tag: 'Action Quiz' },
+    { id: 'g4', title: 'Physics Engine Lab', sub: 'Physics • Interactive Simulator', icon: '🪐', url: 'phyg1.html', xp: 60, tag: 'Physics Lab' },
+    { id: 'g5', title: 'Chemistry Lab Reactions', sub: 'Chemistry • Atom & Matter Lab', icon: '🧪', url: 'cheg1.html', xp: 55, tag: 'Reaction Lab' },
+    { id: 'g6', title: 'Anatomy Pin Explorer', sub: 'Biology • Visual Step-by-Step', icon: '🧬', url: 'sciencegame.html', xp: 40, tag: 'Visual Explorer' },
+    { id: 'g7', title: 'Interactive Video Arena', sub: 'STEM • Video Challenge', icon: '🎬', url: 'videogame1.html', xp: 50, tag: 'Video Quest' },
+    { id: 'g8', title: 'Subject Arcade Hub', sub: 'All Subjects • Multi-Game Arcade', icon: '🎮', url: 'gameboard.html', xp: 60, tag: 'Arcade Hub' },
+    { id: 'g9', title: 'SUTRA Math Cannon', sub: 'Mathematics • Bubble Shooter', icon: '🎯', url: 'math_bubble_shoot.html', xp: 65, tag: 'Math Shooter' }
+  ]
+};
+
+const $ = s => document.querySelector(s);
+
+/* Render Functions */
+function renderHeader() {
+  const xpInLevel = store.profile.xp % 500;
+  const level = Math.floor(store.profile.xp / 500) + 1;
+  const perc = (xpInLevel / 500) * 100;
+
+  $('#topChips').innerHTML = `
+    <div class="top-chip">🔥 ${store.streak.count} Day Streak</div>
+    <div class="top-chip">💰 ${store.profile.coins} Coins</div>
+    <div class="top-chip" style="flex-direction:column; align-items:flex-end;">
+      <div style="font-size:10px">LVL ${level}</div>
+      <div class="level-container" style="width:80px; height:4px; margin:0"><div class="level-bar" style="width:${perc}%"></div></div>
+    </div>
+  `;
+  
+  $('#heroLevelText').innerText = `Level ${level} Explorer`;
+  $('#heroXPBar').style.width = perc + '%';
+}
+// In student dashboard
+
+
+
+function renderSubjects() {
+  const grid = $('#subjectsGrid');
+  grid.innerHTML = '';
+  store.subjects.forEach(s => {
+    // Randomized mastery for UI simulation
+    const mastery = Math.floor(Math.random() * 40) + 20;
+    const card = document.createElement('div');
+    card.className = 'card reveal';
+    
+    // Construct the URL dynamically
+    const targetPage = `${s.id}.html`;
+
+    card.innerHTML = `
+      <span class="subject-icon">${s.icon}</span>
+      <h4 style="margin: 0 0 5px 0">${s.label}</h4>
+      <div style="font-size: 12px; color: var(--muted); margin-bottom: 15px;">${s.meta}</div>
+      <div style="display:flex; justify-content:space-between; font-size:11px;">
+        <span>Mastery</span><span>${mastery}%</span>
+      </div>
+      <div class="level-container"><div class="level-bar" style="width: ${mastery}%"></div></div>
+      
+      <button class="btn btn-primary" style="width:100%; margin-top:15px; font-size:12px;" 
+        onclick="navigateToSubject('${targetPage}', this)">
+        Enter Domain
+      </button>
+    `;
+    grid.appendChild(card);
+  });
+}
+
+// Logic to handle navigation with a reward animation
+function navigateToSubject(url, element) {
+  // 1. Trigger the XP and Coin rewards
+  doAction(element, 15, 5);
+  
+  // 2. Short delay so the user sees the "Coin Burst" before leaving the page
+  setTimeout(() => {
+    window.location.href = url;
+  }, 600); 
+}
+
+function renderGames() {
+  const grid = $('#gamesGrid');
+  grid.innerHTML = '';
+  store.games.forEach(g => {
+    const card = document.createElement('div');
+    card.className = 'card reveal';
+    card.style.display = 'flex';
+    card.style.justifyContent = 'space-between';
+    card.style.alignItems = 'center';
+    card.style.padding = '18px 20px';
+    card.style.borderRadius = '16px';
+    card.style.border = '1px solid rgba(255,255,255,0.08)';
+    card.style.background = 'linear-gradient(135deg, rgba(255,255,255,0.04), rgba(255,255,255,0.01))';
+    card.innerHTML = `
+      <div style="display:flex; align-items:center; gap:14px;">
+        <span style="font-size:32px;">${g.icon}</span>
+        <div>
+          <div style="font-weight:700; font-size:15px; color:#fff;">${g.title}</div>
+          <div style="font-size:12px; color:var(--muted); margin-top:3px;">${g.sub} • <span style="color:#10b981; font-weight:700;">+${g.xp} XP</span></div>
+        </div>
+      </div>
+      <button class="btn btn-primary" style="padding:10px 20px; font-size:13px; font-weight:700; border-radius:10px; cursor:pointer;" onclick="launchGame(this, '${g.url}', ${g.xp})">Play Now 🎮</button>
+    `;
+    grid.appendChild(card);
+  });
+}
+
+function launchGame(el, url, xp) {
+  doAction(el, xp, 10);
+  setTimeout(() => {
+    window.location.href = url;
+  }, 450);
+}
+
+/* Logic & Particles */
+function doAction(el, xp, coins) {
+  store.profile.xp += xp;
+  store.profile.coins += coins;
+  localStorage.setItem('algoplay_profile', JSON.stringify(store.profile));
+  
+  const rect = el.getBoundingClientRect();
+  spawnCoins(rect.left + rect.width/2, rect.top + window.scrollY);
+  renderHeader();
+}
+
+function spawnCoins(x, y) {
+  for(let i=0; i<8; i++) {
+    const p = document.createElement('div');
+    p.className = 'particle coin';
+    p.innerText = '$';
+    p.style.left = x + 'px'; p.style.top = y + 'px';
+    $('#particlesRoot').appendChild(p);
+    
+    const tx = (Math.random() - 0.5) * 200;
+    const ty = -Math.random() * 150 - 50;
+    
+    p.animate([
+      { transform: 'translate(0,0) scale(1)', opacity: 1 },
+      { transform: `translate(${tx}px, ${ty}px) scale(0)`, opacity: 0 }
+    ], { duration: 1000, easing: 'cubic-bezier(0,0,0.2,1)' }).onfinish = () => p.remove();
+  }
+}
+
+function scrollToId(id) {
+  const el = document.getElementById(id);
+  if(el) window.scrollTo({ top: el.offsetTop - 100, behavior: 'smooth' });
+}
+
+/* Initialization */
+function init() {
+  renderHeader();
+  renderSubjects();
+  renderGames();
+  
+  // Carousel logic
+  const track = $('#featureCarousel .carousel-track');
+  const dots = $('#featureDots');
+  let idx = 0;
+  
+  [...track.children].forEach((_, i) => {
+    const d = document.createElement('div');
+    if(i===0) d.className = 'active';
+    d.onclick = () => {
+      idx = i;
+      updateCarousel();
+    };
+    dots.appendChild(d);
+  });
+
+  function updateCarousel() {
+    track.style.transform = `translateX(-${idx * 100}%)`;
+    [...dots.children].forEach((d, i) => d.className = i === idx ? 'active' : '');
+  }
+
+  setInterval(() => {
+    idx = (idx + 1) % track.children.length;
+    updateCarousel();
+  }, 5000);
+
+  // Scroll Reveal
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach(e => { if(e.isIntersecting) e.target.classList.add('show'); });
+  }, { threshold: 0.1 });
+  
+  document.querySelectorAll('.reveal').forEach(r => observer.observe(r));
+  
+  $('#startBtn').onclick = () => {
+    doAction($('#startBtn'), 50, 20);
+    scrollToId('subjects');
+  };
+}
+
+window.onload = init;
+</script>
+<script src="algoplay-chatbot.js"></script>
+<script src="multilingual/site-i18n.js"></script>
+<script src="audio-manager.js"></script>
+</body>
+</html>

@@ -1,0 +1,659 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AlgoPlay — Assignment & Resource Studio</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+<style>
+:root {
+  --bg-dark: #090d16;
+  --card-bg: rgba(22, 30, 49, 0.78);
+  --border: rgba(141, 162, 255, 0.16);
+  --primary: #4f46e5;
+  --primary-light: #6366f1;
+  --accent-cyan: #06b6d4;
+  --accent-green: #10b981;
+  --accent-rose: #f43f5e;
+  --text-main: #f8fafc;
+  --text-muted: #94a3b8;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Poppins', sans-serif; }
+
+body {
+  background: radial-gradient(circle at top right, #171b38, #070913 90%);
+  color: var(--text-main);
+  min-height: 100vh;
+  padding-bottom: 60px;
+}
+
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 24px 20px;
+}
+
+/* NAVBAR */
+.navbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 16px;
+  padding: 16px 24px;
+  background: rgba(15, 23, 42, 0.8);
+  backdrop-filter: blur(14px);
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  margin-bottom: 28px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+}
+
+.nav-brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.brand-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #06b6d4, #3b82f6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 22px;
+}
+
+.back-btn {
+  padding: 8px 16px;
+  border-radius: 10px;
+  font-size: 13px;
+  font-weight: 600;
+  text-decoration: none;
+  border: 1px solid var(--border);
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--text-main);
+  transition: all 0.2s ease;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.back-btn:hover {
+  background: rgba(255, 255, 255, 0.12);
+  transform: translateX(-3px);
+  color: #fff;
+}
+
+/* TWO COLUMN WORKSPACE */
+.workspace-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 26px;
+  align-items: start;
+}
+
+.card-panel {
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 28px;
+  backdrop-filter: blur(14px);
+  box-shadow: 0 12px 35px rgba(0, 0, 0, 0.4);
+}
+
+.panel-header {
+  margin-bottom: 22px;
+}
+
+.panel-title {
+  font-size: 20px;
+  font-weight: 700;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.panel-desc {
+  font-size: 13px;
+  color: var(--text-muted);
+  margin-top: 4px;
+}
+
+/* FORM STYLES */
+.form-group {
+  margin-bottom: 18px;
+}
+
+.form-label {
+  display: block;
+  font-size: 12px;
+  font-weight: 600;
+  color: #cbd5e1;
+  margin-bottom: 6px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.form-control {
+  width: 100%;
+  padding: 12px 14px;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  background: rgba(15, 23, 42, 0.7);
+  color: #fff;
+  font-size: 14px;
+  font-family: 'Poppins', sans-serif;
+  transition: all 0.25s ease;
+}
+
+.form-control:focus {
+  outline: none;
+  border-color: #38bdf8;
+  box-shadow: 0 0 0 2px rgba(56, 189, 248, 0.25);
+}
+
+/* DROPZONE */
+.dropzone {
+  border: 2px dashed rgba(141, 162, 255, 0.35);
+  border-radius: 16px;
+  padding: 32px 20px;
+  text-align: center;
+  background: rgba(15, 23, 42, 0.45);
+  cursor: pointer;
+  transition: all 0.25s ease;
+  position: relative;
+}
+
+.dropzone:hover, .dropzone.dragover {
+  border-color: #38bdf8;
+  background: rgba(56, 189, 248, 0.08);
+}
+
+.dropzone-icon {
+  font-size: 40px;
+  margin-bottom: 10px;
+}
+
+.dropzone-text {
+  font-size: 14px;
+  font-weight: 600;
+  color: #e2e8f0;
+}
+
+.dropzone-sub {
+  font-size: 12px;
+  color: var(--text-muted);
+  margin-top: 4px;
+}
+
+.file-input {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  cursor: pointer;
+}
+
+.file-selected-box {
+  display: none;
+  margin-top: 12px;
+  padding: 10px 14px;
+  border-radius: 10px;
+  background: rgba(16, 185, 129, 0.15);
+  border: 1px solid rgba(16, 185, 129, 0.35);
+  color: #34d399;
+  font-size: 13px;
+  font-weight: 600;
+  align-items: center;
+  justify-content: space-between;
+}
+
+/* ACTION BUTTON */
+.btn-submit {
+  width: 100%;
+  padding: 14px;
+  border: none;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #06b6d4, #3b82f6);
+  color: #fff;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  box-shadow: 0 4px 15px rgba(6, 182, 212, 0.35);
+  margin-top: 8px;
+}
+
+.btn-submit:hover:not(:disabled) {
+  transform: translateY(-2px);
+  filter: brightness(1.1);
+  box-shadow: 0 6px 20px rgba(6, 182, 212, 0.5);
+}
+
+.btn-submit:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* STATUS MESSAGE */
+.status-banner {
+  margin-top: 14px;
+  padding: 12px;
+  border-radius: 10px;
+  font-size: 13px;
+  font-weight: 600;
+  display: none;
+}
+.status-banner.success { background: rgba(16, 185, 129, 0.15); border: 1px solid #10b981; color: #34d399; display: block; }
+.status-banner.error { background: rgba(244, 63, 94, 0.15); border: 1px solid #f43f5e; color: #fda4af; display: block; }
+
+/* RECENT ASSIGNMENTS CATALOG */
+.assignments-list {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  max-height: 520px;
+  overflow-y: auto;
+  padding-right: 6px;
+}
+
+.assignment-item {
+  background: rgba(15, 23, 42, 0.6);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 16px 18px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 14px;
+  transition: all 0.2s ease;
+}
+
+.assignment-item:hover {
+  background: rgba(255, 255, 255, 0.04);
+  transform: translateY(-2px);
+  border-color: rgba(99, 102, 241, 0.4);
+}
+
+.item-info h4 {
+  font-size: 15px;
+  color: #fff;
+  margin-bottom: 4px;
+}
+
+.item-meta {
+  font-size: 12px;
+  color: var(--text-muted);
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.tag-badge {
+  padding: 3px 8px;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  background: rgba(99, 102, 241, 0.2);
+  color: #a5b4fc;
+  border: 1px solid rgba(99, 102, 241, 0.35);
+}
+
+.btn-download {
+  padding: 8px 14px;
+  border-radius: 10px;
+  background: rgba(56, 189, 248, 0.12);
+  border: 1px solid rgba(56, 189, 248, 0.3);
+  color: #38bdf8;
+  font-size: 12px;
+  font-weight: 600;
+  text-decoration: none;
+  white-space: nowrap;
+  transition: 0.2s;
+}
+
+.btn-download:hover {
+  background: #38bdf8;
+  color: #04111d;
+}
+
+@media(max-width: 880px) {
+  .workspace-grid { grid-template-columns: 1fr; }
+}
+</style>
+<link rel="stylesheet" href="multilingual/app-theme.css">
+</head>
+
+<body>
+
+<div class="container">
+
+  <!-- NAVBAR -->
+  <header class="navbar">
+    <div class="nav-brand">
+      <div class="brand-icon">📤</div>
+      <div>
+        <h2 style="font-size: 18px; font-weight: 800; color: #fff;">Assignment &amp; Resource Studio</h2>
+        <div id="teacherWelcome" style="font-size: 12px; color: var(--text-muted);">
+          Educator Workstation • AlgoPlay
+        </div>
+      </div>
+    </div>
+
+    <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
+      <a href="teacherdash.html" class="back-btn">← Teacher Dashboard</a>
+      <a href="giveexam.html" class="back-btn">📝 Exam Builder</a>
+      <a href="Loginpage.html" class="back-btn" style="background: rgba(34, 211, 238, 0.15); border-color: rgba(34, 211, 238, 0.4); color: #38bdf8;">🎓 Student Login</a>
+      <a href="maindashboard.html" class="back-btn" style="background: rgba(99, 102, 241, 0.15); border-color: rgba(99, 102, 241, 0.4); color: #a5b4fc;">🎒 Student Dashboard</a>
+    </div>
+  </header>
+
+  <!-- TWO COLUMN WORKSPACE -->
+  <div class="workspace-grid">
+
+    <!-- LEFT: UPLOAD FORM -->
+    <div class="card-panel">
+      <div class="panel-header">
+        <div class="panel-title">
+          <span>📄</span> Assign Work to Class
+        </div>
+        <p class="panel-desc">
+          Upload learning material, worksheets, or guidelines for your students. Stored in MongoDB &amp; available on student dashboards.
+        </p>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Select Subject</label>
+        <select id="subject" class="form-control">
+          <option value="">-- Choose Subject --</option>
+          <option value="Mathematics">Mathematics</option>
+          <option value="Science">Science</option>
+          <option value="Technology">Technology</option>
+          <option value="English">English</option>
+          <option value="Biology">Biology</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Assignment Topic / Title</label>
+        <input type="text" id="assignmentTitle" class="form-control" placeholder="Eg: Chapter 4 Fractions Practice Worksheet">
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Upload Resource (PDF, Word, Image, or Video)</label>
+        <div class="dropzone" id="dropArea">
+          <input type="file" id="fileUpload" class="file-input" accept=".pdf,.doc,.docx,.png,.jpg,.jpeg,.mp4,video/mp4">
+          <div class="dropzone-icon">📁</div>
+          <div class="dropzone-text">Click or drag file here to upload</div>
+          <div class="dropzone-sub">Supported formats: PDF, DOC, DOCX, PNG, JPG, MP4 (Max 15MB)</div>
+        </div>
+        <div id="fileSelectedBox" class="file-selected-box">
+          <span id="fileNameDisplay">file_name.pdf</span>
+          <span style="cursor:pointer;" onclick="clearFile()">✕</span>
+        </div>
+      </div>
+
+      <div style="display: flex; align-items: center; gap: 8px; margin: 10px 0 16px; font-size: 13px; color: #cbd5e1;">
+        <input type="checkbox" id="autoRedirectStudent" checked style="width: 16px; height: 16px; accent-color: #38bdf8; cursor: pointer;">
+        <label for="autoRedirectStudent" style="cursor: pointer;">Automatically go to Student Login page after uploading</label>
+      </div>
+
+      <button id="assignBtn" class="btn-submit" onclick="assignWork()">
+        🚀 Publish &amp; Assign to Students
+      </button>
+
+      <div id="statusBanner" class="status-banner"></div>
+    </div>
+
+    <!-- RIGHT: ACTIVE ASSIGNMENTS CATALOG -->
+    <div class="card-panel">
+      <div class="panel-header">
+        <div class="panel-title">
+          <span>📚</span> Active Class Assignments
+        </div>
+        <p class="panel-desc">
+          Currently published homework and resources available on student dashboards.
+        </p>
+      </div>
+
+      <div class="assignments-list" id="assignmentsList">
+        <div style="text-align: center; color: var(--text-muted); padding: 30px;">
+          Loading active assignments...
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+</div>
+
+<script>
+const teacherName = sessionStorage.getItem("logged_in_name") || "Prof. Sharma";
+const teacherSchool = sessionStorage.getItem("logged_in_school") || "AlgoPlay Academy";
+document.getElementById("teacherWelcome").innerText = `Logged in as ${teacherName} • ${teacherSchool}`;
+
+const fileInput = document.getElementById("fileUpload");
+const fileBox = document.getElementById("fileSelectedBox");
+const fileNameDisplay = document.getElementById("fileNameDisplay");
+
+fileInput.addEventListener("change", () => {
+  if (fileInput.files.length > 0) {
+    fileNameDisplay.innerText = `📎 ${fileInput.files[0].name} (${Math.round(fileInput.files[0].size / 1024)} KB)`;
+    fileBox.style.display = "flex";
+  } else {
+    fileBox.style.display = "none";
+  }
+});
+
+function clearFile() {
+  fileInput.value = "";
+  fileBox.style.display = "none";
+}
+
+// Drag & drop visual state
+const dropArea = document.getElementById("dropArea");
+['dragenter', 'dragover'].forEach(name => {
+  dropArea.addEventListener(name, (e) => { e.preventDefault(); dropArea.classList.add('dragover'); }, false);
+});
+['dragleave', 'drop'].forEach(name => {
+  dropArea.addEventListener(name, (e) => { e.preventDefault(); dropArea.classList.remove('dragover'); }, false);
+});
+
+// Fetch & render current assignments
+function loadAssignments() {
+  fetch("/assignments")
+    .then(res => res.json())
+    .then(data => renderAssignments(data))
+    .catch(() => {
+      // Local fallback
+      const local = JSON.parse(localStorage.getItem("algoplay_assignments") || "[]");
+      const defaultTasks = [
+        { subject: "Science", teacher_name: "Prof. Sharma", date: "2026-10-10", filename: "Science_Lab_Guide.pdf", url: "#" },
+        { subject: "Mathematics", teacher_name: "Prof. Sharma", date: "2026-10-09", filename: "Fractions_Worksheet.pdf", url: "#" },
+        { subject: "Technology", teacher_name: "Mrs. Sen", date: "2026-10-08", filename: "Intro_Algorithms.pdf", url: "#" }
+      ];
+      renderAssignments(local.length > 0 ? local : defaultTasks);
+    });
+}
+
+function renderAssignments(list) {
+  const container = document.getElementById("assignmentsList");
+  if (!list || list.length === 0) {
+    container.innerHTML = `<div style="text-align:center; color:#94a3b8; padding:30px;">No assignments uploaded yet.</div>`;
+    return;
+  }
+
+  container.innerHTML = list.map(item => {
+    const isVideo = /\.mp4$/i.test(item.filename || item.url || '');
+    const preview = isVideo && item.url && item.url !== '#'
+      ? `<video controls preload="metadata" style="width:100%; max-height:220px; margin:12px 0; border-radius:10px; background:#020617;">
+          <source src="${item.url}" type="video/mp4">
+          Your browser cannot play this MP4 video.
+        </video>`
+      : '';
+    return `
+    <div class="assignment-item">
+      <div class="item-info">
+        <h4>${item.title || item.filename || item.subject + ' Assignment'}</h4>
+        <div class="item-meta">
+          <span class="tag-badge">${item.subject}</span>
+          <span>•</span>
+          <span>By ${item.teacher_name || teacherName}</span>
+          <span>•</span>
+          <span>${item.date || 'Today'}</span>
+        </div>
+      </div>
+      ${preview}
+      <div style="display:flex; gap:8px; align-items:center;">
+        <a href="${item.url || '#'}" target="_blank" class="btn-download" style="background:#0284c7; color:#fff;">
+          👁️ Open
+        </a>
+        <a href="${item.url || '#'}" download class="btn-download">
+          ⬇️ Download
+        </a>
+      </div>
+    </div>
+  `;
+  }).join("");
+}
+
+loadAssignments();
+
+// Submit Assignment
+async function assignWork() {
+  const subject = document.getElementById("subject").value;
+  const customTitle = document.getElementById("assignmentTitle").value.trim();
+  const file = fileInput.files[0];
+  const btn = document.getElementById("assignBtn");
+  const banner = document.getElementById("statusBanner");
+
+  banner.className = "status-banner";
+  banner.style.display = "none";
+
+  if (!subject) {
+    showStatus("Please select a subject.", "error");
+    return;
+  }
+  if (!file) {
+    showStatus("Please choose a document to upload.", "error");
+    return;
+  }
+
+  btn.disabled = true;
+  btn.innerText = "Uploading to Server...";
+
+  try {
+    const formData = new FormData();
+    formData.append("subject", subject);
+    formData.append("assignment_file", file);
+    formData.append("teacher_name", teacherName);
+    if (customTitle) formData.append("title", customTitle);
+
+    const res = await fetch("/assign_work", {
+      method: "POST",
+      body: formData
+    });
+
+    const data = await res.json();
+
+    if (data.success || res.ok) {
+      // Save locally to ensure instant rendering across student pages
+      const assignmentData = {
+        title: customTitle || file.name,
+        subject,
+        teacher_name: teacherName,
+        date: new Date().toISOString().split('T')[0],
+        filename: file.name,
+        url: data.assignment ? data.assignment.url : `/uploads/${file.name}`
+      };
+      localStorage.setItem('algoplay_latest_assignment', JSON.stringify(assignmentData));
+
+      showStatus(`
+        <div style="font-weight:700; margin-bottom: 4px;">✅ Assignment uploaded &amp; published successfully!</div>
+        <div style="font-size: 13px; margin-bottom: 8px; color: #7dd3fc;">Redirecting to Student Login Page in 1.5 seconds...</div>
+        <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+          <a href="Loginpage.html" style="padding: 6px 14px; border-radius: 8px; background: #0284c7; color: #fff; text-decoration: none; font-size: 12px; font-weight: 700;">Go Now →</a>
+          <a href="${assignmentData.url}" target="_blank" style="padding: 6px 14px; border-radius: 8px; background: #10b981; color: #fff; text-decoration: none; font-size: 12px; font-weight: 700;">👁️ View Uploaded File</a>
+        </div>
+      `, "success", true);
+
+      document.getElementById("subject").value = "";
+      document.getElementById("assignmentTitle").value = "";
+      clearFile();
+      loadAssignments();
+
+      setTimeout(() => {
+        window.location.href = "Loginpage.html";
+      }, 1500);
+    } else {
+      showStatus(data.error || "Upload failed.", "error");
+    }
+
+  } catch (err) {
+    console.warn("Backend offline, saving locally...", err);
+
+    const localData = {
+      title: customTitle || file.name,
+      subject,
+      teacher_name: teacherName,
+      date: new Date().toISOString().split('T')[0],
+      filename: file.name,
+      url: "#"
+    };
+
+    const local = JSON.parse(localStorage.getItem("algoplay_assignments") || "[]");
+    local.unshift(localData);
+    localStorage.setItem("algoplay_assignments", JSON.stringify(local));
+    localStorage.setItem('algoplay_latest_assignment', JSON.stringify(localData));
+
+    showStatus(`
+      <div style="font-weight:700; margin-bottom: 4px;">✅ Assignment saved locally!</div>
+      <div style="font-size: 13px; margin-bottom: 8px; color: #7dd3fc;">Redirecting to Student Login Page in 1.5 seconds...</div>
+      <div style="display: flex; gap: 8px;">
+        <a href="Loginpage.html" style="padding: 6px 14px; border-radius: 8px; background: #0284c7; color: #fff; text-decoration: none; font-size: 12px; font-weight: 700;">Go Now →</a>
+      </div>
+    `, "success", true);
+
+    document.getElementById("subject").value = "";
+    document.getElementById("assignmentTitle").value = "";
+    clearFile();
+    loadAssignments();
+
+    setTimeout(() => {
+      window.location.href = "Loginpage.html";
+    }, 1500);
+  } finally {
+    btn.disabled = false;
+    btn.innerText = "🚀 Publish & Assign to Students";
+  }
+}
+
+function showStatus(msg, type, isHtml = false) {
+  const banner = document.getElementById("statusBanner");
+  if (isHtml) {
+    banner.innerHTML = msg;
+  } else {
+    banner.innerText = msg;
+  }
+  banner.className = `status-banner ${type}`;
+  banner.style.display = "block";
+  if (type === "success" && !isHtml) {
+    setTimeout(() => banner.style.display = "none", 4000);
+  }
+}
+</script>
+
+<script src="multilingual/site-i18n.js"></script>
+<script src="audio-manager.js"></script>
+</body>
+</html>

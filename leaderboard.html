@@ -1,0 +1,379 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Arena Leaderboard</title>
+<style>
+  :root{
+    --bg:#0d0d1a;
+    --card:#0f1724;
+    --accent:#ffeb3b;
+    --muted: rgba(255,255,255,0.65);
+    --highlight: rgba(255,235,59,0.12);
+    --me-border: 2px solid rgba(255,235,59,0.5);
+  }
+  *{box-sizing:border-box;font-family:Inter,"Segoe UI",Roboto,Arial,sans-serif}
+  html,body{height:100%;margin:0;background:var(--bg);color:#fff}
+  .wrap{max-width:980px;margin:18px auto;padding:12px}
+  header{
+    display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px;border-radius:10px;
+    background:linear-gradient(90deg,#10122a,#152042);box-shadow:0 8px 30px rgba(0,0,0,0.6)
+  }
+  header h1{margin:0;font-size:1.05rem;letter-spacing:1px}
+  .controls{display:flex;gap:10px;align-items:center}
+  .btn{background:#223152;border:0;color:#fff;padding:8px 12px;border-radius:8px;cursor:pointer;font-weight:700}
+  .btn.ghost{background:transparent;border:1px solid rgba(255,255,255,0.06)}
+  .btn.primary{background:linear-gradient(90deg,#ffb300,#ffeb3b);color:#111}
+  .subtitle{font-size:0.86rem;opacity:0.85}
+  .content{display:flex;gap:16px;margin-top:14px}
+  .left{flex:1}
+  .card{background:linear-gradient(180deg,rgba(255,255,255,0.02),rgba(255,255,255,0.01));padding:12px;border-radius:10px;box-shadow:0 8px 20px rgba(0,0,0,0.6)}
+  .list{list-style:none;padding:0;margin:0;max-height:68vh;overflow:auto}
+  .player-item{display:flex;align-items:center;gap:12px;padding:10px;border-bottom:1px solid rgba(255,255,255,0.03)}
+  .player-item.me{background:var(--highlight);border-radius:8px;padding:10px;border:var(--me-border)}
+  .rank{width:62px;text-align:center;font-weight:800}
+  .avatar{width:46px;height:46px;border-radius:50%;flex-shrink:0}
+  .details{display:flex;flex-direction:column}
+  .name{font-weight:800}
+  .meta{font-size:12px;color:var(--muted)}
+  .score{margin-left:auto;font-weight:900;display:flex;align-items:center;gap:8px}
+  .score .star{color:var(--accent)}
+  .empty{padding:20px;text-align:center;color:var(--muted)}
+  .right{width:300px}
+  .right h3{margin:6px 0 8px 0}
+  .me-info{background:linear-gradient(90deg,#0b1a2f,#082033);padding:10px;border-radius:8px}
+  .small{font-size:0.86rem;color:var(--muted)}
+  .modal{position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);background:#0f1724;padding:18px;border-radius:10px;z-index:999;box-shadow:0 20px 60px rgba(0,0,0,0.75);display:none;width:320px}
+  .modal.show{display:block}
+  .modal h4{margin:0 0 8px 0}
+  .modal p{margin:0 0 12px 0;color:var(--muted)}
+  .search{display:flex;gap:8px;align-items:center}
+  input.searchbox{padding:8px 10px;border-radius:8px;border:0;background:rgba(255,255,255,0.03);color:#fff;min-width:180px}
+  .footer{margin-top:14px;text-align:center;color:var(--muted);font-size:13px}
+  @media (max-width:880px){ .content{flex-direction:column} .right{width:100%} }
+</style>
+<link rel="stylesheet" href="multilingual/app-theme.css">
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <div>
+        <h1>👑 ARENA LEADERBOARD</h1>
+        <div class="subtitle">
+          Live ranking — sorted by XP earned (top → bottom)
+          <span id="userDisplay" style="margin-left:8px;font-weight:600;"></span>
+        </div>
+      </div>
+
+      <div class="controls">
+        <div class="search">
+          <input id="searchBox" class="searchbox" placeholder="Search name or id..." />
+          <button class="btn ghost" id="searchBtn">Search</button>
+        </div>
+        <button class="btn" id="refreshBtn" title="Refresh leaderboard">Refresh</button>
+        <button class="btn primary" id="highlightMeBtn">Highlight Me</button>
+        <button class="btn" onclick="window.location.href='maindashboard.html'" title="Return to Dashboard">🏠 Dashboard</button>
+      </div>
+    </header>
+
+    <div class="content">
+      <div class="left card">
+        <ul id="leaderboardList" class="list" aria-live="polite"></ul>
+        <div id="emptyMsg" class="empty" style="display:none">No players found.</div>
+      </div>
+
+      <aside class="right card">
+        <h3>Your info</h3>
+        <div id="meBox" class="me-info small">
+          <div id="meName">Not logged</div>
+          <div id="meMeta" style="margin-top:8px;color:var(--muted)">Login to see your rank and XP updates.</div>
+          <div style="margin-top:12px">
+            <button class="btn" id="goLogin">Go to Login</button>
+            <button class="btn ghost" id="logoutBtn">Logout</button>
+          </div>
+        </div>
+
+        <h3 style="margin-top:14px">Details</h3>
+        <div class="small" style="line-height:1.5">
+          This leaderboard pulls data from your backend route <code>/leaderboard</code> and highlights the logged-in user (if any).
+          Use the Refresh button or wait — the page auto-refreshes every 10s.
+        </div>
+      </aside>
+    </div>
+
+    <div class="footer">Tip: After completing a level, your quiz page should POST to <code>/levelupdate</code>. XP and ranks will refresh here.</div>
+  </div>
+
+  <div id="modal" class="modal" role="dialog" aria-modal="true" aria-hidden="true">
+    <h4 id="modalTitle">Player Info</h4>
+    <p id="modalBody"></p>
+    <div style="text-align:right"><button class="btn" id="modalClose">Close</button></div>
+  </div>
+
+<script>
+const API = 'https://algoplay-backend-0s65.onrender.com/leaderboard';
+const REFRESH_INTERVAL = 10000;
+
+let autoRefreshTimer = null;
+
+const listEl = document.getElementById('leaderboardList');
+const emptyMsg = document.getElementById('emptyMsg');
+const refreshBtn = document.getElementById('refreshBtn');
+const highlightMeBtn = document.getElementById('highlightMeBtn');
+const searchBox = document.getElementById('searchBox');
+const searchBtn = document.getElementById('searchBtn');
+const modal = document.getElementById('modal');
+const modalTitle = document.getElementById('modalTitle');
+const modalBody = document.getElementById('modalBody');
+const modalClose = document.getElementById('modalClose');
+const meNameEl = document.getElementById('meName');
+const meMetaEl = document.getElementById('meMeta');
+const goLogin = document.getElementById('goLogin');
+const logoutBtn = document.getElementById('logoutBtn');
+const userDisplayEl = document.getElementById('userDisplay');
+
+const studentId = sessionStorage.getItem('student_id') ? parseInt(sessionStorage.getItem('student_id')) : null;
+const loggedInName = sessionStorage.getItem('logged_in_name') || null;
+
+function el(tag, props = {}) {
+  const e = document.createElement(tag);
+  for (const k in props) {
+    if (k === 'cls') e.className = props[k];
+    else if (k === 'text') e.textContent = props[k];
+    else if (k === 'html') e.innerHTML = props[k];
+    else e.setAttribute(k, props[k]);
+  }
+  return e;
+}
+
+function showModal(title, html) {
+  modalTitle.textContent = title;
+  modalBody.innerHTML = html;
+  modal.classList.add('show');
+  modal.setAttribute('aria-hidden','false');
+}
+function hideModal() {
+  modal.classList.remove('show');
+  modal.setAttribute('aria-hidden','true');
+}
+
+function renderLeaderboard(data, filter = '') {
+  listEl.innerHTML = '';
+  if (!Array.isArray(data) || data.length === 0) {
+    emptyMsg.style.display = 'block';
+    emptyMsg.textContent = 'No players found.';
+    updateMeBox([]);
+    return;
+  }
+  emptyMsg.style.display = 'none';
+
+  data.forEach(d => {
+    d.leaderboard = (d.leaderboard === null || d.leaderboard === undefined)
+      ? Number.MAX_SAFE_INTEGER
+      : Number(d.leaderboard);
+    d.xp = Number(d.xp) || 0;
+    d.level = d.classofstudy || d.level || '—';
+  });
+
+  // list is already sorted by XP on backend, but keep a safe sort: rank asc, then XP desc
+  data.sort((a, b) => {
+    if (a.leaderboard !== b.leaderboard) return a.leaderboard - b.leaderboard;
+    return b.xp - a.xp;
+  });
+
+  const q = (filter || '').trim().toLowerCase();
+  let found = 0;
+
+  data.forEach(p => {
+    if (q) {
+      const composite = `${p.name} ${p.id} ${p.classofstudy || ''}`.toLowerCase();
+      if (!composite.includes(q)) return;
+    }
+    found++;
+
+    const li = el('li', { cls: 'player-item' });
+    if (studentId && p.id === studentId) li.classList.add('me');
+
+    li.appendChild(el('div', {
+      cls: 'rank',
+      text: p.leaderboard === Number.MAX_SAFE_INTEGER ? '—' : p.leaderboard
+    }));
+
+    const avatar = el('img', { cls: 'avatar' });
+    avatar.src = `https://picsum.photos/seed/${encodeURIComponent(p.name)}/80/80`;
+    avatar.alt = p.name + ' avatar';
+    li.appendChild(avatar);
+
+    const details = el('div', { cls: 'details' });
+    details.appendChild(el('div', { cls: 'name', text: p.name }));
+    details.appendChild(el('div', {
+      cls: 'meta',
+      text: `Level: ${p.classofstudy || p.level || '—'} • ID: ${p.id}`
+    }));
+    li.appendChild(details);
+
+    const scoreWrap = el('div', {
+      cls: 'score',
+      html: `<span class="star">⭐</span> ${p.xp}`
+    });
+
+    const infoBtn = el('button', { cls: 'btn ghost', text: 'Info' });
+    infoBtn.style.marginLeft = '10px';
+    infoBtn.onclick = () => {
+      showModal(p.name, `
+        <strong>XP:</strong> ${p.xp}<br>
+        <strong>Level:</strong> ${p.classofstudy || p.level || '—'}<br>
+        <strong>ID:</strong> ${p.id}<br>
+        <strong>Rank:</strong> ${p.leaderboard === Number.MAX_SAFE_INTEGER ? '—' : p.leaderboard}
+      `);
+    };
+    scoreWrap.appendChild(infoBtn);
+    li.appendChild(scoreWrap);
+
+    listEl.appendChild(li);
+  });
+
+  if (found === 0) {
+    emptyMsg.textContent = 'No players match your search.';
+    emptyMsg.style.display = 'block';
+  } else {
+    emptyMsg.style.display = 'none';
+  }
+
+  updateMeBox(data);
+}
+
+function updateMeBox(allPlayers) {
+  if (!studentId || !loggedInName) {
+    meNameEl.textContent = 'Not logged in';
+    meMetaEl.innerHTML = 'Login to see your rank and XP updates.<br><span class="small">After login, this panel will update automatically.</span>';
+    return;
+  }
+
+  meNameEl.textContent = loggedInName;
+  const me = (allPlayers || []).find(p => p.id === studentId);
+
+  if (!me) {
+    meMetaEl.innerHTML = `You are not found in the leaderboard yet. Complete a level to appear. <br><strong>ID:</strong> ${studentId}`;
+    return;
+  }
+
+  meMetaEl.innerHTML = `
+    Rank: <strong>${me.leaderboard === Number.MAX_SAFE_INTEGER ? '—' : me.leaderboard}</strong><br>
+    XP: <strong>${me.xp}</strong><br>
+    Level: <strong>${me.classofstudy || me.level || '—'}</strong>
+  `;
+}
+
+async function fetchLeaderboard() {
+  try {
+    refreshBtn.disabled = true;
+    refreshBtn.textContent = 'Refreshing...';
+
+    const resp = await fetch(API, { cache: 'no-store' });
+    if (!resp.ok) throw new Error('Server returned ' + resp.status);
+    const json = await resp.json();
+
+    const mapped = json.map(s => ({
+      id: Number(s.id),
+      name: s.name || ('User ' + s.id),
+      xp: Number(s.total_xp || s.score || 0),
+      leaderboard: s.rank === null || s.rank === undefined ? null : Number(s.rank),
+      classofstudy: s.classofstudy || s.level || null
+    }));
+
+    renderLeaderboard(mapped, searchBox.value);
+  } catch (err) {
+    console.warn('Backend offline, using offline leaderboard...', err);
+
+    const myProfile = JSON.parse(localStorage.getItem('algoplay_profile') || '{"xp": 350, "level": 2}');
+    const myName = loggedInName || localStorage.getItem('student_name') || 'Demo Learner';
+    const myId = studentId || 101;
+
+    let samplePlayers = [
+      { id: 201, name: "Aarav Sharma", xp: 1850, classofstudy: "Class 8" },
+      { id: 202, name: "Sneha Patel", xp: 1420, classofstudy: "Class 8" },
+      { id: 203, name: "Vikramaditya Rao", xp: 980, classofstudy: "Class 8" },
+      { id: myId, name: myName, xp: myProfile.xp || 350, classofstudy: "Class 8" },
+      { id: 204, name: "Diya Roy", xp: 320, classofstudy: "Class 8" },
+      { id: 205, name: "Kabir Mehta", xp: 260, classofstudy: "Class 8" },
+      { id: 206, name: "Riya Gupta", xp: 190, classofstudy: "Class 8" }
+    ];
+
+    // Include any registered local students
+    const localStudents = JSON.parse(localStorage.getItem("algoplay_students") || "[]");
+    localStudents.forEach(s => {
+      if (s.id !== myId && !samplePlayers.some(p => p.id === s.id)) {
+        samplePlayers.push({ id: s.id, name: s.name, xp: s.score || 150, classofstudy: s.classofstudy || "Class 8" });
+      }
+    });
+
+    samplePlayers.sort((a, b) => b.xp - a.xp);
+    samplePlayers.forEach((p, idx) => {
+      p.leaderboard = idx + 1;
+    });
+
+    renderLeaderboard(samplePlayers, searchBox.value);
+  } finally {
+    refreshBtn.disabled = false;
+    refreshBtn.textContent = 'Refresh';
+  }
+}
+
+refreshBtn.addEventListener('click', () => fetchLeaderboard());
+searchBtn.addEventListener('click', () => fetchLeaderboard());
+searchBox.addEventListener('keyup', (e) => { if (e.key === 'Enter') fetchLeaderboard(); });
+
+modalClose.addEventListener('click', hideModal);
+modal.addEventListener('click', (ev) => { if (ev.target === modal) hideModal(); });
+
+highlightMeBtn.addEventListener('click', () => {
+  const myEl = document.querySelector('.player-item.me');
+  if (myEl) {
+    myEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    myEl.classList.add('pulse');
+    setTimeout(() => myEl.classList.remove('pulse'), 1200);
+  } else {
+    alert('You are not on the leaderboard yet. Complete a level to appear.');
+  }
+});
+
+goLogin.addEventListener('click', () => {
+  window.location.href = 'Loginpage.html';
+});
+
+logoutBtn.addEventListener('click', () => {
+  sessionStorage.removeItem('student_id');
+  sessionStorage.removeItem('logged_in_name');
+  location.reload();
+});
+
+function startAutoRefresh() {
+  stopAutoRefresh();
+  autoRefreshTimer = setInterval(fetchLeaderboard, REFRESH_INTERVAL);
+}
+function stopAutoRefresh() {
+  if (autoRefreshTimer) { clearInterval(autoRefreshTimer); autoRefreshTimer = null; }
+}
+
+document.addEventListener('visibilitychange', () => {
+  if (!document.hidden) fetchLeaderboard();
+});
+
+(function init() {
+  if (loggedInName) {
+    userDisplayEl.textContent = loggedInName;
+  } else {
+    userDisplayEl.textContent = 'Guest';
+  }
+
+  fetchLeaderboard();
+  startAutoRefresh();
+})();
+</script>
+<script src="multilingual/site-i18n.js"></script>
+<script src="audio-manager.js"></script>
+</body>
+</html>
+

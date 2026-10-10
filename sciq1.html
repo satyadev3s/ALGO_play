@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AlgoPlay — Science Level 1</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg-dark: #061118;
+    --card-bg: rgba(12, 28, 36, 0.88);
+    --border: rgba(52, 211, 153, 0.25);
+    --primary: #059669;
+    --primary-light: #10b981;
+    --accent: #34d399;
+    --danger: #f43f5e;
+  }
+  * { box-sizing: border-box; font-family: 'Poppins', sans-serif; }
+  html, body {
+    height: 100%;
+    margin: 0;
+    background: radial-gradient(circle at top right, #0d282f, #050d12 90%);
+    color: #fff;
+  }
+  .wrap {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+  }
+  .header {
+    padding: 18px 28px;
+    background: rgba(10, 24, 30, 0.85);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+    font-size: 18px;
+    font-weight: 800;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .timer-badge {
+    background: rgba(52, 211, 153, 0.15);
+    border: 1px solid var(--accent);
+    color: #a7f3d0;
+    padding: 6px 14px;
+    border-radius: 999px;
+    font-size: 14px;
+    font-weight: 700;
+  }
+  .progress-bar {
+    height: 6px;
+    background: rgba(255, 255, 255, 0.08);
+    width: 100%;
+  }
+  .progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #10b981, #34d399);
+    transition: width 0.35s ease;
+  }
+  .content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    max-width: 680px;
+    width: 90%;
+    margin: 30px auto;
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 24px;
+    padding: 36px 30px;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.55);
+    backdrop-filter: blur(14px);
+  }
+  .question-text {
+    font-size: 22px;
+    font-weight: 700;
+    margin-bottom: 24px;
+    color: #f8fafc;
+    line-height: 1.4;
+  }
+  .answer-button {
+    display: block;
+    width: 100%;
+    padding: 16px 22px;
+    border-radius: 14px;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    margin: 12px 0;
+    background: rgba(255, 255, 255, 0.05);
+    color: #e2e8f0;
+    font-size: 16px;
+    font-weight: 600;
+    text-align: left;
+    cursor: pointer;
+    transition: all 0.25s ease;
+  }
+  .answer-button:hover:not(:disabled) {
+    background: rgba(16, 185, 129, 0.2);
+    border-color: var(--primary-light);
+    transform: translateY(-2px);
+  }
+  .correct {
+    background: rgba(16, 185, 129, 0.3) !important;
+    border-color: var(--accent) !important;
+    color: #a7f3d0 !important;
+  }
+  .incorrect {
+    background: rgba(244, 63, 94, 0.3) !important;
+    border-color: var(--danger) !important;
+    color: #fecdd3 !important;
+  }
+  .footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 18px 30px;
+    background: rgba(10, 24, 30, 0.85);
+    border-top: 1px solid var(--border);
+    font-size: 15px;
+    font-weight: 700;
+  }
+  .next-button {
+    background: linear-gradient(135deg, var(--primary), var(--primary-light));
+    padding: 12px 24px;
+    border-radius: 12px;
+    border: 0;
+    color: #fff;
+    font-weight: 800;
+    cursor: pointer;
+    display: none;
+    box-shadow: 0 4px 15px rgba(16, 185, 129, 0.4);
+  }
+  .next-button.show { display: inline-block; }
+  .back-button {
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid var(--border);
+    padding: 10px 20px;
+    border-radius: 12px;
+    color: #fff;
+    font-weight: 700;
+    cursor: pointer;
+  }
+  .back-button:disabled { opacity: 0.4; cursor: not-allowed; }
+</style>
+<link rel="stylesheet" href="multilingual/app-theme.css">
+</head>
+<body>
+
+<div class="wrap">
+  <div class="header">
+    <span id="question-number">🔬 Level 1 — Question 1</span>
+    <span class="timer-badge">⏳ <span id="timer">30</span>s</span>
+  </div>
+
+  <div class="progress-bar"><div id="progress-fill" class="progress-fill" style="width:25%"></div></div>
+
+  <div class="content">
+    <div id="question-text" class="question-text">Loading question...</div>
+    <button class="answer-button" onclick="checkAnswer(this,'a')"></button>
+    <button class="answer-button" onclick="checkAnswer(this,'b')"></button>
+    <button class="answer-button" onclick="checkAnswer(this,'c')"></button>
+    <button class="answer-button" onclick="checkAnswer(this,'d')"></button>
+  </div>
+
+  <div class="footer">
+    <div>Score: <span id="score">0</span>/4</div>
+    <div style="display:flex;gap:12px">
+      <button id="back-button" class="back-button" onclick="goBack()" disabled>← Back</button>
+      <button id="next-button" class="next-button" onclick="nextQuestion()">Next →</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const TIME_PER_QUESTION = 30;
+const LEVEL = 1;
+
+const questions = [
+  { number:1, text:"What is the process by which plants make their own food?", answers:{a:"Respiration",b:"Photosynthesis",c:"Digestion",d:"Fermentation"}, correct:"b", user:null, remaining:TIME_PER_QUESTION },
+  { number:2, text:"What is the smallest unit of life?", answers:{a:"Atom",b:"Molecule",c:"Cell",d:"Tissue"}, correct:"c", user:null, remaining:TIME_PER_QUESTION },
+  { number:3, text:"What is the chemical formula for water?", answers:{a:"H₂O",b:"CO₂",c:"O₂",d:"N₂"}, correct:"a", user:null, remaining:TIME_PER_QUESTION },
+  { number:4, text:"What is the speed of light in a vacuum?", answers:{a:"300,000 km/s",b:"150,000 km/s",c:"450,000 km/s",d:"100,000 km/s"}, correct:"a", user:null, remaining:TIME_PER_QUESTION }
+];
+
+let index = 0;
+let timerInterval = null;
+
+const qText = document.getElementById("question-text");
+const qNum = document.getElementById("question-number");
+const buttons = document.querySelectorAll(".answer-button");
+const scoreSpan = document.getElementById("score");
+const timerSpan = document.getElementById("timer");
+const nextBtn = document.getElementById("next-button");
+const backBtn = document.getElementById("back-button");
+const progress = document.getElementById("progress-fill");
+
+function render() {
+  const q = questions[index];
+  qNum.textContent = `🔬 Level 1 — Question ${q.number} of ${questions.length}`;
+  qText.textContent = q.text;
+  scoreSpan.textContent = questions.filter(x=>x.user===x.correct).length;
+  progress.style.width = ((index+1)/questions.length)*100 + "%";
+
+  buttons.forEach((btn, i) => {
+    const key = ["a","b","c","d"][i];
+    btn.textContent = `${key}) ${q.answers[key]}`;
+    btn.dataset.answer = key;
+    btn.classList.remove("correct","incorrect");
+    btn.style.opacity = "1";
+    btn.disabled = q.user !== null;
+    if (q.user !== null) {
+      if (key === q.correct) btn.classList.add("correct");
+      else if (key === q.user) btn.classList.add("incorrect");
+      else btn.style.opacity = "0.5";
+    }
+  });
+
+  backBtn.disabled = index === 0;
+  if (q.user !== null) nextBtn.classList.add("show");
+  else nextBtn.classList.remove("show");
+
+  startTimer();
+}
+
+function startTimer() {
+  stopTimer();
+  const q = questions[index];
+  timerSpan.textContent = q.remaining;
+  if (q.user !== null) return;
+
+  timerInterval = setInterval(() => {
+    q.remaining--;
+    timerSpan.textContent = q.remaining;
+    if (q.remaining <= 0) {
+      stopTimer();
+      handleTimeout();
+    }
+  }, 1000);
+}
+
+function stopTimer() {
+  if (timerInterval) {
+    clearInterval(timerInterval);
+    timerInterval = null;
+  }
+}
+
+function checkAnswer(btn, choice) {
+  const q = questions[index];
+  if (q.user !== null) return;
+  stopTimer();
+  q.user = choice;
+
+  buttons.forEach(b => b.disabled = true);
+  if (choice === q.correct) {
+    btn.classList.add("correct");
+  } else {
+    btn.classList.add("incorrect");
+    const correctBtn = [...buttons].find(b => b.dataset.answer === q.correct);
+    if (correctBtn) correctBtn.classList.add("correct");
+  }
+
+  scoreSpan.textContent = questions.filter(x => x.user === x.correct).length;
+  setTimeout(() => nextBtn.classList.add("show"), 400);
+}
+
+function handleTimeout() {
+  const q = questions[index];
+  if (!q.user) q.user = "timeout";
+  buttons.forEach(b => b.disabled = true);
+  const correctBtn = [...buttons].find(b => b.dataset.answer === q.correct);
+  if (correctBtn) correctBtn.classList.add("correct");
+  setTimeout(() => nextQuestion(), 700);
+}
+
+function nextQuestion() {
+  stopTimer();
+  if (index < questions.length - 1) {
+    index++;
+    render();
+  } else {
+    finishQuiz();
+  }
+}
+
+function goBack() {
+  stopTimer();
+  if (index > 0) {
+    index--;
+    render();
+  }
+}
+
+function finishQuiz() {
+  stopTimer();
+  const s = questions.filter(q => q.user === q.correct).length;
+  const pct = (s / questions.length) * 100;
+  const msg = pct >= 75 ? "🎉 Excellent!" : pct >= 50 ? "👍 Good!" : "📚 Keep Learning!";
+
+  try {
+    const profile = JSON.parse(localStorage.getItem('algoplay_profile')) || { xp: 120, coins: 45, level: 1 };
+    profile.xp += (s * 25 + 30);
+    localStorage.setItem('algoplay_profile', JSON.stringify(profile));
+  } catch(e) {}
+
+  alert(`${msg}\n\nLevel ${LEVEL} Completed!\nScore: ${s}/4`);
+  sessionStorage.setItem("completedLevel", LEVEL);
+  window.location.href = "drinkwaterscience.html";
+}
+
+// Immediate rendering
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', render);
+} else {
+  render();
+}
+</script>
+<script src="multilingual/site-i18n.js"></script>
+<script src="audio-manager.js"></script>
+</body>
+</html>

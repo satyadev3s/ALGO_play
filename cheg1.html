@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Class 9 Chemistry – Learning Engine</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+:root{
+  --bg:#020617;
+  --panel:#0b1220;
+  --card:rgba(255,255,255,.08);
+  --border:rgba(255,255,255,.14);
+  --accent:#22c55e;
+  --blue:#38bdf8;
+  --text:#e5e7eb;
+  --muted:#94a3b8;
+}
+
+*{box-sizing:border-box;font-family:system-ui}
+
+body{
+  margin:0;
+  min-height:100vh;
+  background:radial-gradient(circle at top,#0f172a,var(--bg));
+  color:var(--text);
+}
+
+/* HEADER */
+header{
+  padding:24px;
+  text-align:center;
+}
+header h1{
+  margin:0;
+  font-size:34px;
+  background:linear-gradient(90deg,var(--accent),var(--blue));
+  -webkit-background-clip:text;
+  color:transparent;
+}
+header p{color:var(--muted)}
+
+/* MENU */
+.menu{
+  max-width:1100px;
+  margin:auto;
+  padding:30px;
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(240px,1fr));
+  gap:22px;
+}
+.card{
+  background:var(--card);
+  border:1px solid var(--border);
+  border-radius:20px;
+  padding:24px;
+  cursor:pointer;
+  transition:.3s;
+}
+.card:hover{
+  transform:translateY(-8px);
+  box-shadow:0 0 30px rgba(34,197,94,.35);
+}
+.card h2{margin:10px 0 6px}
+.card p{color:var(--muted);font-size:14px}
+
+/* GAME SCREEN */
+.game{
+  display:none;
+  max-width:1000px;
+  margin:auto;
+  padding:24px;
+}
+.back{
+  background:#1f2937;
+  border:1px solid var(--border);
+  color:white;
+  padding:8px 14px;
+  border-radius:12px;
+  cursor:pointer;
+  margin-bottom:16px;
+}
+
+/* ENGINE */
+.engine{
+  background:var(--panel);
+  border:1px solid var(--border);
+  border-radius:24px;
+  padding:24px;
+  text-align:center;
+}
+
+/* VISUALS */
+.beaker{
+  width:160px;height:220px;
+  border:3px solid var(--blue);
+  border-radius:0 0 22px 22px;
+  margin:20px auto;
+  position:relative;
+  overflow:hidden;
+}
+.liquid{
+  position:absolute;
+  bottom:0;
+  width:100%;
+  height:0%;
+  background:var(--accent);
+  transition:.6s;
+}
+
+.box{
+  width:120px;height:120px;
+  background:var(--blue);
+  border-radius:16px;
+  margin:20px auto;
+  transition:.6s;
+}
+
+.bar{
+  width:100%;
+  height:20px;
+  border-radius:999px;
+  background:linear-gradient(90deg,#ef4444,#facc15,#22c55e,#3b82f6);
+  margin:20px 0;
+}
+
+button, input[type=range]{
+  margin:6px;
+  padding:10px 16px;
+  border:none;
+  border-radius:999px;
+  background:linear-gradient(90deg,var(--accent),var(--blue));
+  cursor:pointer;
+  font-weight:600;
+  color:#022c22;
+}
+
+.read{
+  margin-top:12px;
+  font-size:16px;
+  color:var(--accent);
+}
+</style>
+<link rel="stylesheet" href="multilingual/app-theme.css">
+</head>
+
+<body>
+
+<header>
+  <h1>🧪 Class 9 Chemistry</h1>
+  <p>Learn by interacting · No quizzes · No questions</p>
+</header>
+
+<!-- MENU -->
+<section class="menu" id="menu">
+  <div class="card" onclick="openGame(1)"><h2>Reaction Balance</h2><p>Acid–Base system</p></div>
+  <div class="card" onclick="openGame(2)"><h2>Temperature & State</h2><p>Melting & boiling</p></div>
+  <div class="card" onclick="openGame(3)"><h2>Particle Energy</h2><p>Kinetic theory</p></div>
+  <div class="card" onclick="openGame(4)"><h2>Compound Formation</h2><p>Valency logic</p></div>
+  <div class="card" onclick="openGame(5)"><h2>Metal Behaviour</h2><p>Reactivity</p></div>
+  <div class="card" onclick="openGame(6)"><h2>pH Scale</h2><p>Acidic to basic</p></div>
+</section>
+
+<!-- GAME 1 -->
+<section class="game" id="g1">
+<button class="back" onclick="back()">← Back</button>
+<div class="engine">
+  <h3>Reaction Balance</h3>
+  <div class="beaker"><div class="liquid" id="liq"></div></div>
+  <button onclick="reaction(1)">Equal</button>
+  <button onclick="reaction(2)">Excess Acid</button>
+  <button onclick="reaction(3)">Excess Base</button>
+  <div class="read" id="r1"></div>
+</div>
+</section>
+
+<!-- GAME 2 -->
+<section class="game" id="g2">
+<button class="back" onclick="back()">← Back</button>
+<div class="engine">
+  <h3>Temperature & State</h3>
+  <div class="box" id="b2"></div>
+  <input type="range" min="-10" max="120" oninput="temp(this.value)">
+  <div class="read" id="r2"></div>
+</div>
+</section>
+
+<!-- GAME 3 -->
+<section class="game" id="g3">
+<button class="back" onclick="back()">← Back</button>
+<div class="engine">
+  <h3>Particle Energy</h3>
+  <div class="box" id="b3"></div>
+  <button onclick="energy(1)">Low</button>
+  <button onclick="energy(2)">Medium</button>
+  <button onclick="energy(3)">High</button>
+  <div class="read" id="r3"></div>
+</div>
+</section>
+
+<!-- GAME 4 -->
+<section class="game" id="g4">
+<button class="back" onclick="back()">← Back</button>
+<div class="engine">
+  <h3>Compound Formation</h3>
+  <button onclick="compound(true)">H₂ + O</button>
+  <button onclick="compound(false)">H + O</button>
+  <div class="read" id="r4"></div>
+</div>
+</section>
+
+<!-- GAME 5 -->
+<section class="game" id="g5">
+<button class="back" onclick="back()">← Back</button>
+<div class="engine">
+  <h3>Metal vs Non-metal</h3>
+  <button onclick="metal(true)">Sodium</button>
+  <button onclick="metal(false)">Chlorine</button>
+  <div class="read" id="r5"></div>
+</div>
+</section>
+
+<!-- GAME 6 -->
+<section class="game" id="g6">
+<button class="back" onclick="back()">← Back</button>
+<div class="engine">
+  <h3>pH Scale</h3>
+  <input type="range" min="0" max="14" oninput="ph(this.value)">
+  <div class="bar"></div>
+  <div class="read" id="r6"></div>
+</div>
+</section>
+
+<script>
+const menu=document.getElementById("menu");
+function openGame(n){
+  menu.style.display="none";
+  for(let i=1;i<=6;i++)document.getElementById("g"+i).style.display="none";
+  document.getElementById("g"+n).style.display="block";
+}
+function back(){
+  for(let i=1;i<=6;i++)document.getElementById("g"+i).style.display="none";
+  menu.style.display="grid";
+}
+
+/* GAME LOGIC */
+function reaction(t){
+  liq.style.height="80%";
+  r1.textContent = t===1?"Neutral solution":
+                   t===2?"Acidic solution":
+                   "Basic solution";
+}
+function temp(v){
+  r2.textContent = v<0?"Solid":v<100?"Liquid":"Gas";
+}
+function energy(e){
+  r3.textContent = e===1?"Low KE":e===2?"Medium KE":"High KE";
+  b3.style.borderRadius = e===1?"16px":e===2?"40%":"50%";
+}
+function compound(ok){
+  r4.textContent = ok?"H₂O formed (valid valency)":"Invalid combination";
+}
+function metal(m){
+  r5.textContent = m?"Metal: reactive, loses electrons":
+                    "Non-metal: gains electrons";
+}
+function ph(v){
+  r6.textContent = v<7?"Acidic":v==7?"Neutral":"Basic";
+}
+</script>
+
+<script src="multilingual/site-i18n.js"></script>
+<script src="audio-manager.js"></script>
+</body>
+</html>

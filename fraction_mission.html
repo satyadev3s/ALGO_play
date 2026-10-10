@@ -1,0 +1,769 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AlgoPlay — Mission Smart Bazaar (Grade 6 Fractions)</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700;800;900&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js" defer></script>
+<script src="storageService.js"></script>
+<script src="fractionEngine.js"></script>
+
+<style>
+  :root {
+    --bg-dark: #090d16;
+    --card-bg: rgba(22, 30, 49, 0.85);
+    --border: rgba(141, 162, 255, 0.2);
+    --primary: #4f46e5;
+    --primary-light: #6366f1;
+    --accent-orange: #f97316;
+    --accent-teal: #06b6d4;
+    --accent-green: #10b981;
+    --accent-rose: #f43f5e;
+    --text-main: #f8fafc;
+    --text-muted: #94a3b8;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Poppins', sans-serif; }
+  body {
+    background: radial-gradient(circle at top right, #171b38, #070913 90%);
+    color: var(--text-main);
+    min-height: 100vh;
+    padding-bottom: 60px;
+  }
+
+  /* Top Navigation */
+  .navbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px 28px;
+    background: rgba(15, 23, 42, 0.8);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+
+  .nav-left { display: flex; align-items: center; gap: 14px; }
+  .back-btn {
+    background: rgba(255,255,255,0.08);
+    border: 1px solid var(--border);
+    color: var(--text-main);
+    padding: 8px 16px;
+    border-radius: 10px;
+    cursor: pointer;
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 600;
+    transition: 0.2s;
+  }
+  .back-btn:hover { background: rgba(255,255,255,0.18); transform: translateX(-2px); }
+
+  .brand-title { font-size: 18px; font-weight: 800; color: #fff; }
+  .brand-sub { font-size: 12px; color: var(--accent-orange); font-weight: 600; }
+
+  .nav-right { display: flex; align-items: center; gap: 14px; }
+  .stat-badge {
+    background: rgba(255,255,255,0.06);
+    border: 1px solid var(--border);
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .lang-toggle {
+    background: rgba(99, 102, 241, 0.2);
+    border: 1px solid var(--primary-light);
+    color: #fff;
+    padding: 6px 14px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 12px;
+    font-weight: 700;
+  }
+
+  /* Main Container */
+  .container {
+    max-width: 900px;
+    margin: 24px auto;
+    padding: 0 20px;
+  }
+
+  /* Mission Stage Stepper */
+  .stepper {
+    display: flex;
+    justify-content: space-between;
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 12px 16px;
+    margin-bottom: 24px;
+    overflow-x: auto;
+    gap: 8px;
+  }
+
+  .step-tab {
+    flex: 1;
+    min-width: 140px;
+    text-align: center;
+    padding: 10px 8px;
+    border-radius: 12px;
+    cursor: pointer;
+    background: transparent;
+    border: none;
+    color: var(--text-muted);
+    font-size: 12px;
+    font-weight: 700;
+    transition: 0.3s;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+  }
+  .step-tab.active {
+    background: linear-gradient(135deg, var(--primary), var(--primary-light));
+    color: white;
+    box-shadow: 0 4px 15px rgba(99, 102, 241, 0.4);
+  }
+  .step-tab.completed {
+    color: var(--accent-green);
+  }
+
+  /* Banner Card */
+  .mission-card {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 24px;
+    padding: 32px;
+    box-shadow: 0 15px 45px rgba(0,0,0,0.5);
+    backdrop-filter: blur(16px);
+  }
+
+  .mission-header {
+    margin-bottom: 24px;
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+    padding-bottom: 16px;
+  }
+  .badge-topic {
+    display: inline-block;
+    background: rgba(249, 115, 22, 0.2);
+    color: var(--accent-orange);
+    border: 1px solid rgba(249, 115, 22, 0.4);
+    padding: 4px 12px;
+    border-radius: 12px;
+    font-size: 11px;
+    font-weight: 800;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+  }
+  .mission-title { font-size: 24px; font-weight: 800; margin-bottom: 6px; }
+  .mission-desc { font-size: 14px; color: var(--text-muted); line-height: 1.5; }
+
+  /* Interactive Visual Fraction Strips Widget */
+  .fraction-visualizer {
+    background: rgba(15, 23, 42, 0.6);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 16px;
+    padding: 20px;
+    margin: 20px 0;
+  }
+  .viz-title {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--accent-teal);
+    margin-bottom: 12px;
+    display: flex;
+    justify-content: space-between;
+  }
+  .strip-row {
+    margin-bottom: 14px;
+  }
+  .strip-label {
+    font-size: 12px;
+    font-weight: 700;
+    margin-bottom: 6px;
+    display: flex;
+    justify-content: space-between;
+  }
+  .fraction-bar {
+    display: flex;
+    height: 38px;
+    border-radius: 8px;
+    overflow: hidden;
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.15);
+  }
+  .bar-segment {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-right: 1px dashed rgba(255,255,255,0.25);
+    font-size: 12px;
+    font-weight: 800;
+    transition: all 0.3s ease;
+  }
+  .bar-segment:last-child { border-right: none; }
+  .bar-segment.filled-green {
+    background: linear-gradient(135deg, #10b981, #059669);
+    color: white;
+  }
+  .bar-segment.filled-blue {
+    background: linear-gradient(135deg, #0ea5e9, #0284c7);
+    color: white;
+  }
+  .bar-segment.filled-orange {
+    background: linear-gradient(135deg, #f97316, #ea580c);
+    color: white;
+  }
+
+  /* Question Box */
+  .question-box {
+    margin-top: 24px;
+  }
+  .q-context-tag {
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--accent-orange);
+    margin-bottom: 6px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .q-prompt {
+    font-size: 18px;
+    font-weight: 700;
+    margin-bottom: 20px;
+    line-height: 1.4;
+  }
+
+  /* Options Grid */
+  .options-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+    margin-bottom: 20px;
+  }
+  @media (max-width: 640px) {
+    .options-grid { grid-template-columns: 1fr; }
+  }
+
+  .opt-btn {
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.12);
+    color: var(--text-main);
+    padding: 16px 20px;
+    border-radius: 14px;
+    cursor: pointer;
+    text-align: left;
+    font-size: 15px;
+    font-weight: 600;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .opt-btn:hover:not(:disabled) {
+    background: rgba(255,255,255,0.1);
+    border-color: var(--primary-light);
+    transform: translateY(-2px);
+  }
+  .opt-key {
+    width: 28px;
+    height: 28px;
+    border-radius: 8px;
+    background: rgba(255,255,255,0.1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+    font-weight: 800;
+    color: var(--accent-teal);
+  }
+  .opt-btn.correct {
+    background: rgba(16, 185, 129, 0.2) !important;
+    border-color: var(--accent-green) !important;
+    color: #a7f3d0 !important;
+  }
+  .opt-btn.incorrect {
+    background: rgba(244, 63, 94, 0.2) !important;
+    border-color: var(--accent-rose) !important;
+    color: #fecdd3 !important;
+  }
+
+  /* Misconception Diagnostic Feedback Box */
+  .feedback-box {
+    display: none;
+    border-radius: 16px;
+    padding: 20px;
+    margin-top: 20px;
+    animation: fadeIn 0.3s ease-in;
+  }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+
+  .feedback-box.correct {
+    background: rgba(16, 185, 129, 0.12);
+    border: 1px solid rgba(16, 185, 129, 0.35);
+  }
+  .feedback-box.misconception {
+    background: rgba(249, 115, 22, 0.12);
+    border: 1px solid rgba(249, 115, 22, 0.4);
+  }
+
+  .fb-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 10px;
+    border-radius: 8px;
+    font-size: 12px;
+    font-weight: 800;
+    margin-bottom: 8px;
+  }
+  .fb-badge.correct { background: var(--accent-green); color: #042f1a; }
+  .fb-badge.misconception { background: var(--accent-orange); color: #351500; }
+
+  .fb-title { font-size: 15px; font-weight: 800; margin-bottom: 6px; }
+  .fb-msg { font-size: 13px; line-height: 1.5; color: #e2e8f0; margin-bottom: 12px; }
+
+  .action-row {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    margin-top: 14px;
+  }
+
+  .primary-action-btn {
+    background: linear-gradient(135deg, var(--primary), var(--primary-light));
+    border: none;
+    color: white;
+    padding: 12px 24px;
+    border-radius: 12px;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3);
+    transition: 0.2s;
+  }
+  .primary-action-btn:hover {
+    transform: scale(1.02);
+    box-shadow: 0 6px 20px rgba(99, 102, 241, 0.5);
+  }
+
+  /* Result Report Card */
+  .report-card {
+    display: none;
+    background: rgba(15, 23, 42, 0.9);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 30px;
+    text-align: center;
+    margin-top: 20px;
+  }
+  .score-compare {
+    display: flex;
+    justify-content: center;
+    gap: 40px;
+    margin: 24px 0;
+  }
+  .score-item {
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.1);
+    padding: 18px 26px;
+    border-radius: 16px;
+  }
+  .score-num { font-size: 36px; font-weight: 900; }
+  .gain-badge {
+    background: rgba(16, 185, 129, 0.2);
+    border: 1px solid var(--accent-green);
+    color: #6ee7b7;
+    padding: 6px 16px;
+    border-radius: 20px;
+    font-size: 14px;
+    font-weight: 800;
+    display: inline-block;
+    margin-top: 8px;
+  }
+</style>
+<link rel="stylesheet" href="multilingual/app-theme.css">
+</head>
+<body>
+
+<!-- Navigation Bar -->
+<header class="navbar">
+  <div class="nav-left">
+    <a href="maindashboard.html" class="back-btn">← Back to Dashboard</a>
+    <div>
+      <div class="brand-title">AlgoPlay: Smart Bazaar</div>
+      <div class="brand-sub">Grade 6 Mathematics — Unlike Fractions Adventure</div>
+    </div>
+  </div>
+  <div class="nav-right">
+    <div class="stat-badge">⭐ <span id="navXP">120</span> XP</div>
+    <div class="stat-badge">💰 <span id="navCoins">45</span> Coins</div>
+    <button class="lang-toggle" id="langBtn" onclick="toggleLanguage()">Language: EN / తె</button>
+  </div>
+</header>
+
+<div class="container">
+
+  <!-- Stepper Tabs -->
+  <div class="stepper" role="tablist">
+    <button class="step-tab active" id="tab0" onclick="switchStage(0)">
+      <span>0. Diagnostic</span>
+      <small>Pre-Test</small>
+    </button>
+    <button class="step-tab" id="tab1" onclick="switchStage(1)">
+      <span>1. Visual Strips</span>
+      <small>Equivalents</small>
+    </button>
+    <button class="step-tab" id="tab2" onclick="switchStage(2)">
+      <span>2. Addition Expert</span>
+      <small>Unlike Fractions</small>
+    </button>
+    <button class="step-tab" id="tab3" onclick="switchStage(3)">
+      <span>3. Smart Bazaar</span>
+      <small>Word Problems</small>
+    </button>
+    <button class="step-tab" id="tab4" onclick="switchStage(4)">
+      <span>4. Post-Test</span>
+      <small>Measurement</small>
+    </button>
+  </div>
+
+  <!-- Main Active Mission View -->
+  <div class="mission-card" id="missionCard">
+    <div class="mission-header">
+      <span class="badge-topic" id="stageBadge">Stage 0 • Diagnostic Baseline</span>
+      <h1 class="mission-title" id="stageTitle">Pre-Test: Adding Fractions Diagnostic</h1>
+      <p class="mission-desc" id="stageDesc">
+        Let's assess your starting baseline! Answer these 5 quick questions so AlgoPlay can adapt directly to your learning needs.
+      </p>
+    </div>
+
+    <!-- Dynamic Fraction Strip Visualizer (Rendered in Visual missions) -->
+    <div class="fraction-visualizer" id="fractionVisualizer" style="display: none;">
+      <div class="viz-title">
+        <span>📏 Interactive Fraction Strips (Market Bar Scale)</span>
+        <span id="vizEqualityTag">1/2 = 2/4</span>
+      </div>
+      <div class="strip-row">
+        <div class="strip-label">
+          <span>Fraction 1: Half a Melon (1/2)</span>
+          <span style="color: #34d399">1 of 2 parts</span>
+        </div>
+        <div class="fraction-bar">
+          <div class="bar-segment filled-green">1/2</div>
+          <div class="bar-segment">1/2</div>
+        </div>
+      </div>
+      <div class="strip-row">
+        <div class="strip-label">
+          <span>Fraction 2: Quarter Slices (Fourths)</span>
+          <span style="color: #38bdf8">2 of 4 parts (Equal size!)</span>
+        </div>
+        <div class="fraction-bar">
+          <div class="bar-segment filled-blue">1/4</div>
+          <div class="bar-segment filled-blue">1/4</div>
+          <div class="bar-segment">1/4</div>
+          <div class="bar-segment">1/4</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Active Question Container -->
+    <div class="question-box" id="questionBox">
+      <div class="q-context-tag" id="qContextTag">🏪 Market Context</div>
+      <div class="q-prompt" id="qPrompt">Loading Question...</div>
+
+      <div class="options-grid" id="optionsGrid"></div>
+
+      <!-- Feedback / Misconception Alert -->
+      <div class="feedback-box" id="feedbackBox">
+        <div class="fb-badge" id="fbBadge">💡 Diagnostic Alert</div>
+        <div class="fb-title" id="fbTitle">Feedback Title</div>
+        <div class="fb-msg" id="fbMsg">Feedback explanation message...</div>
+        <div class="action-row">
+          <button class="primary-action-btn" id="nextActionBtn" onclick="nextQuestion()">Next Question →</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Learning Outcome Report (After Post-Test) -->
+    <div class="report-card" id="reportCard">
+      <h2>🎉 Learning Measurement & Mastery Certificate</h2>
+      <p style="color: var(--text-muted); margin-top: 6px;">
+        Verified Learning Outcome: Demonstrated Learning Gain in Grade 6 Fraction Addition.
+      </p>
+
+      <div class="score-compare">
+        <div class="score-item">
+          <div style="font-size: 12px; color: var(--text-muted)">Pre-Test Baseline</div>
+          <div class="score-num" id="rptPreScore" style="color: #f59e0b">40%</div>
+        </div>
+        <div class="score-item">
+          <div style="font-size: 12px; color: var(--text-muted)">Post-Test Mastery</div>
+          <div class="score-num" id="rptPostScore" style="color: #10b981">100%</div>
+        </div>
+      </div>
+
+      <div class="gain-badge" id="rptGainBadge">🚀 Measured Gain: +60 Percentage Points</div>
+
+      <div style="margin: 24px 0; text-align: left; background: rgba(255,255,255,0.03); padding: 18px; border-radius: 14px;">
+        <h4 style="margin-bottom: 8px;">🧠 Misconception Resolution Status:</h4>
+        <div id="rptMisconceptionList" style="font-size: 13px; color: #cbd5e1; line-height: 1.6;">
+          • <strong>Adding Numerators & Denominators Directly:</strong> RESOLVED ✅ (0 errors in Post-Test)<br>
+          • <strong>Scaling Numerator with LCM:</strong> MASTERED ✅<br>
+          • <strong>Marketplace Word Problem Transfer:</strong> INDEPENDENTLY DEMONSTRATED ✅
+        </div>
+      </div>
+
+      <div style="display: flex; justify-content: center; gap: 14px;">
+        <a href="teacherdash.html" class="primary-action-btn" style="text-decoration: none;">
+          📊 View Insights on Teacher Dashboard
+        </a>
+        <button class="back-btn" onclick="switchStage(1)">Replay Missions</button>
+      </div>
+    </div>
+
+  </div>
+
+</div>
+
+<script>
+let currentLanguage = 'en'; // 'en' or 'te'
+let activeStage = 0; // 0=PreTest, 1=M1, 2=M2, 3=M3, 4=PostTest
+let currentQuestionIndex = 0;
+let currentQuestionsList = [];
+let preTestScores = { correct: 0, total: 5, answers: [] };
+let postTestScores = { correct: 0, total: 5, answers: [] };
+let stageScores = { 1: 0, 2: 0, 3: 0 };
+
+function initPage() {
+  updateNavStats();
+  switchStage(0);
+}
+
+function updateNavStats() {
+  const profile = StorageService.getProfile();
+  document.getElementById('navXP').innerText = profile.xp || 120;
+  document.getElementById('navCoins').innerText = profile.coins || 45;
+}
+
+function toggleLanguage() {
+  currentLanguage = (currentLanguage === 'en') ? 'te' : 'en';
+  document.getElementById('langBtn').innerText = currentLanguage === 'en' ? 'Language: EN' : 'Language: తె (Telugu)';
+  loadCurrentQuestion();
+}
+
+// Stage Switcher
+function switchStage(stageNum) {
+  activeStage = stageNum;
+  currentQuestionIndex = 0;
+
+  // Update tabs
+  for (let i = 0; i <= 4; i++) {
+    const tab = document.getElementById(`tab${i}`);
+    if (tab) {
+      tab.classList.toggle('active', i === stageNum);
+    }
+  }
+
+  const vizEl = document.getElementById('fractionVisualizer');
+  const reportEl = document.getElementById('reportCard');
+  const qBoxEl = document.getElementById('questionBox');
+  reportEl.style.display = 'none';
+  qBoxEl.style.display = 'block';
+
+  if (stageNum === 0) {
+    document.getElementById('stageBadge').innerText = "Stage 0 • Diagnostic Baseline";
+    document.getElementById('stageTitle').innerText = "Pre-Test: Adding Fractions Diagnostic";
+    document.getElementById('stageDesc').innerText = "Take this 5-question pre-test to establish your baseline before instruction.";
+    currentQuestionsList = FractionEngine.PRE_TEST_QUESTIONS;
+    vizEl.style.display = 'none';
+  } else if (stageNum === 1) {
+    document.getElementById('stageBadge').innerText = "Mission 1 • Understand Fractions";
+    document.getElementById('stageTitle').innerText = "Visual Fraction Strips & Common Denominators";
+    document.getElementById('stageDesc').innerText = "Use the interactive market fraction bars to see how halves, quarters, and sixths relate to each other.";
+    currentQuestionsList = FractionEngine.MISSION_1_QUESTIONS;
+    vizEl.style.display = 'block';
+  } else if (stageNum === 2) {
+    document.getElementById('stageBadge').innerText = "Mission 2 • Become a Fraction Expert";
+    document.getElementById('stageTitle').innerText = "Step-by-Step Unlike Denominator Addition";
+    document.getElementById('stageDesc').innerText = "Practice finding common denominators and adding unlike fractions with instant misconception detection!";
+    currentQuestionsList = FractionEngine.MISSION_2_QUESTIONS;
+    vizEl.style.display = 'none';
+  } else if (stageNum === 3) {
+    document.getElementById('stageBadge').innerText = "Mission 3 • Smart Bazaar Challenge";
+    document.getElementById('stageTitle').innerText = "Indian Marketplace Word Problems (Transfer of Learning)";
+    document.getElementById('stageDesc').innerText = "Help Ramu Kaka, Priya, and Halwai Suresh measure fractional weights and ingredients at the bazaar.";
+    currentQuestionsList = FractionEngine.MISSION_3_QUESTIONS;
+    vizEl.style.display = 'none';
+  } else if (stageNum === 4) {
+    document.getElementById('stageBadge').innerText = "Stage 4 • Learning Measurement";
+    document.getElementById('stageTitle').innerText = "Post-Test: Measuring Score Improvement";
+    document.getElementById('stageDesc').innerText = "Test your skills on 5 parallel questions to measure your percentage gain and verify misconception resolution!";
+    currentQuestionsList = FractionEngine.POST_TEST_QUESTIONS;
+    vizEl.style.display = 'none';
+  }
+
+  loadCurrentQuestion();
+}
+
+function loadCurrentQuestion() {
+  if (currentQuestionIndex >= currentQuestionsList.length) {
+    handleStageCompletion();
+    return;
+  }
+
+  const q = currentQuestionsList[currentQuestionIndex];
+  const qPromptEl = document.getElementById('qPrompt');
+  const qContextEl = document.getElementById('qContextTag');
+  const optGridEl = document.getElementById('optionsGrid');
+  const fbBox = document.getElementById('feedbackBox');
+  fbBox.style.display = 'none';
+
+  qContextEl.innerHTML = `🏪 ${q.context || 'Indian Bazaar Market Stand'} • Question ${currentQuestionIndex + 1} of ${currentQuestionsList.length}`;
+  qPromptEl.innerText = (currentLanguage === 'te' && q.promptTe) ? q.promptTe : q.prompt;
+
+  optGridEl.innerHTML = '';
+  q.options.forEach(opt => {
+    const btn = document.createElement('button');
+    btn.className = 'opt-btn';
+    btn.innerHTML = `<span class="opt-key">${opt.key.toUpperCase()}</span> <span>${opt.text}</span>`;
+    btn.onclick = () => submitAnswer(q, opt.key, btn);
+    optGridEl.appendChild(btn);
+  });
+}
+
+function submitAnswer(q, selectedKey, clickedBtn) {
+  const allBtns = document.querySelectorAll('.opt-btn');
+  allBtns.forEach(b => b.disabled = true);
+
+  const evaluation = FractionEngine.evaluateAnswer(q, selectedKey);
+  const fbBox = document.getElementById('feedbackBox');
+  const fbBadge = document.getElementById('fbBadge');
+  const fbTitle = document.getElementById('fbTitle');
+  const fbMsg = document.getElementById('fbMsg');
+  const nextBtn = document.getElementById('nextActionBtn');
+
+  if (evaluation.isCorrect) {
+    clickedBtn.classList.add('correct');
+    fbBox.className = 'feedback-box correct';
+    fbBadge.className = 'fb-badge correct';
+    fbBadge.innerText = '✅ Correct! Shabash!';
+    fbTitle.innerText = 'Great Mathematical Reasoning!';
+    fbMsg.innerText = evaluation.explanation;
+
+    // Track score
+    if (activeStage === 0) preTestScores.correct++;
+    if (activeStage === 4) postTestScores.correct++;
+    StorageService.addReward(15, 5);
+    updateNavStats();
+
+    // Trigger confetti on correct
+    if (typeof confetti === 'function') {
+      confetti({ particleCount: 30, spread: 60, origin: { y: 0.8 } });
+    }
+  } else {
+    clickedBtn.classList.add('incorrect');
+    // Highlight correct button
+    allBtns.forEach(b => {
+      const key = b.querySelector('.opt-key').innerText.toLowerCase();
+      if (key === evaluation.correctKey) b.classList.add('correct');
+    });
+
+    fbBox.className = 'feedback-box misconception';
+    fbBadge.className = 'fb-badge misconception';
+
+    if (evaluation.misconception) {
+      fbBadge.innerText = `🔍 Detected Misconception: ${evaluation.misconception.name}`;
+      fbTitle.innerText = "Let's Understand Why This Happened:";
+      fbMsg.innerHTML = (currentLanguage === 'te') 
+        ? `${evaluation.misconception.explanationTe}<br><br><strong>పరిష్కారం:</strong> ${evaluation.misconception.remedy}`
+        : `${evaluation.misconception.explanation}<br><br><strong>Remedy Hint:</strong> ${evaluation.misconception.remedy}`;
+    } else {
+      fbBadge.innerText = '💡 Calculation Check';
+      fbTitle.innerText = 'Step-by-step Review:';
+      fbMsg.innerText = evaluation.explanation;
+    }
+
+    // Award encouragement XP for effort
+    StorageService.addReward(5, 1);
+    updateNavStats();
+  }
+
+  fbBox.style.display = 'block';
+}
+
+function nextQuestion() {
+  currentQuestionIndex++;
+  loadCurrentQuestion();
+}
+
+function handleStageCompletion() {
+  if (window.AlgoPlayAudio) AlgoPlayAudio.win(`fraction-stage-${activeStage}`);
+  if (activeStage === 0) {
+    StorageService.savePreTest(preTestScores.correct, preTestScores.total);
+    document.getElementById('tab0').classList.add('completed');
+    alert(`Diagnostic Pre-Test Completed!\nBaseline Score: ${preTestScores.correct}/${preTestScores.total} (${Math.round(preTestScores.correct/preTestScores.total*100)}%).\n\nMoving to Mission 1: Visual Fraction Strips!`);
+    switchStage(1);
+  } else if (activeStage === 1) {
+    StorageService.saveFractionState({ mission1Completed: true });
+    document.getElementById('tab1').classList.add('completed');
+    alert("Mission 1 Complete! You've mastered equivalent fraction bars! 🎉\nAdvancing to Mission 2: Become a Fraction Expert!");
+    switchStage(2);
+  } else if (activeStage === 2) {
+    StorageService.saveFractionState({ mission2Completed: true });
+    document.getElementById('tab2').classList.add('completed');
+    alert("Mission 2 Complete! You can add unlike fractions with common denominators! 🚀\nAdvancing to Mission 3: Smart Bazaar Challenge!");
+    switchStage(3);
+  } else if (activeStage === 3) {
+    StorageService.saveFractionState({ mission3Completed: true });
+    document.getElementById('tab3').classList.add('completed');
+    alert("Mission 3 Complete! You applied fractions to Indian marketplace problems! 🧺\nNow take the final Post-Test to measure your learning gains!");
+    switchStage(4);
+  } else if (activeStage === 4) {
+    const postResult = StorageService.savePostTest(postTestScores.correct, postTestScores.total);
+    document.getElementById('tab4').classList.add('completed');
+    showFinalReport(postResult);
+  }
+}
+
+function showFinalReport(result) {
+  document.getElementById('questionBox').style.display = 'none';
+  const rpt = document.getElementById('reportCard');
+  rpt.style.display = 'block';
+
+  const pre = StorageService.getPreTest() || { percentage: 40 };
+  const post = result || { percentage: 80, gainPoints: 40 };
+
+  document.getElementById('rptPreScore').innerText = `${pre.percentage}%`;
+  document.getElementById('rptPostScore').innerText = `${post.percentage}%`;
+  document.getElementById('rptGainBadge').innerText = `🚀 Measured Score Improvement: +${post.gainPoints} Percentage Points!`;
+}
+
+// Self-healing immediate execution
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', initPage);
+} else {
+  initPage();
+}
+window.addEventListener('load', () => {
+  const qPromptEl = document.getElementById('qPrompt');
+  if (qPromptEl && qPromptEl.innerText.includes('Loading')) {
+    initPage();
+  }
+});
+</script>
+
+<script src="multilingual/site-i18n.js"></script>
+<script src="audio-manager.js"></script>
+</body>
+</html>

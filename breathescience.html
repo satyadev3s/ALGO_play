@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>AlgoPlay – Breathing Exercise</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: system-ui, "Poppins", sans-serif;
+      min-height: 100vh;
+      overflow: hidden;
+      position: relative;
+
+      /* ⭐ DRINKING WATER BACKGROUND COLOUR */
+      background: linear-gradient(to bottom right, #003b7e, #0066cc);
+
+      color: white;
+    }
+
+    /* Blur Overlay */
+    .blur-overlay {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      backdrop-filter: blur(12px);
+      background: rgba(0, 0, 0, 0.25);
+      z-index: 0;
+    }
+
+    /* Waves */
+    .wave {
+      position: fixed;
+      left: 50%;
+      transform: translateX(-50%);
+      bottom: -70px;
+      width: 220%;
+      height: 180px;
+      background: rgba(255, 255, 255, 0.12);
+      border-radius: 50%;
+      animation: wave 6s linear infinite;
+      z-index: 1;
+    }
+
+    .wave:nth-child(2) {
+      opacity: 0.35;
+      animation-duration: 2s;
+    }
+
+    .wave:nth-child(3) {
+      opacity: 0.22;
+      animation-duration: 5s;
+    }
+
+    @keyframes wave {
+      0% { transform: translateX(-50%) translateY(0); }
+      50% { transform: translateX(-48%) translateY(10px); }
+      100% { transform: translateX(-50%) translateY(0); }
+    }
+
+    /* Card */
+    .card {
+      position: relative;
+      z-index: 2;
+      width: 90%;
+      max-width: 420px;
+      margin: 70px auto 0;
+      padding: 24px 20px;
+      background: rgba(255, 255, 255, 0.08);
+      border-radius: 24px;
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      text-align: center;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.4);
+    }
+
+    h1 {
+      font-size: 26px;
+      font-weight: 700;
+    }
+
+    .subtitle {
+      font-size: 14px;
+      color: #c9d7ff;
+      margin-bottom: 14px;
+    }
+
+    /* Timer row */
+    .timer-row {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 14px;
+      font-size: 13px;
+      color: #e5e7eb;
+      margin-bottom: 16px;
+    }
+
+    .phase-value {
+      font-weight: 700;
+      color: white;
+    }
+    .timer {
+      font-weight: 700;
+      font-size: 14px;
+    }
+
+    /* Breathing circle */
+    .breath-wrapper {
+      display: flex;
+      justify-content: center;
+      margin: 15px 0;
+      perspective: 900px;
+      animation: float 7s ease-in-out infinite;
+    }
+
+    @keyframes float {
+      50% { transform: translateY(-6px); }
+    }
+
+    .breath-circle {
+      width: 160px;
+      height: 160px;
+      border-radius: 50%;
+      background: rgba(130, 217, 255, 0.85);
+      box-shadow: 0 0 35px rgba(255,255,255,0.6),
+                  0 0 80px rgba(255,255,255,0.2);
+      transition: transform 3s ease;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .breath-phase {
+      font-size: 20px;
+      font-weight: 700;
+    }
+    .breath-hint {
+      font-size: 12px;
+      margin-top: 6px;
+    }
+
+    /* Buttons */
+    .btn {
+      width: 100%;
+      margin-top: 16px;
+      padding: 12px;
+      font-size: 16px;
+      border-radius: 14px;
+      font-weight: 600;
+      border: none;
+      cursor: pointer;
+    }
+
+    .start-btn {
+      background: #32c681;
+      color: white;
+    }
+
+    .skip-btn {
+      background: rgba(0,0,0,0.4);
+      border: 1px solid rgba(255,255,255,0.3);
+      color: #e5e7eb;
+    }
+
+  </style>
+<link rel="stylesheet" href="multilingual/app-theme.css">
+</head>
+<body>
+
+<!-- Background blur -->
+<div class="blur-overlay"></div>
+
+<!-- Waves -->
+<div class="wave"></div>
+<div class="wave"></div>
+<div class="wave"></div>
+
+<!-- Card -->
+<div class="card">
+    <h1>🫁 Breathing Exercise</h1>
+    <p class="subtitle">Follow the breathing rhythm to relax your mind.</p>
+
+    <div class="timer-row">
+      <div>
+        Current: <span id="phaseName" class="phase-value">Ready</span>
+      </div>
+      <div>
+        Time: <span id="timeLeft" class="timer">60s</span>
+      </div>
+    </div>
+
+    <div class="breath-wrapper">
+      <div id="circle" class="breath-circle">
+        <div>
+          <div id="breathPhase" class="breath-phase">Tap Start</div>
+          <div id="breathHint" class="breath-hint">We’ll guide the cycle.</div>
+        </div>
+      </div>
+    </div>
+
+    <button id="startBtn" class="btn start-btn">Start</button>
+    <button id="skipBtn" class="btn skip-btn">Skip</button>
+</div>
+
+<!-- Optional background nature sound -->
+<audio id="natureSound" loop>
+  <!-- SET YOUR OWN NATURE MP3 HERE -->
+</audio>
+
+<script>
+let running = false;
+let timer = 60;
+let current = 0;
+let cycle = ["Inhale", "Hold", "Exhale"];
+
+const circle = document.getElementById("circle");
+const phaseName = document.getElementById("phaseName");
+const breathPhase = document.getElementById("breathPhase");
+const breathHint = document.getElementById("breathHint");
+const timeLeft = document.getElementById("timeLeft");
+const sound = document.getElementById("natureSound");
+
+function breatheStep() {
+  const phase = cycle[current];
+
+  phaseName.innerText = phase;
+  breathPhase.innerText = phase;
+
+  if (phase === "Inhale") {
+    circle.style.transform = "scale(1.3)";
+    breathHint.innerText = "Slowly breathe in...";
+    navigator.vibrate?.(200);
+  }
+  if (phase === "Hold") {
+    circle.style.transform = "scale(1)";
+    breathHint.innerText = "Hold your breath gently...";
+  }
+  if (phase === "Exhale") {
+    circle.style.transform = "scale(0.85)";
+    breathHint.innerText = "Slowly breathe out...";
+    navigator.vibrate?.(150);
+  }
+
+  current = (current + 1) % 3;
+}
+
+function startBreathing() {
+  if (running) return;
+  running = true;
+
+  sound.volume = 0.4;
+  sound.play().catch(()=>{});
+
+  breatheStep();
+  setInterval(breatheStep, 4000);
+
+  let countdown = setInterval(() => {
+    timer--;
+    timeLeft.innerText = timer + "s";
+    if (timer <= 0) {
+      clearInterval(countdown);
+      phaseName.innerText = "Done";
+      breathPhase.innerText = "Good job!";
+      breathHint.innerText = "You completed the breathing session.";
+      sound.pause();
+    }
+  }, 1000);
+}
+
+document.getElementById("startBtn").onclick = startBreathing;
+document.getElementById("skipBtn").onclick = () => {
+  window.location.href = "scilevel.html";
+};
+</script>
+
+<script src="multilingual/site-i18n.js"></script>
+<script src="audio-manager.js"></script>
+</body>
+</html>

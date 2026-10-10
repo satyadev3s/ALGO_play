@@ -1,0 +1,78 @@
+:root {
+  --app-bg: #050816;
+  --app-surface: rgba(15, 23, 42, .78);
+  --app-surface-strong: rgba(15, 23, 42, .94);
+  --app-border: rgba(148, 163, 184, .2);
+  --app-text: #f8fafc;
+  --app-muted: #94a3b8;
+  --app-primary: #6366f1;
+  --app-secondary: #a855f7;
+  --app-cyan: #22d3ee;
+  --app-focus: #67e8f9;
+  --app-radius: 16px;
+  --app-shadow: 0 18px 50px rgba(0, 0, 0, .28);
+  --app-ease: cubic-bezier(.2, .8, .2, 1);
+}
+
+html {
+  background: var(--app-bg);
+}
+
+body {
+  color: var(--app-text);
+}
+
+button,
+a,
+input,
+select,
+textarea {
+  -webkit-tap-highlight-color: transparent;
+}
+
+button,
+a {
+  transition: transform .2s var(--app-ease), border-color .2s var(--app-ease),
+    background-color .2s var(--app-ease), box-shadow .2s var(--app-ease),
+    color .2s var(--app-ease);
+}
+
+button:focus-visible,
+a:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible {
+  outline: 3px solid var(--app-focus);
+  outline-offset: 3px;
+}
+
+button:disabled {
+  cursor: not-allowed;
+}
+
+::selection {
+  color: #fff;
+  background: rgba(99, 102, 241, .8);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    animation-duration: .01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: .01ms !important;
+  }
+}
+
+@media (max-width: 640px) {
+  body {
+    overflow-x: hidden;
+  }
+
+  button,
+  a {
+    min-height: 42px;
+  }
+}

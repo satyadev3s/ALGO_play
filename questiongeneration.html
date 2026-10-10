@@ -1,0 +1,565 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Question Generator – Pro Dashboard (Responsive)</title>
+
+<!-- ====== Fonts ====== -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+<style>
+  /* =====================
+     THEME
+  ====================== */
+  :root{
+    --bg:#f5f7ff;
+    --card:#ffffff;
+    --text:#0f172a;
+    --muted:#64748b;
+    --border:#e2e8f0;
+    --accent:#2563eb;
+    --accent-2:#10b981;
+    --warning:#f59e0b;
+    --danger:#ef4444;
+    --radius:16px;
+    --shadow:0 10px 30px rgba(2,6,23,.08);
+    --ring:0 0 0 4px rgba(37,99,235,.15);
+  }
+  :root.dark{
+    --bg:#0b1220;
+    --card:#0f172a;
+    --text:#e5e7eb;
+    --muted:#94a3b8;
+    --border:#1e293b;
+    --accent:#60a5fa;
+    --accent-2:#34d399;
+    --shadow:0 10px 30px rgba(0,0,0,.45);
+    --ring:0 0 0 4px rgba(96,165,250,.18);
+  }
+  @media (prefers-color-scheme: dark){ :root{ color-scheme:dark; } }
+
+  *{ box-sizing:border-box; }
+  html,body{ height:100%; }
+  body{
+    margin:0;
+    font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial;
+    background:var(--bg);
+    color:var(--text);
+    -webkit-font-smoothing:antialiased;
+    animation: fadeScreen .4s ease;
+    font-size: clamp(14px, 1.3vw, 16px);
+    line-height:1.5;
+  }
+  @keyframes fadeScreen{ from{opacity:0} to{opacity:1} }
+
+  /* =====================
+     LAYOUT
+  ====================== */
+  .container{
+    --g:20px;
+    max-width:min(1200px, 100% - 32px);
+    margin:28px auto;
+    padding:0;
+    display:grid;
+    grid-template-columns:360px 1fr;
+    gap:var(--g);
+  }
+
+  @media (max-width: 1080px){
+    .container{ grid-template-columns:320px 1fr; }
+  }
+  @media (max-width: 980px){
+    .container{ grid-template-columns:1fr; }
+  }
+
+  header.topbar{
+    position:sticky; top:0; z-index:50;
+    backdrop-filter:saturate(180%) blur(10px);
+    background:linear-gradient(to bottom, rgba(255,255,255,.7), rgba(255,255,255,0));
+  }
+  :root.dark header.topbar{ background:linear-gradient(to bottom, rgba(15,23,42,.6), rgba(15,23,42,0)); }
+
+  .brand{
+    display:flex; align-items:center; gap:12px;
+    padding:14px 16px 10px;
+    max-width:min(1200px, 100% - 32px);
+    margin:0 auto;
+  }
+  .logo{
+    width:34px; height:34px; border-radius:10px;
+    background:linear-gradient(135deg,var(--accent),var(--accent-2));
+    box-shadow:var(--shadow);
+    flex:0 0 auto;
+  }
+  .brand h1{ font-size:clamp(16px,2vw,20px); margin:0; letter-spacing:.2px; }
+
+  .toolbar{ display:flex; gap:10px; margin-left:auto; flex-wrap:wrap; }
+  @media (max-width:560px){
+    .toolbar{ width:100%; justify-content:flex-start; }
+  }
+
+  .btn{
+    display:inline-flex; align-items:center; gap:8px;
+    padding:10px 14px; border:1px solid var(--border); border-radius:12px;
+    background:var(--card); color:var(--text); font-weight:600; cursor:pointer;
+    box-shadow:var(--shadow); transition:transform .15s ease, box-shadow .2s ease, background .2s ease;
+    min-height:40px;
+  }
+  .btn:hover{ transform:translateY(-2px); }
+  .btn.primary{ background:var(--accent); color:#fff; border-color:transparent; }
+  .btn.ghost{ background:transparent; box-shadow:none; }
+  .btn[disabled]{ opacity:.6; cursor:not-allowed; transform:none; }
+  .btn svg{ flex:0 0 auto; }
+
+  .card{
+    background:var(--card);
+    border:1px solid var(--border);
+    border-radius:var(--radius);
+    box-shadow:var(--shadow);
+  }
+
+  /* =====================
+     LEFT PANEL
+  ====================== */
+  .panel{
+    padding:18px;
+    display:flex; flex-direction:column; gap:16px;
+    position:sticky; top:72px;
+    align-self:start;
+  }
+  @media (max-width:980px){
+    .panel{ position:static; }
+  }
+
+  .section-title{ font-size:12px; font-weight:800; letter-spacing:.08em; text-transform:uppercase; color:var(--muted); }
+
+  .dropzone{
+    position:relative; border:2px dashed var(--border); border-radius:14px;
+    padding:18px; background:linear-gradient(180deg, rgba(37,99,235,.06), transparent);
+  }
+  .dropzone.drag{ border-color:var(--accent); box-shadow:var(--ring); }
+  .dz-inner{ display:flex; gap:14px; align-items:center; }
+  .dz-icon{ width:44px; height:44px; border-radius:12px; display:grid; place-items:center; background:rgba(37,99,235,.12); flex:0 0 auto; }
+  .dz-meta{ font-size:.9em; color:var(--muted); }
+  .dz-actions{ margin-top:12px; display:flex; justify-content:space-between; gap:10px;}
+  input[type=file]{ display:none; }
+
+  .options{ display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+  @media (max-width:720px){ .options{ grid-template-columns:1fr; } }
+
+  .field{ display:flex; flex-direction:column; gap:8px; }
+  .field label{ font-size:.9em; color:var(--muted); }
+  select, input[type=number]{
+    padding:12px 12px; border-radius:12px; border:1px solid var(--border);
+    background:var(--card); color:var(--text); outline:none; transition:border-color .15s ease, box-shadow .15s ease;
+  }
+  select:focus, input[type=number]:focus{ border-color:var(--accent); box-shadow:var(--ring); }
+
+  .sidenav{ display:flex; gap:10px; flex-wrap:wrap; }
+  @media (max-width:560px){ .sidenav .btn{ flex:1 1 140px; justify-content:center; } }
+
+  .status{
+    border:1px solid var(--border); background:linear-gradient(180deg, rgba(148,163,184,.08), transparent);
+    padding:12px; border-radius:12px; font-size:.9em; color:var(--muted);
+  }
+  .progress{ height:9px; border-radius:999px; background:#e8eefc; overflow:hidden; margin-top:10px; display:none; }
+  .progress > i{ height:100%; width:0%; display:block; background:linear-gradient(90deg, var(--accent), var(--accent-2));
+                 animation: progressStripe 1s linear infinite; background-size: 200% 100%; }
+  @keyframes progressStripe{ 0%{background-position:0 0} 100%{background-position:100% 0} }
+
+  /* =====================
+     RIGHT SIDE
+  ====================== */
+  .right{ display:flex; flex-direction:column; gap:18px; }
+  .summary-card{ padding:16px; display:flex; flex-wrap:wrap; justify-content:space-between; align-items:center; gap:12px; }
+  .summary-card h2{ font-size:clamp(16px,2.2vw,20px); margin:0; }
+  .pill{ font-size:12px; padding:6px 10px; border-radius:999px; background:rgba(37,99,235,.12); color:var(--accent); font-weight:700; }
+
+  .q-list{ display:grid; gap:12px; grid-template-columns:1fr; }
+  @media (min-width:1200px){ .q-list{ grid-template-columns:1fr 1fr; } }
+
+  .q-card{
+    border:1px solid var(--border); border-radius:14px; padding:14px; background:var(--card);
+    transition:transform .12s ease,border-color .15s ease; position:relative;
+  }
+  .q-card:hover{ transform:translateY(-2px); border-color:rgba(37,99,235,.35); }
+  .q-type{ position:absolute; right:12px; top:12px; font-size:11px; padding:4px 8px; border-radius:999px; background:#eef2ff; color:#334155; }
+  :root.dark .q-type{ background:#162036; color:#cbd5e1; }
+  .q-title{ font-weight:700; margin:0 0 8px; font-size:clamp(14px, 1.6vw, 16px); }
+  .choices{ margin:8px 0 0 18px; }
+  .choices li{ padding:2px 0; }
+  .answer{ margin-top:8px; font-weight:700; color:var(--accent); word-break:break-word; }
+
+  @media (max-width:560px){
+    .q-card{ padding:12px; }
+    .choices{ margin-left:16px; }
+  }
+  @media (max-width:400px){
+    .brand{ gap:10px; }
+    .btn{ padding:9px 12px; }
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    *{ animation:none !important; transition:none !important; }
+  }
+
+  @media print{
+    .no-print{ display:none !important; }
+    body{ background:#fff; }
+    .container{ display:block; max-width:none; margin:0; }
+    .q-card{ break-inside:avoid; border:1px solid #ddd; }
+  }
+</style>
+<link rel="stylesheet" href="multilingual/app-theme.css">
+</head>
+
+<body>
+  <!-- ===== TOP BAR ===== -->
+  <header class="topbar no-print" role="banner">
+    <div class="brand">
+      <div class="logo" aria-hidden="true"></div>
+      <h1>Question Generator</h1>
+      <div class="toolbar" style="margin-left:auto">
+        <button id="toggleTheme" class="btn ghost" title="Toggle theme" aria-label="Toggle theme">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+          Theme
+        </button>
+        <button id="downloadPdf" class="btn" title="Print / Save PDF">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v6"/><path d="M8 16h8v6H8z"/><path d="M20 8h-8V2"/><path d="M20 12v8a2 2 0 0 1-2 2"/></svg>
+          Save PDF
+        </button>
+        <button id="backBtn" class="btn ghost" title="Back">
+          <span style="font-size:16px" aria-hidden="true">←</span> Back
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main class="container" role="main">
+    <!-- ===== LEFT PANEL ===== -->
+    <aside class="card panel no-print" aria-label="Controls">
+      <div class="section-title">Source</div>
+
+      <div id="dropzone" class="dropzone" tabindex="0" aria-label="Upload area">
+        <div class="dz-inner">
+          <div class="dz-icon" aria-hidden="true">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+          </div>
+          <div>
+            <div style="font-weight:700">Drag & drop a PDF or Image</div>
+            <div class="dz-meta">Or select a file using the button below</div>
+            <div class="dz-actions">
+              <label class="btn" for="fileInput">Choose file</label>
+              <label class="btn ghost" for="pasteText" style="cursor:pointer">Paste text</label>
+            </div>
+          </div>
+        </div>
+        <input id="fileInput" type="file" accept="application/pdf,image/*"/>
+      </div>
+
+      <div class="section-title">Options</div>
+      <div class="options">
+        <div class="field">
+          <label for="mode">Question mix</label>
+          <select id="mode">
+            <option value="all">Balanced</option>
+            <option value="mcq">MCQ only</option>
+            <option value="cloze">Cloze only</option>
+            <option value="short">Short only</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="maxQ">Max questions</label>
+          <input id="maxQ" type="number" min="1" max="200" value="12"/>
+        </div>
+      </div>
+
+      <div class="sidenav">
+        <button id="process" class="btn primary" title="Generate questions">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 2 11 13 7 9"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+          Generate
+        </button>
+        <button id="clear" class="btn" title="Clear results">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/></svg>
+          Clear
+        </button>
+      </div>
+
+      <div id="status" class="status">
+        Waiting for input…
+        <div class="progress" aria-hidden="true"><i></i></div>
+      </div>
+    </aside>
+
+    <!-- ===== RIGHT CONTENT ===== -->
+    <section class="right" aria-live="polite">
+      <div class="card summary-card">
+        <h2>Generated Questions</h2>
+        <span id="summary" class="pill">No questions yet</span>
+      </div>
+      <div id="qList" class="q-list"></div>
+    </section>
+  </main>
+
+  <!-- Hidden textarea for paste mode -->
+  <textarea id="pasteArea" style="position:fixed; left:-9999px; top:-9999px"></textarea>
+
+  <!-- ====== Libraries ====== -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/tesseract.js@2.1.5/dist/tesseract.min.js"></script>
+
+  <script>
+    // ===== Navigation =====
+    document.getElementById('backBtn').onclick = () => { window.location.href = 'teacherdash.html'; };
+
+    // ===== Theme toggle =====
+    const root = document.documentElement;
+    const storedTheme = localStorage.getItem('qg-theme');
+    if(storedTheme === 'dark') root.classList.add('dark');
+    document.getElementById('toggleTheme').onclick = () => {
+      root.classList.toggle('dark');
+      localStorage.setItem('qg-theme', root.classList.contains('dark') ? 'dark' : 'light');
+    };
+
+    // ===== Elements =====
+    const fileInput = document.getElementById('fileInput');
+    const processBtn = document.getElementById('process');
+    const clearBtn = document.getElementById('clear');
+    const statusBox = document.getElementById('status');
+    const progressBar = statusBox.querySelector('.progress');
+    const progressFill = progressBar.querySelector('i');
+    const qList = document.getElementById('qList');
+    const summary = document.getElementById('summary');
+    const modeEl = document.getElementById('mode');
+    const maxQEl = document.getElementById('maxQ');
+    const dropzone = document.getElementById('dropzone');
+    const pasteArea = document.getElementById('pasteArea');
+
+    function setStatus(msg){
+      const node = statusBox.childNodes[0];
+      if(node && node.nodeType === Node.TEXT_NODE){ 
+        node.textContent = msg + ' '; 
+      } else { 
+        statusBox.insertBefore(document.createTextNode(msg + ' '), statusBox.firstChild); 
+      }
+    }
+    function showProgress(v){ progressBar.style.display = v ? 'block' : 'none'; }
+    function setProgress(p){ progressFill.style.width = p + '%'; }
+
+    // ===== Drag & Drop =====
+    const dEvents = ['dragenter','dragover','dragleave','drop'];
+    dEvents.forEach(ev => dropzone.addEventListener(ev, e => { e.preventDefault(); e.stopPropagation(); }));
+    ;['dragenter','dragover'].forEach(ev => dropzone.addEventListener(ev, () => dropzone.classList.add('drag')));
+    ;['dragleave','drop'].forEach(ev => dropzone.addEventListener(ev, () => dropzone.classList.remove('drag')));
+    dropzone.addEventListener('drop', e => {
+      const f = e.dataTransfer.files?.[0];
+      if(f){ fileInput.files = e.dataTransfer.files; setStatus('File ready: ' + f.name); }
+    });
+
+    // Paste text helper
+    document.querySelector('label[for="pasteText"]').onclick = async () => {
+      try{
+        const text = await navigator.clipboard.readText();
+        if(text && text.trim().length > 0){
+          generateFromText(text);
+        } else {
+          pasteArea.value = '';
+          pasteArea.style.left = '0'; pasteArea.style.top = '0';
+          pasteArea.style.width = '1px'; pasteArea.style.height = '1px';
+          pasteArea.focus();
+          setStatus('Press Ctrl/Cmd + V to paste text, then click Generate.');
+        }
+      }catch{
+        setStatus('Clipboard blocked. Use Ctrl/Cmd + V and click Generate.');
+        pasteArea.focus();
+      }
+    };
+
+    // ===== PDF -> text =====
+    async function extractPDFText(file){
+      const pdf = await pdfjsLib.getDocument(URL.createObjectURL(file)).promise;
+      let text = '';
+      for(let i=1; i<=pdf.numPages; i++){
+        const page = await pdf.getPage(i);
+        const content = await page.getTextContent();
+        text += content.items.map(t => t.str).join(' ') + ' ';
+      }
+      return text.trim();
+    }
+
+    // ===== PDF -> first page image for OCR =====
+    async function pdfToImage(file){
+      const pdf = await pdfjsLib.getDocument(URL.createObjectURL(file)).promise;
+      const page = await pdf.getPage(1);
+      const canvas = document.createElement('canvas');
+      const vp = page.getViewport({ scale: 2 });
+      canvas.width = vp.width; canvas.height = vp.height;
+      await page.render({ canvasContext: canvas.getContext('2d'), viewport: vp }).promise;
+      return new Promise(res => canvas.toBlob(res, 'image/png'));
+    }
+
+    // ===== OCR =====
+    async function runOCR(img){
+      const worker = Tesseract.createWorker({ 
+        logger: m => { if(m.progress) setProgress(Math.round(m.progress*100)); } 
+      });
+      await worker.load();
+      await worker.loadLanguage('eng');
+      await worker.initialize('eng');
+      const { data } = await worker.recognize(img);
+      await worker.terminate();
+      return data.text;
+    }
+
+    // ===== Sentence Split =====
+    function splitSentences(t){
+      return t.replace(/\n+/g, '. ')
+              .split(/(?<=[.?!])\s+/)
+              .map(s => s.trim())
+              .filter(s => s.length > 12);
+    }
+
+    // ===== Question Generator =====
+    function generateQuestions(text){
+      const sents = splitSentences(text);
+      let out = [];
+
+      sents.forEach(s => {
+        // Short
+        out.push({ type:'short', q:`Explain: ${s}` });
+
+        // Cloze
+        const w = s.split(' ');
+        if(w.length > 6){
+          let hiddenIndex = Math.floor(w.length/2);
+          let hidden = w[hiddenIndex].replace(/[^\w-]/g,'');
+          if(hidden.length > 2){
+            out.push({ type:'cloze', q:s.replace(w[hiddenIndex], '_'), answer:hidden });
+          }
+        }
+
+        // MCQ
+        out.push({
+          type:'mcq',
+          q:`Which statement is true about: "${s.substring(0,64)}..."?`,
+          choices: [ s, 'Incorrect', 'Opposite', 'None of the above' ],
+          answer:s
+        });
+      });
+
+      const mode = modeEl.value;
+      if(mode === 'mcq') out = out.filter(q=>q.type==='mcq');
+      if(mode === 'cloze') out = out.filter(q=>q.type==='cloze');
+      if(mode === 'short') out = out.filter(q=>q.type==='short');
+
+      return out.slice(0, Number(maxQEl.value));
+    }
+
+    // ===== Render =====
+    function renderQuestions(arr){
+      qList.innerHTML = '';
+      if(arr.length === 0){
+        summary.textContent = 'No questions generated';
+        return;
+      }
+      arr.forEach((q,i)=>{
+        const wrap = document.createElement('div');
+        wrap.className = 'q-card';
+        wrap.innerHTML = `
+          <div class="q-type">${q.type.toUpperCase()}</div>
+          <p class="q-title">${i+1}. ${escapeHtml(q.q)}</p>
+        `;
+        if(q.choices){
+          const ol = document.createElement('ol');
+          ol.className = 'choices';
+          q.choices.forEach(c=>{
+            const li = document.createElement('li');
+            li.textContent = c;
+            ol.appendChild(li);
+          });
+          wrap.appendChild(ol);
+          const ans = document.createElement('div');
+          ans.className = 'answer';
+          ans.textContent = 'Answer: ' + q.answer;
+          wrap.appendChild(ans);
+        } else if(q.answer){
+          const ans = document.createElement('div');
+          ans.className = 'answer';
+          ans.textContent = 'Answer: ' + q.answer;
+          wrap.appendChild(ans);
+        }
+        qList.appendChild(wrap);
+      });
+      summary.textContent = `${arr.length} questions`;
+    }
+
+    function escapeHtml(s){
+      return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+    }
+
+    // ===== Main Process =====
+    async function generateFromText(text){
+      setProgress(65);
+      const qs = generateQuestions(text);
+      renderQuestions(qs);
+      setProgress(100);
+      setTimeout(()=>showProgress(false), 500);
+      setStatus('Completed.');
+    }
+
+    processBtn.onclick = async () => {
+      let text = '';
+      const file = fileInput.files?.[0];
+
+      if(!file && (pasteArea.value || '').trim().length === 0){
+        setStatus('Please select a file or paste text first.');
+        return;
+      }
+
+      setStatus('Processing…');
+      showProgress(true); setProgress(10);
+
+      try{
+        if(file){
+          if(file.type === 'application/pdf'){
+            text = await extractPDFText(file);
+            if(text.length < 20){
+              setStatus('Running OCR for scanned PDF…');
+              text = await runOCR(await pdfToImage(file));
+            }
+          } else {
+            setStatus('Running OCR on image…');
+            text = await runOCR(file);
+          }
+        } else {
+          text = pasteArea.value.trim();
+        }
+
+        await generateFromText(text);
+      } catch(err){
+        console.error(err);
+        showProgress(false);
+        setStatus('Error: ' + (err?.message || 'Failed to process input'));
+      }
+    };
+
+    // Clear
+    clearBtn.onclick = () => {
+      qList.innerHTML = '';
+      summary.textContent = 'No questions yet';
+      setStatus('Waiting for input…');
+      progressFill.style.width='0%';
+      fileInput.value='';
+      pasteArea.value='';
+    };
+
+    // Print / PDF
+    document.getElementById('downloadPdf').onclick = () => { window.print(); };
+  </script>
+<script src="multilingual/site-i18n.js"></script>
+<script src="audio-manager.js"></script>
+</body>
+</html>

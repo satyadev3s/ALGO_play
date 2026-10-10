@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AlgoPlay – Levels</title>
+
+<style>
+    :root {
+        --primary: #4f46e5;
+        --primary-light: #6c62ff;
+        --bg: #eef0ff;
+        --text: #1a1a2e;
+    }
+
+    body {
+        font-family: "Poppins", sans-serif;
+        background: var(--bg);
+        padding: 30px;
+        margin: 0;
+    }
+
+    .container {
+        max-width: 520px;
+        margin: auto;
+    }
+
+    h2 {
+        text-align: center;
+        font-size: 30px;
+        font-weight: 700;
+        margin-bottom: 30px;
+        color: var(--text);
+    }
+
+    .level-card {
+        background: white;
+        padding: 20px 25px;
+        border-radius: 18px;
+        margin-bottom: 22px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.12);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        border-left: 6px solid var(--primary);
+        transition: 0.3s ease-in-out;
+    }
+
+    .level-title {
+        font-size: 18px;
+        font-weight: 600;
+        color: var(--text);
+    }
+
+    /* ICON BOX (only visible before unlock) */
+    .icon-box {
+        background: var(--primary-light);
+        color: white;
+        border-radius: 12px;
+        padding: 12px;
+        margin-right: 12px;
+        font-size: 20px;
+    }
+
+    .left {
+        display: flex;
+        align-items: center;
+    }
+
+    button {
+        padding: 10px 22px;
+        background: var(--primary);
+        color: white;
+        border: none;
+        border-radius: 10px;
+        font-size: 15px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: 0.2s;
+    }
+
+    button:hover {
+        transform: scale(1.07);
+        background: var(--primary-light);
+    }
+
+    button:disabled {
+        background: #b5b5b5;
+        transform: none;
+        cursor: not-allowed;
+    }
+
+    /* Unlock Animation */
+    @keyframes smoothUnlock {
+        0% { transform: scale(0.9); background: #d4ffe3; }
+        50% { transform: scale(1.03); background: #b0ffcc; }
+        100% { transform: scale(1); background: white; }
+    }
+
+    .unlock-anim {
+        animation: smoothUnlock 0.7s ease-out;
+    }
+</style>
+<link rel="stylesheet" href="multilingual/app-theme.css">
+</head>
+<body>
+
+<div class="container">
+    <h2>Levels</h2>
+    <div id="levels"></div>
+</div>
+
+<script>
+    const totalLevels = 8;
+    let unlockedUntil = 2; // Levels 1–2 unlocked initially
+
+    const icons = ["📘", "📗", "📙", "🎯", "🚀", "✨", "⚡", "💡"];
+
+    function loadLevels() {
+        const levelContainer = document.getElementById("levels");
+        levelContainer.innerHTML = "";
+
+        for (let i = 1; i <= totalLevels; i++) {
+            const locked = i > unlockedUntil;
+
+            levelContainer.innerHTML += `
+                <div class="level-card" id="level-${i}">
+                    <div class="left">
+                        ${
+                            locked
+                                ? `<div class="icon-box">${icons[i-1]}</div>`
+                                : ``
+                        }
+                        <span class="level-title">Level ${i}</span>
+                    </div>
+
+                    <button onclick="handleClick(${i})">
+                        ${locked ? "Unlock" : "Start"}
+                    </button>
+                </div>
+            `;
+        }
+    }
+
+    function handleClick(level) {
+        const card = document.getElementById("level-" + level);
+
+        // ❌ Cannot skip levels
+        if (level > unlockedUntil + 1) {
+            alert("Please complete previous levels first!");
+            return;
+        }
+
+        // 🔓 Unlock only the next level in order
+        if (level === unlockedUntil + 1) {
+            unlockedUntil = level;
+
+            // Remove icon
+            const iconBox = card.querySelector(".icon-box");
+            if (iconBox) iconBox.remove();
+
+            // Change button text to START
+            card.querySelector("button").innerText = "Start";
+
+            // Add unlock animation
+            card.classList.add("unlock-anim");
+
+            return;
+        }
+
+        // ▶ Already unlocked → Start
+        if (level <= unlockedUntil) {
+            alert("Starting Level " + level);
+        }
+    }
+
+    loadLevels();
+</script>
+
+<script src="multilingual/site-i18n.js"></script>
+<script src="audio-manager.js"></script>
+</body>
+</html>

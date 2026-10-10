@@ -1,0 +1,712 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>AlgoPlay — Interactive Learning & STEM Quests</title>
+  <meta name="description" content="AlgoPlay is a gamified learning platform for STEM and coding. Level up with bite-sized missions, XP, badges, and real-time concept mastery." />
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='64' height='64'%3E%3Crect width='64' height='64' rx='14' fill='%236366f1'/%3E%3Ctext x='50%25' y='55%25' font-size='32' text-anchor='middle' fill='%23FFF' font-family='Poppins, sans-serif' font-weight='800'%3EA%3C/text%3E%3C/svg%3E">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap');
+
+    :root {
+      --bg: #070914;
+      --card: rgba(15, 23, 42, 0.72);
+      --glass: rgba(255, 255, 255, 0.06);
+      --glass-border: rgba(255, 255, 255, 0.12);
+      --accent-glow: rgba(99, 102, 241, 0.35);
+    }
+
+    * {
+      box-sizing: border-box;
+      font-family: 'Poppins', sans-serif;
+    }
+
+    body {
+      background-color: var(--bg);
+      color: #f8fafc;
+      overflow-x: hidden;
+      scroll-behavior: smooth;
+    }
+
+    .bg-main {
+      background: radial-gradient(1200px 700px at 15% 15%, rgba(99, 102, 241, 0.22), transparent 45%),
+                  radial-gradient(1000px 600px at 85% 25%, rgba(236, 72, 153, 0.18), transparent 45%),
+                  radial-gradient(800px 500px at 50% 85%, rgba(34, 211, 238, 0.14), transparent 50%),
+                  linear-gradient(180deg, #070914, #0b0f24);
+    }
+
+    .text-gradient {
+      background: linear-gradient(135deg, #38bdf8, #818cf8, #c084fc, #34d399);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+    }
+
+    .glass {
+      background: var(--glass);
+      backdrop-filter: blur(14px);
+      border: 1px solid var(--glass-border);
+    }
+
+    .glass-strong {
+      background: var(--card);
+      backdrop-filter: blur(18px);
+      border: 1px solid var(--glass-border);
+    }
+
+    .glow-primary {
+      box-shadow: 0 0 25px rgba(99, 102, 241, 0.35), 0 0 2px rgba(255, 255, 255, 0.2);
+    }
+
+    .glow-hover:hover {
+      border-color: rgba(99, 102, 241, 0.5);
+      box-shadow: 0 12px 35px rgba(99, 102, 241, 0.25), 0 0 1px rgba(255, 255, 255, 0.3);
+      transform: translateY(-4px);
+    }
+
+    .floating {
+      animation: float 6s ease-in-out infinite;
+    }
+
+    @keyframes float {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-7px); }
+    }
+
+    .btn-gradient {
+      background: linear-gradient(135deg, #22d3ee, #6366f1, #ec4899);
+      color: #ffffff;
+      transition: all 0.25s ease;
+      font-weight: 600;
+    }
+
+    .btn-gradient:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 25px rgba(99, 102, 241, 0.45);
+    }
+
+    .btn-glass {
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.16);
+      color: #f1f5f9;
+      transition: all 0.2s ease;
+      font-weight: 500;
+    }
+
+    .btn-glass:hover {
+      background: rgba(255, 255, 255, 0.15);
+      border-color: rgba(255, 255, 255, 0.3);
+      color: #ffffff;
+    }
+
+    .card-clickable {
+      transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .card-clickable:hover {
+      transform: translateY(-5px);
+      border-color: rgba(129, 140, 248, 0.6);
+      box-shadow: 0 14px 40px rgba(0, 0, 0, 0.4), 0 0 20px rgba(99, 102, 241, 0.2);
+    }
+
+    .language-picker select {
+      appearance: none;
+      min-width: 118px;
+      padding: 8px 28px 8px 11px;
+      border: 1px solid rgba(148, 163, 184, 0.3);
+      border-radius: 10px;
+      color: #e2e8f0;
+      background: rgba(255, 255, 255, 0.08);
+      cursor: pointer;
+      font-size: 12px;
+      font-weight: 600;
+    }
+
+    .language-picker select:focus {
+      border-color: #818cf8;
+      outline: 2px solid rgba(129, 140, 248, 0.25);
+    }
+
+    .language-picker option {
+      color: #0f172a;
+      background: #fff;
+    }
+  </style>
+<link rel="stylesheet" href="multilingual/app-theme.css">
+</head>
+<body class="min-h-screen">
+  <!-- Dynamic Starfield Background -->
+  <div class="fixed inset-0 -z-10 pointer-events-none">
+    <div class="absolute inset-0 bg-main"></div>
+    <canvas id="stars" class="absolute inset-0"></canvas>
+  </div>
+
+  <!-- NAVIGATION BAR -->
+  <header class="sticky top-0 z-50 px-4 py-3 backdrop-blur-md bg-[#070914]/80 border-b border-white/10">
+    <nav class="mx-auto max-w-7xl flex items-center justify-between">
+      <a href="index.html" class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-indigo-500 to-cyan-400 flex items-center justify-center font-extrabold text-white text-lg shadow-lg shadow-indigo-500/30">
+          A
+        </div>
+        <div class="text-xl font-extrabold tracking-tight">
+          Algo<span class="text-gradient">Play</span>
+        </div>
+      </a>
+
+      <div class="hidden md:flex items-center gap-7 text-sm font-medium text-gray-300">
+        <a href="#features" class="hover:text-white transition" data-i18n="nav_features">Features</a>
+        <a href="#tracks" class="hover:text-white transition" data-i18n="nav_tracks">Subject Tracks</a>
+        <a href="#how" class="hover:text-white transition" data-i18n="nav_how">How It Works</a>
+        <a href="#educators" class="hover:text-white transition" data-i18n="nav_educators">Educator Hub</a>
+      </div>
+
+      <div class="flex items-center gap-3">
+        <label class="language-picker" aria-label="Choose language">
+          <select id="languageSelect" aria-label="Choose language">
+            <option value="en">English</option>
+            <option value="te">తెలుగు</option>
+            <option value="hi">हिन्दी</option>
+            <option value="ta">தமிழ்</option>
+            <option value="or">ଓଡ଼ିଆ</option>
+            <option value="ml">മലയാളം</option>
+          </select>
+        </label>
+        <a href="teacherlogin.html" class="hidden sm:inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-semibold btn-glass">
+          <span data-i18n="nav_teacher_hub">👩‍🏫 Teacher Hub</span>
+        </a>
+        <a href="Loginpage.html" class="px-4 py-2 rounded-xl text-sm font-medium btn-glass">
+          <span data-i18n="nav_sign_in">Sign In</span>
+        </a>
+        <a href="signuppage.html" class="px-4 py-2 rounded-xl text-sm font-semibold btn-gradient glow-primary">
+          <span data-i18n="nav_get_started">Get Started</span>
+        </a>
+      </div>
+    </nav>
+  </header>
+
+  <!-- HERO SECTION -->
+  <section class="relative z-10 px-4 pt-16 pb-20 md:pt-24 md:pb-28">
+    <div class="mx-auto max-w-5xl text-center space-y-7">
+      
+      <!-- Top Tag Badge -->
+      <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full glass-strong text-xs font-medium text-gray-200 border border-indigo-400/30 shadow-lg shadow-indigo-500/10">
+        <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+        <span>Interactive STEM & Coding Missions — Learn by Playing</span>
+      </div>
+
+      <!-- Main Headline -->
+      <h1 class="text-4xl sm:text-6xl md:text-7xl font-extrabold tracking-tight leading-[1.15]">
+        Play to Learn, <br />
+        <span class="text-gradient">One Interactive Mission at a Time</span>
+      </h1>
+
+      <!-- Subtitle -->
+      <p class="text-base sm:text-lg md:text-xl text-gray-300 max-w-2xl mx-auto leading-relaxed font-normal">
+        Transform school curricula into bite-sized missions, visual problem-solving, and instant feedback. Built for students who crave mastery and teachers who inspire.
+      </p>
+
+      <!-- CTA Buttons -->
+      <div class="flex flex-wrap gap-4 justify-center items-center pt-2">
+        <a href="Loginpage.html" class="px-7 py-3.5 rounded-xl text-base font-semibold btn-gradient glow-primary flex items-center gap-2">
+          <span>🚀 Start Quest (Student)</span>
+        </a>
+        <a href="teacherlogin.html" class="px-6 py-3.5 rounded-xl text-base font-semibold btn-glass flex items-center gap-2">
+          <span>👩‍🏫 Educator Portal</span>
+        </a>
+        <a href="fraction_mission.html" class="px-5 py-3.5 rounded-xl text-base font-medium text-gray-300 hover:text-white glass flex items-center gap-2">
+          <span>🎮 Quick Demo</span>
+        </a>
+      </div>
+
+      <!-- Live Counters -->
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mt-16 max-w-4xl mx-auto">
+        <div class="glass-strong p-6 text-center rounded-2xl floating">
+          <div class="text-2xl md:text-4xl font-extrabold text-sky-400">
+            <span class="counter" data-target="2500">0</span>+
+          </div>
+          <div class="text-xs md:text-sm text-gray-400 mt-1 font-medium">Active Students</div>
+        </div>
+
+        <div class="glass-strong p-6 text-center rounded-2xl floating" style="animation-delay: 0.2s">
+          <div class="text-2xl md:text-4xl font-extrabold text-indigo-400">
+            <span class="counter" data-target="15200">0</span>+
+          </div>
+          <div class="text-xs md:text-sm text-gray-400 mt-1 font-medium">Missions Solved</div>
+        </div>
+
+        <div class="glass-strong p-6 text-center rounded-2xl floating" style="animation-delay: 0.4s">
+          <div class="text-2xl md:text-4xl font-extrabold text-emerald-400">
+            <span class="counter" data-target="98">0</span>%
+          </div>
+          <div class="text-xs md:text-sm text-gray-400 mt-1 font-medium">Concept Mastery</div>
+        </div>
+
+        <div class="glass-strong p-6 text-center rounded-2xl floating" style="animation-delay: 0.6s">
+          <div class="text-2xl md:text-4xl font-extrabold text-pink-400">
+            <span class="counter" data-target="50">0</span>+
+          </div>
+          <div class="text-xs md:text-sm text-gray-400 mt-1 font-medium">Interactive Labs</div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- FEATURES SECTION -->
+  <section id="features" class="relative z-10 py-16 px-4 border-t border-white/5">
+    <div class="max-w-7xl mx-auto">
+      <div class="text-center mb-14">
+        <h2 class="text-3xl md:text-5xl font-extrabold text-gradient">Why AlgoPlay Works</h2>
+        <p class="text-base md:text-lg text-gray-300 mt-3 max-w-xl mx-auto">
+          Proven learning science blended with game mechanics to make concepts stick permanently.
+        </p>
+      </div>
+
+      <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <!-- Feature 1 -->
+        <div class="glass-strong p-7 rounded-2xl card-clickable">
+          <div class="w-12 h-12 rounded-xl bg-gradient-to-tr from-blue-500 to-indigo-600 flex items-center justify-center text-xl mb-5 shadow-md shadow-indigo-500/20">
+            🎯
+          </div>
+          <h3 class="font-bold text-lg text-white mb-2">Bite-Sized Missions</h3>
+          <p class="text-sm text-gray-300 leading-relaxed">
+            5 to 10 minute micro-challenges designed to focus on one single core mental model at a time.
+          </p>
+        </div>
+
+        <!-- Feature 2 -->
+        <div class="glass-strong p-7 rounded-2xl card-clickable">
+          <div class="w-12 h-12 rounded-xl bg-gradient-to-tr from-emerald-500 to-teal-500 flex items-center justify-center text-xl mb-5 shadow-md shadow-emerald-500/20">
+            🏆
+          </div>
+          <h3 class="font-bold text-lg text-white mb-2">XP, Badges & Streaks</h3>
+          <p class="text-sm text-gray-300 leading-relaxed">
+            Earn experience points, unlock custom avatars, and maintain learning streaks for continuous habit-building.
+          </p>
+        </div>
+
+        <!-- Feature 3 -->
+        <div class="glass-strong p-7 rounded-2xl card-clickable">
+          <div class="w-12 h-12 rounded-xl bg-gradient-to-tr from-fuchsia-500 to-pink-500 flex items-center justify-center text-xl mb-5 shadow-md shadow-pink-500/20">
+            ⚡
+          </div>
+          <h3 class="font-bold text-lg text-white mb-2">Instant Visual Feedback</h3>
+          <p class="text-sm text-gray-300 leading-relaxed">
+            Step-by-step visual hints and automated execution help learners grasp the "why" behind each solution.
+          </p>
+        </div>
+
+        <!-- Feature 4 -->
+        <div class="glass-strong p-7 rounded-2xl card-clickable">
+          <div class="w-12 h-12 rounded-xl bg-gradient-to-tr from-cyan-400 to-blue-600 flex items-center justify-center text-xl mb-5 shadow-md shadow-cyan-500/20">
+            📊
+          </div>
+          <h3 class="font-bold text-lg text-white mb-2">Diagnostic Mastery</h3>
+          <p class="text-sm text-gray-300 leading-relaxed">
+            Personalized accuracy metrics and misconception detection pinpoint exactly where students need focus.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- TRENDING SUBJECT TRACKS -->
+  <section id="tracks" class="relative z-10 py-16 px-4 bg-black/20 border-t border-white/5">
+    <div class="max-w-7xl mx-auto">
+      <div class="text-center mb-14">
+        <h2 class="text-3xl md:text-5xl font-extrabold text-gradient">Explore Subject Tracks</h2>
+        <p class="text-base md:text-lg text-gray-300 mt-3">Interactive syllabus modules ready to play right now</p>
+      </div>
+
+      <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <!-- Mathematics -->
+        <div onclick="location.href='fraction_mission.html'" class="glass-strong p-6 rounded-2xl card-clickable cursor-pointer">
+          <div class="flex items-center justify-between mb-4">
+            <div class="flex items-center gap-3">
+              <div class="w-11 h-11 rounded-xl bg-gradient-to-r from-blue-500 to-indigo-600 grid place-items-center font-bold text-white shadow-md">
+                📐
+              </div>
+              <div>
+                <h3 class="font-bold text-white text-base">Mathematics</h3>
+                <p class="text-xs text-sky-300">Smart Bazaar & Visual Fractions</p>
+              </div>
+            </div>
+            <span class="text-xs px-2.5 py-1 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 font-medium">Interactive</span>
+          </div>
+          <p class="text-xs text-gray-300 mb-4 leading-relaxed">Trade spices and calculate fractional portions in the marketplace simulator.</p>
+          <div class="flex items-center justify-between text-xs text-gray-400 pt-3 border-t border-white/10">
+            <span>⏱️ 5–8 min per mission</span>
+            <span class="text-sky-300 font-semibold">Play Mission →</span>
+          </div>
+        </div>
+
+        <!-- Technology -->
+        <div onclick="location.href='Loginpage.html'" class="glass-strong p-6 rounded-2xl card-clickable cursor-pointer">
+          <div class="flex items-center justify-between mb-4">
+            <div class="flex items-center gap-3">
+              <div class="w-11 h-11 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-500 grid place-items-center font-bold text-white shadow-md">
+                💻
+              </div>
+              <div>
+                <h3 class="font-bold text-white text-base">Technology</h3>
+                <p class="text-xs text-emerald-300">Logic, Flow & Code Runner</p>
+              </div>
+            </div>
+            <span class="text-xs px-2.5 py-1 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 font-medium">Active</span>
+          </div>
+          <p class="text-xs text-gray-300 mb-4 leading-relaxed">Grasp conditional logic, loops, and data structures with visual gamified stepping.</p>
+          <div class="flex items-center justify-between text-xs text-gray-400 pt-3 border-t border-white/10">
+            <span>⏱️ 6–10 min per mission</span>
+            <span class="text-emerald-300 font-semibold">Play Mission →</span>
+          </div>
+        </div>
+
+        <!-- Science -->
+        <div onclick="location.href='Loginpage.html'" class="glass-strong p-6 rounded-2xl card-clickable cursor-pointer">
+          <div class="flex items-center justify-between mb-4">
+            <div class="flex items-center gap-3">
+              <div class="w-11 h-11 rounded-xl bg-gradient-to-r from-rose-500 to-red-600 grid place-items-center font-bold text-white shadow-md">
+                ⚡
+              </div>
+              <div>
+                <h3 class="font-bold text-white text-base">Physical Science</h3>
+                <p class="text-xs text-rose-300">Forces, Optics & Energy</p>
+              </div>
+            </div>
+            <span class="text-xs px-2.5 py-1 rounded-full bg-rose-500/20 text-rose-300 border border-rose-500/30 font-medium">Popular</span>
+          </div>
+          <p class="text-xs text-gray-300 mb-4 leading-relaxed">Simulate physics experiments, light reflection, and dynamic kinetic systems.</p>
+          <div class="flex items-center justify-between text-xs text-gray-400 pt-3 border-t border-white/10">
+            <span>⏱️ 7–12 min per mission</span>
+            <span class="text-rose-300 font-semibold">Play Mission →</span>
+          </div>
+        </div>
+
+        <!-- Biology -->
+        <div onclick="location.href='Loginpage.html'" class="glass-strong p-6 rounded-2xl card-clickable cursor-pointer">
+          <div class="flex items-center justify-between mb-4">
+            <div class="flex items-center gap-3">
+              <div class="w-11 h-11 rounded-xl bg-gradient-to-r from-pink-500 to-fuchsia-600 grid place-items-center font-bold text-white shadow-md">
+                🧬
+              </div>
+              <div>
+                <h3 class="font-bold text-white text-base">Living Science</h3>
+                <p class="text-xs text-pink-300">Cells, Ecosystems & Genetics</p>
+              </div>
+            </div>
+            <span class="text-xs px-2.5 py-1 rounded-full bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 font-medium">Core</span>
+          </div>
+          <p class="text-xs text-gray-300 mb-4 leading-relaxed">Explore cell biology and natural ecosystems through interactive guided puzzles.</p>
+          <div class="flex items-center justify-between text-xs text-gray-400 pt-3 border-t border-white/10">
+            <span>⏱️ 5–8 min per mission</span>
+            <span class="text-pink-300 font-semibold">Play Mission →</span>
+          </div>
+        </div>
+
+        <!-- English -->
+        <div onclick="location.href='Loginpage.html'" class="glass-strong p-6 rounded-2xl card-clickable cursor-pointer">
+          <div class="flex items-center justify-between mb-4">
+            <div class="flex items-center gap-3">
+              <div class="w-11 h-11 rounded-xl bg-gradient-to-r from-amber-400 to-orange-500 grid place-items-center font-bold text-white shadow-md">
+                📖
+              </div>
+              <div>
+                <h3 class="font-bold text-white text-base">Language Mastery</h3>
+                <p class="text-xs text-amber-300">Grammar, Vocabulary & Syntax</p>
+              </div>
+            </div>
+            <span class="text-xs px-2.5 py-1 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/30 font-medium">New</span>
+          </div>
+          <p class="text-xs text-gray-300 mb-4 leading-relaxed">Strengthen reading comprehension and sentence structure with puzzle challenges.</p>
+          <div class="flex items-center justify-between text-xs text-gray-400 pt-3 border-t border-white/10">
+            <span>⏱️ 5–7 min per mission</span>
+            <span class="text-amber-300 font-semibold">Play Mission →</span>
+          </div>
+        </div>
+
+        <!-- STEM Video Arena -->
+        <div onclick="location.href='videogame1.html'" class="glass-strong p-6 rounded-2xl card-clickable cursor-pointer">
+          <div class="flex items-center justify-between mb-4">
+            <div class="flex items-center gap-3">
+              <div class="w-11 h-11 rounded-xl bg-gradient-to-r from-purple-500 to-cyan-500 grid place-items-center font-bold text-white shadow-md">
+                🎥
+              </div>
+              <div>
+                <h3 class="font-bold text-white text-base">Video Quest Arena</h3>
+                <p class="text-xs text-cyan-300">Interactive STEM Video Challenges</p>
+              </div>
+            </div>
+            <span class="text-xs px-2.5 py-1 rounded-full bg-cyan-500/20 text-cyan-300 border border-cyan-500/30 font-medium">Featured</span>
+          </div>
+          <p class="text-xs text-gray-300 mb-4 leading-relaxed">Watch contextual science tutorials and solve inline checkpoint challenges.</p>
+          <div class="flex items-center justify-between text-xs text-gray-400 pt-3 border-t border-white/10">
+            <span>⏱️ 4–6 min per clip</span>
+            <span class="text-cyan-300 font-semibold">Watch & Play →</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- EDUCATOR PORTAL SPOTLIGHT -->
+  <section id="educators" class="relative z-10 py-20 px-4 border-t border-white/5">
+    <div class="max-w-6xl mx-auto">
+      <div class="glass-strong rounded-3xl p-8 md:p-12 border border-indigo-500/30 shadow-2xl shadow-indigo-900/30">
+        <div class="grid md:grid-cols-2 gap-10 items-center">
+          <div>
+            <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 text-xs font-semibold mb-4">
+              👩‍🏫 Built for Teachers & Schools
+            </div>
+            <h2 class="text-3xl md:text-4xl font-extrabold text-white leading-tight mb-4">
+              Smart Classroom Hub & Exam Builder
+            </h2>
+            <p class="text-gray-300 text-sm md:text-base leading-relaxed mb-6">
+              Create curriculum-aligned multiple-choice exams in seconds with our smart batch question generator. Distribute homework, track student mastery, and spot conceptual roadblocks instantly.
+            </p>
+
+            <div class="space-y-3 mb-8">
+              <div class="flex items-center gap-3 text-sm text-gray-200">
+                <span class="text-emerald-400 font-bold">✓</span>
+                <span><strong>Instant Batch Exam Builder:</strong> Choose 3, 5, 10 or custom question counts.</span>
+              </div>
+              <div class="flex items-center gap-3 text-sm text-gray-200">
+                <span class="text-emerald-400 font-bold">✓</span>
+                <span><strong>Assignment Studio:</strong> Easy file upload dropzone with automated student distribution.</span>
+              </div>
+              <div class="flex items-center gap-3 text-sm text-gray-200">
+                <span class="text-emerald-400 font-bold">✓</span>
+                <span><strong>Diagnostic Insights:</strong> Real-time student progression and priority remediation lists.</span>
+              </div>
+            </div>
+
+            <div class="flex flex-wrap gap-4">
+              <a href="teacherlogin.html" class="px-6 py-3 rounded-xl text-sm font-semibold btn-gradient glow-primary">
+                Teacher Login
+              </a>
+              <a href="teacherdash.html" class="px-5 py-3 rounded-xl text-sm font-medium btn-glass">
+                Teacher Dashboard
+              </a>
+              <a href="giveexam.html" class="px-5 py-3 rounded-xl text-sm font-medium text-sky-300 hover:text-white glass">
+                Exam Builder →
+              </a>
+            </div>
+          </div>
+
+          <!-- Feature Graphic / Card Showcase -->
+          <div class="glass p-6 rounded-2xl border border-white/15 space-y-4">
+            <div class="flex items-center justify-between pb-3 border-b border-white/10">
+              <div class="flex items-center gap-2">
+                <span class="w-3 h-3 rounded-full bg-emerald-400"></span>
+                <span class="font-semibold text-sm">Class 8 — Real-Time Diagnostic</span>
+              </div>
+              <span class="text-xs text-gray-400">Live Active</span>
+            </div>
+
+            <div class="bg-black/30 p-4 rounded-xl border border-white/5 space-y-2">
+              <div class="flex justify-between text-xs">
+                <span class="text-gray-300">Fraction & Ratios Mastery</span>
+                <span class="text-emerald-400 font-bold">92% Average</span>
+              </div>
+              <div class="w-full bg-white/10 h-2 rounded-full overflow-hidden">
+                <div class="bg-emerald-400 h-full rounded-full" style="width: 92%"></div>
+              </div>
+            </div>
+
+            <div class="bg-black/30 p-4 rounded-xl border border-white/5 space-y-2">
+              <div class="flex justify-between text-xs">
+                <span class="text-gray-300">Algebraic Equations</span>
+                <span class="text-amber-400 font-bold">78% Average</span>
+              </div>
+              <div class="w-full bg-white/10 h-2 rounded-full overflow-hidden">
+                <div class="bg-amber-400 h-full rounded-full" style="width: 78%"></div>
+              </div>
+            </div>
+
+            <div class="p-3 bg-indigo-500/10 rounded-xl border border-indigo-500/20 text-xs text-indigo-300 flex items-center justify-between">
+              <span>💡 Exam Ready: Mid-Term Test</span>
+              <a href="giveexam.html" class="underline font-semibold hover:text-white">Edit Questions</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- HOW IT WORKS -->
+  <section id="how" class="relative z-10 py-16 px-4">
+    <div class="max-w-7xl mx-auto">
+      <div class="text-center mb-14">
+        <h2 class="text-3xl md:text-5xl font-extrabold text-gradient">How It Works</h2>
+        <p class="text-base md:text-lg text-gray-300 mt-3">Four simple steps from study time into game time</p>
+      </div>
+
+      <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div class="glass-strong p-7 rounded-2xl card-clickable">
+          <div class="text-sky-400 font-bold text-sm mb-1">STEP 01</div>
+          <h3 class="text-lg font-bold text-white mb-2">Pick a Subject Track</h3>
+          <p class="text-sm text-gray-300 leading-relaxed">Choose Math, Science, Technology, or your assigned class homework.</p>
+        </div>
+
+        <div class="glass-strong p-7 rounded-2xl card-clickable">
+          <div class="text-indigo-400 font-bold text-sm mb-1">STEP 02</div>
+          <h3 class="text-lg font-bold text-white mb-2">Play Visual Missions</h3>
+          <p class="text-sm text-gray-300 leading-relaxed">Solve interactive puzzle problems with live visual simulation and guided hints.</p>
+        </div>
+
+        <div class="glass-strong p-7 rounded-2xl card-clickable">
+          <div class="text-pink-400 font-bold text-sm mb-1">STEP 03</div>
+          <h3 class="text-lg font-bold text-white mb-2">Earn XP & Badges</h3>
+          <p class="text-sm text-gray-300 leading-relaxed">Level up your profile, unlock badges, and maintain continuous learning streaks.</p>
+        </div>
+
+        <div class="glass-strong p-7 rounded-2xl card-clickable">
+          <div class="text-emerald-400 font-bold text-sm mb-1">STEP 04</div>
+          <h3 class="text-lg font-bold text-white mb-2">Master Core Skills</h3>
+          <p class="text-sm text-gray-300 leading-relaxed">Watch your comprehension climb with verified analytics and teacher feedback.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- READY CTA BANNER -->
+  <section class="relative z-10 py-16 px-4">
+    <div class="max-w-4xl mx-auto text-center">
+      <div class="glass-strong rounded-3xl p-10 md:p-14 border border-indigo-500/40 glow-primary">
+        <h2 class="text-3xl md:text-5xl font-extrabold text-white mb-4">
+          Ready to Level Up Your Learning?
+        </h2>
+        <p class="text-gray-300 text-sm md:text-lg mb-8 max-w-xl mx-auto leading-relaxed">
+          Create your account today and experience gamified learning that makes complex concepts effortless.
+        </p>
+        <div class="flex flex-wrap gap-4 justify-center">
+          <a href="signuppage.html" class="px-8 py-3.5 rounded-xl text-base font-semibold btn-gradient glow-primary">
+            Create Student Account
+          </a>
+          <a href="teacherlogin.html" class="px-7 py-3.5 rounded-xl text-base font-medium btn-glass">
+            Educator Sign In
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer class="relative z-10 py-12 px-4 border-t border-white/10 text-gray-400 text-sm">
+    <div class="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
+      <div>
+        <div class="flex items-center gap-2 mb-3">
+          <div class="w-8 h-8 rounded-lg bg-gradient-to-tr from-indigo-500 to-cyan-400 flex items-center justify-center font-bold text-white text-sm">
+            A
+          </div>
+          <span class="text-lg font-bold text-white">AlgoPlay</span>
+        </div>
+        <p class="text-xs text-gray-400 leading-relaxed">
+          Gamified STEM education connecting students and teachers through interactive problem solving and measurable mastery.
+        </p>
+      </div>
+
+      <div>
+        <h4 class="text-white font-semibold text-xs tracking-wider uppercase mb-3">Platform</h4>
+        <ul class="space-y-2 text-xs">
+          <li><a href="fraction_mission.html" class="hover:text-white transition">Smart Bazaar Fractions</a></li>
+          <li><a href="videogame1.html" class="hover:text-white transition">STEM Video Arena</a></li>
+          <li><a href="maindashboard.html" class="hover:text-white transition">Student Dashboard</a></li>
+        </ul>
+      </div>
+
+      <div>
+        <h4 class="text-white font-semibold text-xs tracking-wider uppercase mb-3">Educators</h4>
+        <ul class="space-y-2 text-xs">
+          <li><a href="teacherdash.html" class="hover:text-white transition">Teacher Dashboard</a></li>
+          <li><a href="giveexam.html" class="hover:text-white transition">Exam Builder Studio</a></li>
+          <li><a href="resources.html" class="hover:text-white transition">Assignment Dropzone</a></li>
+        </ul>
+      </div>
+
+      <div>
+        <h4 class="text-white font-semibold text-xs tracking-wider uppercase mb-3">Quick Access</h4>
+        <ul class="space-y-2 text-xs">
+          <li><a href="Loginpage.html" class="hover:text-white transition">Student Login</a></li>
+          <li><a href="signuppage.html" class="hover:text-white transition">Create Account</a></li>
+          <li><a href="teacherlogin.html" class="hover:text-white transition">Teacher Portal</a></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="max-w-7xl mx-auto pt-6 border-t border-white/10 flex flex-col sm:flex-row justify-between items-center text-xs gap-3">
+      <div>© 2026 AlgoPlay Education. All rights reserved.</div>
+      <div class="text-gray-500">Node.js • Express • MongoDB Backend Enabled</div>
+    </div>
+  </footer>
+
+  <script>
+    // Smooth starfield canvas
+    const canvas = document.getElementById('stars');
+    const ctx = canvas.getContext('2d');
+    let w, h, stars = [];
+
+    function resize() {
+      w = canvas.width = window.innerWidth;
+      h = canvas.height = window.innerHeight;
+      stars = Array.from({ length: Math.min(160, Math.floor(w * h / 14000)) }, () => ({
+        x: Math.random() * w,
+        y: Math.random() * h,
+        r: Math.random() * 1.5 + 0.3,
+        a: Math.random() * 0.6 + 0.2,
+        speed: Math.random() * 0.015 + 0.005
+      }));
+    }
+
+    function draw() {
+      ctx.clearRect(0, 0, w, h);
+      for (const s of stars) {
+        s.a += s.speed;
+        if (s.a > 0.8 || s.a < 0.2) s.speed = -s.speed;
+        ctx.beginPath();
+        ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(255, 255, 255, ${Math.max(0.1, s.a)})`;
+        ctx.fill();
+      }
+      requestAnimationFrame(draw);
+    }
+
+    window.addEventListener('resize', resize);
+    resize();
+    draw();
+
+    // Counter animation for metrics
+    const counters = document.querySelectorAll('.counter');
+    const easeOut = t => 1 - Math.pow(1 - t, 4);
+
+    function animateCounter(el) {
+      const target = +el.dataset.target;
+      const dur = 1500;
+      const start = performance.now();
+
+      function step(now) {
+        const p = Math.min(1, (now - start) / dur);
+        const val = Math.floor(target * easeOut(p));
+        el.textContent = val.toLocaleString();
+        if (p < 1) requestAnimationFrame(step);
+      }
+      requestAnimationFrame(step);
+    }
+
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach(e => {
+        if (e.isIntersecting) {
+          animateCounter(e.target);
+          io.unobserve(e.target);
+        }
+      });
+    }, { threshold: 0.5 });
+
+    counters.forEach(c => io.observe(c));
+  </script>
+  <script src="multilingual/landing-i18n.js"></script>
+<script src="multilingual/site-i18n.js"></script>
+<script src="audio-manager.js"></script>
+</body>
+</html>

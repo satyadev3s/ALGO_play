@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AlgoPlay – Levels</title>
+
+<style>
+    :root {
+        --primary: #4f46e5;
+        --primary-light: #6c62ff;
+        --bg: #eef0ff;
+        --text: #1a1a2e;
+    }
+
+    body {
+        font-family: "Poppins", sans-serif;
+        background: var(--bg);
+        padding: 30px;
+        margin: 0;
+    }
+
+    .container {
+        max-width: 520px;
+        margin: auto;
+    }
+
+    h2 {
+        text-align: center;
+        font-size: 30px;
+        font-weight: 700;
+        margin-bottom: 30px;
+        color: var(--text);
+    }
+
+    .level-card {
+        background: white;
+        padding: 20px 25px;
+        border-radius: 18px;
+        margin-bottom: 22px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.12);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        border-left: 6px solid var(--primary);
+        transition: 0.3s ease-in-out;
+    }
+
+    .level-title {
+        font-size: 18px;
+        font-weight: 600;
+        color: var(--text);
+    }
+
+    /* ICON BOX (only visible before unlock) */
+    .icon-box {
+        background: var(--primary-light);
+        color: white;
+        border-radius: 12px;
+        padding: 12px;
+        margin-right: 12px;
+        font-size: 20px;
+    }
+
+    .left {
+        display: flex;
+        align-items: center;
+    }
+
+    button {
+        padding: 10px 22px;
+        background: var(--primary);
+        color: white;
+        border: none;
+        border-radius: 10px;
+        font-size: 15px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: 0.2s;
+    }
+
+    button:hover {
+        transform: scale(1.07);
+        background: var(--primary-light);
+    }
+
+    button:disabled {
+        background: #b5b5b5;
+        transform: none;
+        cursor: not-allowed;
+    }
+
+    /* Unlock Animation */
+    @keyframes smoothUnlock {
+        0% { transform: scale(0.9); background: #d4ffe3; }
+        50% { transform: scale(1.03); background: #b0ffcc; }
+        100% { transform: scale(1); background: white; }
+    }
+
+    .unlock-anim {
+        animation: smoothUnlock 0.7s ease-out;
+    }
+</style>
+<link rel="stylesheet" href="multilingual/app-theme.css">
+</head>
+<body>
+
+<div class="container">
+    <div style="margin-bottom: 20px;">
+        <a href="maindashboard.html" style="text-decoration: none; color: var(--primary); font-weight: 700; font-size: 14px;">← Back to Dashboard</a>
+    </div>
+
+    <!-- SMART BAZAAR FRACTION QUEST -->
+    <div style="background: linear-gradient(135deg, #1e1b4b, #312e81); color: white; padding: 20px; border-radius: 18px; margin-bottom: 25px; border: 1px solid rgba(141, 162, 255, 0.25);">
+        <h3 style="margin: 0 0 6px; font-size: 18px;">🏪 Smart Bazaar: Unlike Fractions Quest</h3>
+        <p style="font-size: 13px; opacity: 0.9; margin-bottom: 14px;">
+            Practice adding fractions with unlike denominators using interactive visual fraction strips &amp; marketplace challenges.
+        </p>
+        <a href="fraction_mission.html" style="display: inline-block; background: var(--primary); color: white; padding: 10px 20px; border-radius: 10px; font-weight: 700; font-size: 13px; text-decoration: none;">
+            Start Quest →
+        </a>
+    </div>
+
+    <h2>Standard Mathematics Levels</h2>
+    <div id="levels"></div>
+</div>
+
+<script>
+    const totalLevels = 8;
+    
+    // 1. Load Permanent Unlock Status. Default to 1 (Level 1 unlocked).
+    let unlockedUntil = parseInt(localStorage.getItem('unlockedLevel')) || 1;
+    
+    // --- 2. Dynamic Unlock Check for ALL Levels ---
+
+    // Loop through all levels (up to totalLevels - 1) to check for completion
+    let levelUnlocked = false;
+    for (let i = 1; i < totalLevels; i++) {
+        const completedFlag = sessionStorage.getItem(`level${i}_completed`) || (sessionStorage.getItem("completedLevel") == i ? 'true' : null);
+        
+        // If the current level (i) was just completed AND the permanent unlock status is only up to i
+        if (completedFlag === 'true' && unlockedUntil === i) {
+            unlockedUntil = i + 1; // Unlock the next level (i + 1)
+            localStorage.setItem('unlockedLevel', unlockedUntil);
+            
+            // Show alert for the newly unlocked level
+            alert(`Congratulations! Level ${unlockedUntil} is now unlocked! 🎉`);
+            levelUnlocked = true;
+        }
+        
+        // Always clear the session flag after checking to prevent repeated alerts on refresh
+        sessionStorage.removeItem(`level${i}_completed`);
+        sessionStorage.removeItem("completedLevel");
+    }
+
+    const icons = ["📘", "📗", "📙", "🎯", "🚀", "✨", "⚡", "💡"];
+
+    function loadLevels() {
+        const levelContainer = document.getElementById("levels");
+        levelContainer.innerHTML = "";
+
+        for (let i = 1; i <= totalLevels; i++) {
+            // A level is locked if its number is greater than the highest level the user can START.
+            const locked = i > unlockedUntil;
+
+            levelContainer.innerHTML += `
+                <div class="level-card" id="level-${i}">
+                    <div class="left">
+                        ${
+                            // Only show the icon if the level is LOCKED
+                            locked
+                                ? `<div class="icon-box">${icons[i-1]}</div>`
+                                : ``
+                        }
+                        <span class="level-title">Level ${i}</span>
+                    </div>
+
+                    <button onclick="handleClick(${i})" ${locked ? 'disabled' : ''}>
+                        ${locked ? "Locked" : "Start"}
+                    </button>
+                </div>
+            `;
+        }
+    }
+
+    function handleClick(level) {
+        // This function handles the "Start" button click for unlocked levels.
+        if (level > unlockedUntil) {
+            alert("Please complete previous levels first to unlock this one!");
+            return;
+        }
+        
+        // Redirect to the quiz/game page
+        if (level <= totalLevels) {
+            // Construct the filename: mathq1.html, mathq2.html, etc.
+            const filename = `mathq${level}.html`;
+            
+            window.location.href = filename;
+        }
+    }
+
+    // Call loadLevels on page load to display the current status
+    loadLevels();
+</script>
+
+<script src="multilingual/site-i18n.js"></script>
+<script src="audio-manager.js"></script>
+</body>
+</html>

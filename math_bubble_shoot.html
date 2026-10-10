@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>SUTRA Quest - Math Bubble Shooter</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="storageService.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;800&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Outfit', sans-serif;
+            overscroll-behavior: none;
+            touch-action: none;
+        }
+        canvas {
+            touch-action: none;
+        }
+        .glow-effect {
+            box-shadow: 0 0 25px rgba(99, 102, 241, 0.4);
+        }
+    </style>
+<link rel="stylesheet" href="multilingual/app-theme.css">
+</head>
+<body class="bg-slate-950 text-white min-h-screen flex flex-col items-center justify-between overflow-hidden relative">
+
+    <!-- Top Navigation & Header -->
+    <header class="w-full max-w-md px-4 pt-3 pb-2 z-20 flex flex-col gap-2">
+        <div class="flex justify-between items-center">
+            <a href="gameboard.html" class="flex items-center gap-1 text-xs font-bold text-indigo-400 hover:text-indigo-300 bg-slate-900/80 border border-slate-800 px-3 py-1.5 rounded-full transition-all">
+                <span>←</span> Arcade Hub
+            </a>
+            <div class="flex items-center gap-3 text-xs font-bold bg-slate-900/80 border border-slate-800 px-3 py-1.5 rounded-full">
+                <span class="text-amber-400" id="xpDisplay">⭐ 0 XP</span>
+                <span class="text-emerald-400" id="scoreDisplay">🎯 Score: 0</span>
+                <span class="text-rose-400" id="livesDisplay">❤️ 3</span>
+            </div>
+        </div>
+
+        <!-- Question Card -->
+        <div class="bg-gradient-to-r from-indigo-900/90 via-purple-900/90 to-slate-900/90 backdrop-blur-md border border-indigo-500/30 rounded-2xl p-4 shadow-xl text-center glow-effect">
+            <div class="text-[10px] uppercase tracking-widest font-extrabold text-indigo-300 mb-1">SUTRA MATH CANNON</div>
+            <div id="questionDisplay" class="text-2xl sm:text-3xl font-black text-white drop-shadow">Loading question...</div>
+        </div>
+    </header>
+
+    <!-- Main Game Canvas Container -->
+    <main class="relative w-full max-w-md flex-grow flex items-center justify-center overflow-hidden">
+        <canvas id="gameCanvas" class="w-full h-full block"></canvas>
+    </main>
+
+    <!-- Bottom Controls & Aim Bar -->
+    <footer class="w-full max-w-md p-3 pb-5 z-20 text-center select-none">
+        <div class="flex justify-between items-center px-4 mb-2 text-xs text-slate-400 font-semibold">
+            <span>👈 Move Left</span>
+            <span class="text-indigo-400">Drag turret / Arrow Keys</span>
+            <span>Move Right 👉</span>
+        </div>
+        <div class="flex justify-center gap-3">
+            <button id="btnLeft" class="bg-slate-900/80 border border-slate-800 hover:bg-slate-800 active:scale-95 text-white font-bold py-2.5 px-6 rounded-xl transition">◄ Left</button>
+            <button id="btnFire" class="bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-400 hover:to-purple-500 active:scale-95 text-white font-black py-2.5 px-8 rounded-xl shadow-lg shadow-indigo-600/30 transition">🚀 FIRE</button>
+            <button id="btnRight" class="bg-slate-900/80 border border-slate-800 hover:bg-slate-800 active:scale-95 text-white font-bold py-2.5 px-6 rounded-xl transition">Right ►</button>
+        </div>
+    </footer>
+
+    <!-- Game Over Modal -->
+    <div id="gameOverModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/85 backdrop-blur-md opacity-0 pointer-events-none transition-all duration-300">
+        <div class="bg-slate-900 border border-indigo-500/40 p-6 rounded-3xl shadow-2xl max-w-sm w-full mx-4 text-center transform scale-90 transition-all">
+            <div class="text-5xl mb-2">💥</div>
+            <h2 class="text-2xl font-black text-white mb-1">Cannon Overheated!</h2>
+            <p class="text-slate-400 text-sm mb-4">Great effort solving math bubbles!</p>
+            <div class="bg-slate-800/80 rounded-2xl p-4 mb-5 border border-slate-700/60 flex justify-around">
+                <div>
+                    <div class="text-xs text-slate-400 font-semibold">FINAL SCORE</div>
+                    <div class="text-2xl font-black text-indigo-400" id="finalScore">0</div>
+                </div>
+                <div>
+                    <div class="text-xs text-slate-400 font-semibold">EARNED XP</div>
+                    <div class="text-2xl font-black text-amber-400" id="finalXP">+0 XP</div>
+                </div>
+            </div>
+            <button id="restartBtn" class="w-full py-3 bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-400 hover:to-purple-500 text-white font-black rounded-xl shadow-lg shadow-indigo-500/30 transition">
+                Play Again 🔄
+            </button>
+        </div>
+    </div>
+
+    <script src="multilingual/site-i18n.js"></script>
+    <script>
+        // Game State & Canvas setup
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        const questionDisplay = document.getElementById('questionDisplay');
+        const scoreDisplay = document.getElementById('scoreDisplay');
+        const livesDisplay = document.getElementById('livesDisplay');
+        const xpDisplay = document.getElementById('xpDisplay');
+        const gameOverModal = document.getElementById('gameOverModal');
+        const finalScore = document.getElementById('finalScore');
+        const finalXP = document.getElementById('finalXP');
+        const restartBtn = document.getElementById('restartBtn');
+
+        let width, height;
+        function resize() {
+            const rect = canvas.parentElement.getBoundingClientRect();
+            width = canvas.width = rect.width;
+            height = canvas.height = rect.height;
+        }
+        window.addEventListener('resize', resize);
+        resize();
+
+        let currentQuestion = {};
+        let score = 0;
+        let lives = 3;
+        let totalXPEarned = 0;
+        let bubbles = [];
+        let projectiles = [];
+        let particles = [];
+        let turretAngle = -Math.PI / 2;
+        let isAiming = false;
+
+        // Load profile from StorageService
+        function updateProfileUI() {
+            if (window.StorageService) {
+                const profile = StorageService.getProfile();
+                xpDisplay.textContent = `⭐ ${profile.xp || 0} XP`;
+            }
+        }
+
+        function generateQuestion() {
+            const types = ['add', 'sub', 'mul'];
+            const type = types[Math.floor(Math.random() * types.length)];
+            let a, b, answer, qStr;
+
+            if (type === 'add') {
+                a = Math.floor(Math.random() * 20) + 1;
+                b = Math.floor(Math.random() * 20) + 1;
+                answer = a + b;
+                qStr = `${a} + ${b} = ?`;
+            } else if (type === 'sub') {
+                a = Math.floor(Math.random() * 30) + 10;
+                b = Math.floor(Math.random() * a) + 1;
+                answer = a - b;
+                qStr = `${a} - ${b} = ?`;
+            } else {
+                a = Math.floor(Math.random() * 9) + 2;
+                b = Math.floor(Math.random() * 9) + 2;
+                answer = a * b;
+                qStr = `${a} × ${b} = ?`;
+            }
+
+            currentQuestion = { q: qStr, a: answer };
+            questionDisplay.textContent = currentQuestion.q;
+            spawnBubbles();
+        }
+
+        function spawnBubbles() {
+            bubbles = [];
+            const correctAns = currentQuestion.a;
+            const distractors = new Set();
+            while (distractors.size < 3) {
+                let offset = (Math.floor(Math.random() * 10) + 1) * (Math.random() > 0.5 ? 1 : -1);
+                let val = correctAns + offset;
+                if (val >= 0 && val !== correctAns) distractors.add(val);
+            }
+
+            const options = [correctAns, ...Array.from(distractors)].sort(() => Math.random() - 0.5);
+            const cols = 4;
+            const radius = Math.min(width / 10, 32);
+
+            options.forEach((val, idx) => {
+                const colWidth = width / cols;
+                bubbles.push({
+                    x: colWidth * idx + colWidth / 2,
+                    y: -40 - Math.random() * 60,
+                    radius: radius,
+                    value: val,
+                    speed: 0.6 + Math.random() * 0.8,
+                    oscillationOffset: Math.random() * Math.PI * 2,
+                    color: val === correctAns ? '#6366f1' : ['#ec4899', '#06b6d4', '#10b981', '#f59e0b'][idx % 4]
+                });
+            });
+        }
+
+        function handlePointerMove(x, y) {
+            const rect = canvas.getBoundingClientRect();
+            const relX = x - rect.left;
+            const relY = y - rect.top;
+            const turretX = width / 2;
+            const turretY = height - 40;
+            const dx = relX - turretX;
+            const dy = relY - turretY;
+
+            let angle = Math.atan2(dy, dx);
+            if (angle > -0.2) angle = -0.2;
+            if (angle < -Math.PI + 0.2) angle = -Math.PI + 0.2;
+            turretAngle = angle;
+        }
+
+        canvas.addEventListener('mousemove', (e) => handlePointerMove(e.clientX, e.clientY));
+        canvas.addEventListener('touchmove', (e) => {
+            if (e.touches.length > 0) handlePointerMove(e.touches[0].clientX, e.touches[0].clientY);
+        });
+
+        document.getElementById('btnLeft').addEventListener('click', () => {
+            turretAngle = Math.max(-Math.PI + 0.2, turretAngle - 0.2);
+        });
+        document.getElementById('btnRight').addEventListener('click', () => {
+            turretAngle = Math.min(-0.2, turretAngle + 0.2);
+        });
+        document.getElementById('btnFire').addEventListener('click', fireProjectile);
+
+        window.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowLeft') turretAngle = Math.max(-Math.PI + 0.2, turretAngle - 0.15);
+            if (e.key === 'ArrowRight') turretAngle = Math.min(-0.2, turretAngle + 0.15);
+            if (e.key === ' ' || e.key === 'ArrowUp') fireProjectile();
+        });
+
+        function fireProjectile() {
+            if (projectiles.length >= 3) return; // Limit active bullets
+            const turretX = width / 2;
+            const turretY = height - 40;
+            const speed = 14;
+            projectiles.push({
+                x: turretX + Math.cos(turretAngle) * 45,
+                y: turretY + Math.sin(turretAngle) * 45,
+                vx: Math.cos(turretAngle) * speed,
+                vy: Math.sin(turretAngle) * speed,
+                radius: 7
+            });
+        }
+
+        function createExplosion(x, y, color) {
+            for (let i = 0; i < 25; i++) {
+                const angle = Math.random() * Math.PI * 2;
+                const speed = 2 + Math.random() * 8;
+                particles.push({
+                    x: x,
+                    y: y,
+                    vx: Math.cos(angle) * speed,
+                    vy: Math.sin(angle) * speed,
+                    radius: 2 + Math.random() * 4,
+                    color: color,
+                    life: 1.0
+                });
+            }
+        }
+
+        function update() {
+            // Update Bubbles
+            bubbles.forEach(b => {
+                b.y += b.speed;
+                b.x += Math.sin(Date.now() / 400 + b.oscillationOffset) * 0.8;
+            });
+
+            // Check if bubbles hit bottom
+            const reachedBottomIndex = bubbles.findIndex(b => b.y + b.radius >= height - 70);
+            if (reachedBottomIndex !== -1) {
+                lives--;
+                livesDisplay.textContent = `❤️ ${lives}`;
+                if (lives <= 0) triggerGameOver();
+                else generateQuestion();
+            }
+
+            // Update Projectiles
+            for (let pIdx = projectiles.length - 1; pIdx >= 0; pIdx--) {
+                const p = projectiles[pIdx];
+                p.x += p.vx;
+                p.y += p.vy;
+
+                // Bounce off walls
+                if (p.x - p.radius <= 0 || p.x + p.radius >= width) p.vx *= -1;
+
+                // Check collision with bubbles
+                let hitIndex = -1;
+                for (let bIdx = 0; bIdx < bubbles.length; bIdx++) {
+                    const b = bubbles[bIdx];
+                    const dist = Math.hypot(p.x - b.x, p.y - b.y);
+                    if (dist < p.radius + b.radius) {
+                        hitIndex = bIdx;
+                        break;
+                    }
+                }
+
+                if (hitIndex !== -1) {
+                    const hitBubble = bubbles[hitIndex];
+                    createExplosion(hitBubble.x, hitBubble.y, hitBubble.color);
+                    projectiles.splice(pIdx, 1);
+
+                    if (hitBubble.value === currentQuestion.a) {
+                        score += 20;
+                        totalXPEarned += 15;
+                        scoreDisplay.textContent = `🎯 Score: ${score}`;
+                        if (window.StorageService) {
+                            StorageService.addReward(15, 5);
+                            updateProfileUI();
+                        }
+                    } else {
+                        lives--;
+                        livesDisplay.textContent = `❤️ ${lives}`;
+                        if (lives <= 0) {
+                            triggerGameOver();
+                            return;
+                        }
+                    }
+                    generateQuestion();
+                    break;
+                }
+
+                // Remove out of bounds projectiles
+                if (p.y < -20 || p.y > height + 20) projectiles.splice(pIdx, 1);
+            }
+
+            // Update Particles
+            for (let i = particles.length - 1; i >= 0; i--) {
+                const pt = particles[i];
+                pt.x += pt.vx;
+                pt.y += pt.vy;
+                pt.life -= 0.03;
+                if (pt.life <= 0) particles.splice(i, 1);
+            }
+        }
+
+        function draw() {
+            ctx.clearRect(0, 0, width, height);
+
+            // Draw Background Grid Lines for Arcade Aesthetic
+            ctx.strokeStyle = 'rgba(255, 255, 255, 0.03)';
+            ctx.lineWidth = 1;
+            const step = 40;
+            for (let x = 0; x < width; x += step) {
+                ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, height); ctx.stroke();
+            }
+            for (let y = 0; y < height; y += step) {
+                ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(width, y); ctx.stroke();
+            }
+
+            // Draw Bubbles
+            bubbles.forEach(b => {
+                ctx.save();
+                ctx.beginPath();
+                ctx.arc(b.x, b.y, b.radius, 0, Math.PI * 2);
+                ctx.fillStyle = b.color;
+                ctx.shadowColor = b.color;
+                ctx.shadowBlur = 12;
+                ctx.fill();
+                ctx.lineWidth = 2;
+                ctx.strokeStyle = '#ffffff';
+                ctx.stroke();
+
+                // Number text
+                ctx.shadowBlur = 0;
+                ctx.fillStyle = '#ffffff';
+                ctx.font = 'bold 20px Outfit, sans-serif';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillText(b.value, b.x, b.y);
+                ctx.restore();
+            });
+
+            // Draw Projectiles
+            projectiles.forEach(p => {
+                ctx.save();
+                ctx.beginPath();
+                ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+                ctx.fillStyle = '#fbbf24';
+                ctx.shadowColor = '#fbbf24';
+                ctx.shadowBlur = 15;
+                ctx.fill();
+                ctx.restore();
+            });
+
+            // Draw Particles
+            particles.forEach(pt => {
+                ctx.save();
+                ctx.globalAlpha = pt.life;
+                ctx.beginPath();
+                ctx.arc(pt.x, pt.y, pt.radius, 0, Math.PI * 2);
+                ctx.fillStyle = pt.color;
+                ctx.fill();
+                ctx.restore();
+            });
+
+            // Draw Cannon / Turret
+            const turretX = width / 2;
+            const turretY = height - 40;
+
+            ctx.save();
+            ctx.translate(turretX, turretY);
+
+            // Turret Base
+            ctx.beginPath();
+            ctx.arc(0, 0, 32, 0, Math.PI * 2);
+            ctx.fillStyle = '#1e1b4b';
+            ctx.strokeStyle = '#6366f1';
+            ctx.lineWidth = 3;
+            ctx.fill();
+            ctx.stroke();
+
+            // Rotating Barrel
+            ctx.rotate(turretAngle);
+            ctx.fillStyle = '#6366f1';
+            ctx.fillRect(0, -12, 45, 24);
+            ctx.lineWidth = 2;
+            ctx.strokeStyle = '#a5b4fc';
+            ctx.strokeRect(0, -12, 45, 24);
+
+            ctx.restore();
+        }
+
+        function loop() {
+            update();
+            draw();
+            requestAnimationFrame(loop);
+        }
+
+        function triggerGameOver() {
+            if (window.AlgoPlayAudio) AlgoPlayAudio.over();
+            finalScore.textContent = score;
+            finalXP.textContent = `+${totalXPEarned} XP`;
+            gameOverModal.classList.remove('opacity-0', 'pointer-events-none');
+            gameOverModal.querySelector('.transform').classList.remove('scale-90');
+            gameOverModal.querySelector('.transform').classList.add('scale-100');
+        }
+
+        restartBtn.addEventListener('click', () => {
+            if (window.AlgoPlayAudio) AlgoPlayAudio.startGame('music2');
+            score = 0;
+            lives = 3;
+            totalXPEarned = 0;
+            scoreDisplay.textContent = `🎯 Score: 0`;
+            livesDisplay.textContent = `❤️ 3`;
+            gameOverModal.classList.add('opacity-0', 'pointer-events-none');
+            gameOverModal.querySelector('.transform').classList.add('scale-90');
+            generateQuestion();
+        });
+
+        // Initialize
+        updateProfileUI();
+        generateQuestion();
+        loop();
+    </script>
+<script src="audio-manager.js"></script>
+</body>
+</html>

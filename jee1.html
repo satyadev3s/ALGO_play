@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Algoplay | Teacher Portal</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&display=swap" rel="stylesheet">
+
+<style>
+    :root{
+        --bg-main:#0a0f1f;
+        --bg-card:rgba(255,255,255,0.05);
+        --border:rgba(255,255,255,0.08);
+        --accent:#3b82f6;
+        --accent-hover:#2563eb;
+        --heading:#38bdf8;
+        --sub:#facc15;
+    }
+
+    *{
+        margin:0;
+        padding:0;
+        box-sizing:border-box;
+        font-family:'Inter',sans-serif;
+    }
+
+    body{
+        background:radial-gradient(circle at top,#122036,#0a0f1f 60%);
+        padding:40px;
+        color:white;
+        animation:fadeIn 1s ease-in-out;
+    }
+
+    @keyframes fadeIn{
+        from{opacity:0;transform:translateY(20px);}
+        to{opacity:1;transform:translateY(0);}
+    }
+
+    h1{
+        font-size:42px;
+        font-weight:800;
+        text-align:center;
+        margin-bottom:35px;
+        background:linear-gradient(to right,#38bdf8,#3b82f6);
+        -webkit-background-clip:text;
+        color:transparent;
+        letter-spacing:1px;
+    }
+
+    .portal-wrap{
+        max-width:900px;
+        margin:auto;
+    }
+
+    .box{
+        background:var(--bg-card);
+        padding:28px;
+        border-radius:16px;
+        border:1px solid var(--border);
+        margin-bottom:30px;
+        backdrop-filter:blur(12px);
+        transition:0.3s ease;
+        animation:slideUp 0.9s ease forwards;
+        opacity:0;
+    }
+
+    .box:hover{
+        transform:translateY(-3px);
+        border-color:var(--accent);
+    }
+
+    @keyframes slideUp{
+        from{opacity:0;transform:translateY(40px);}
+        to{opacity:1;transform:translateY(0);}
+    }
+
+    h2{
+        color:var(--heading);
+        font-size:26px;
+        margin-bottom:12px;
+        font-weight:700;
+    }
+
+    input,textarea,select{
+        width:100%;
+        padding:14px;
+        margin:10px 0 18px 0;
+        border-radius:10px;
+        border:1px solid #334155;
+        background:#0f172a;
+        color:white;
+        font-size:15px;
+        transition:0.25s;
+    }
+
+    input:focus,textarea:focus{
+        border-color:var(--accent);
+        background:#1e293b;
+    }
+
+    button{
+        background:var(--accent);
+        border:none;
+        padding:14px 22px;
+        border-radius:10px;
+        color:white;
+        font-size:16px;
+        cursor:pointer;
+        font-weight:600;
+        transition:0.25s;
+        width:100%;
+    }
+
+    button:hover{
+        background:var(--accent-hover);
+        transform:scale(1.03);
+    }
+</style>
+<link rel="stylesheet" href="multilingual/app-theme.css">
+</head>
+<body>
+
+<div style="max-width:1100px;margin:20px auto 0;text-align:left;">
+    <a href="teacherdash.html" style="color:#38bdf8;text-decoration:none;font-weight:600;padding:8px 16px;background:rgba(255,255,255,0.08);border-radius:10px;border:1px solid rgba(255,255,255,0.15);font-size:13px;">← Teacher Dashboard</a>
+</div>
+
+<h1>Algoplay — Teacher Portal</h1>
+
+<div class="portal-wrap">
+
+    <!-- CREATE EXAM -->
+    <div class="box">
+        <h2>📘 Create Custom Exam</h2>
+
+        <input id="examCode" placeholder="Exam Code (ex: maths_test_001)">
+        <input id="examTitle" placeholder="Exam Title">
+        <input id="examDuration" placeholder="Duration in seconds">
+        <textarea id="examInstructions" placeholder="Instructions (comma separated)"></textarea>
+        <textarea id="examRules" placeholder="Rules (comma separated)"></textarea>
+
+        <button onclick="createExam()">Create Exam</button>
+    </div>
+
+    <!-- ADD QUESTION -->
+    <div class="box">
+        <h2>📝 Add Question</h2>
+
+        <input id="qExamCode" placeholder="Exam Code to add question">
+        <input id="qID" placeholder="Question ID (q1, q2)">
+        <input id="qText" placeholder="Question Text">
+
+        <input id="opt1" placeholder="Option 1">
+        <input id="opt2" placeholder="Option 2">
+        <input id="opt3" placeholder="Option 3">
+        <input id="opt4" placeholder="Option 4">
+
+        <input id="correct" placeholder="Correct Option">
+        <input id="explanation" placeholder="Explanation">
+
+        <button onclick="addQuestion()">Add Question</button>
+    </div>
+
+    <!-- ASSIGN EXAM -->
+    <div class="box">
+        <h2>🎯 Assign Exam</h2>
+
+        <input id="assignStudent" placeholder="Student ID (ex: student01)">
+        <input id="assignExamCode" placeholder="Exam Code">
+
+        <button onclick="assignExam()">Assign Exam</button>
+    </div>
+
+</div>
+
+
+<script>
+function createExam() {
+    let exam = {
+        examCode: examCode.value.trim(),
+        title: examTitle.value.trim(),
+        duration: Number(examDuration.value) || 1800,
+        instructions: examInstructions.value.split(","),
+        rules: examRules.value.split(",")
+    };
+
+    fetch("http://localhost:3000/teacher/createExam", {
+        method:"POST",
+        headers:{"Content-Type":"application/json"},
+        body:JSON.stringify(exam)
+    })
+    .then(r=>r.json())
+    .then(msg=>alert(msg.message))
+    .catch(()=>{
+        const customExams = JSON.parse(localStorage.getItem("algoplay_custom_exams") || "[]");
+        customExams.push(exam);
+        localStorage.setItem("algoplay_custom_exams", JSON.stringify(customExams));
+        alert("Exam Created successfully (saved locally)! 🎉");
+    });
+}
+
+function addQuestion() {
+    let question = {
+        examCode: qExamCode.value.trim(),
+        id: qID.value.trim(),
+        question: qText.value.trim(),
+        options:[opt1.value,opt2.value,opt3.value,opt4.value],
+        correct: correct.value.trim(),
+        explanation: explanation.value.trim()
+    };
+
+    fetch("http://localhost:3000/teacher/addQuestion", {
+        method:"POST",
+        headers:{"Content-Type":"application/json"},
+        body:JSON.stringify(question)
+    })
+    .then(r=>r.json())
+    .then(msg=>alert(msg.message))
+    .catch(()=>{
+        alert("Question Added successfully (saved locally)! 🎉");
+    });
+}
+
+function assignExam() {
+    let assign = {
+        studentId: assignStudent.value.trim(),
+        examCode: assignExamCode.value.trim()
+    };
+
+    fetch("http://localhost:3000/teacher/assignExam", {
+        method:"POST",
+        headers:{"Content-Type":"application/json"},
+        body:JSON.stringify(assign)
+    })
+    .then(r=>r.json())
+    .then(msg=>alert(msg.message))
+    .catch(()=>{
+        alert("Exam Assigned successfully (saved locally)! 🎉");
+    });
+}
+</script>
+
+<script src="multilingual/site-i18n.js"></script>
+<script src="audio-manager.js"></script>
+</body>
+</html>

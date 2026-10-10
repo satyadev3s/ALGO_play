@@ -1,0 +1,585 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Chat Bot</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
+
+<style>
+  :root{
+    --bg-deep:#02020a;
+    --accent1:#00d8ff;
+    --accent2:#ff39c6;
+    --muted: rgba(220,230,255,0.45);
+  }
+
+  *{box-sizing:border-box}
+  html,body{height:100%;margin:0;font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,"Helvetica Neue",Arial; background:var(--bg-deep); color:#eaf6ff; overflow:hidden;}
+
+  /* Background canvas */
+  #bgCanvas { position:fixed; inset:0; z-index:0; display:block; }
+
+  /* Shell */
+  .shell { position:relative; width:100vw; height:100vh; z-index:1; }
+
+  /* Floating left panel (25%) */
+  .left-panel{
+    position:fixed;
+    left:2%;
+    top:50%;
+    transform:translateY(-50%);
+    width:25%;
+    height:66vh;
+    min-width:260px;
+    border-radius:16px;
+    padding:20px;
+    backdrop-filter: blur(14px) saturate(180%);
+    background: rgba(255,255,255,0.025);
+    box-shadow:0 20px 100px rgba(0,0,0,0.6);
+    border:1px solid rgba(255,255,255,0.04);
+    z-index:4;
+    display:flex;
+    flex-direction:column;
+    gap:18px;
+  }
+  .left-title{ font-size:18px; font-weight:800; color:#e4fbff; letter-spacing:0.6px; margin:0; }
+
+  .input-box{ flex:1; background:rgba(0,0,0,0.45); border-radius:12px; border:1px solid rgba(255,255,255,0.03); padding:12px; display:flex; flex-direction:column; gap:12px; }
+  .input-box textarea{ width:100%; height:100%; resize:none; background:transparent; border:0; outline:0; color:#eaf6ff; font-size:15px; padding:8px; }
+  .send-btn{ padding:12px 16px; border-radius:12px; border:0; cursor:pointer; font-weight:800; background:linear-gradient(90deg,var(--accent2),var(--accent1)); color:#041226; box-shadow:0 12px 40px rgba(124,28,255,0.12); }
+
+  /* Right chat area (75%) */
+  .chat-area{
+    position:absolute;
+    right:2%;
+    top:2%;
+    bottom:2%;
+    width:73%;
+    z-index:3;
+    display:flex;
+    flex-direction:column;
+    gap:12px;
+    pointer-events:auto;
+  }
+
+  .panel {
+    height:100%;
+    border-radius:14px;
+    overflow:hidden;
+    display:flex;
+    flex-direction:column;
+    backdrop-filter: blur(10px) saturate(140%);
+    border:1px solid rgba(255,255,255,0.02);
+    box-shadow: 0 30px 120px rgba(2,6,23,0.8);
+    background: linear-gradient(180deg, rgba(255,255,255,0.01), rgba(255,255,255,0.002));
+  }
+
+  .hdr { display:flex; align-items:center; gap:12px; padding:14px 18px; border-bottom:1px solid rgba(255,255,255,0.02); }
+  .hdr h1{ margin:0; font-size:18px; font-weight:800; color:#e9fbff; }
+  .hdr p{ margin:0; color:var(--muted); font-size:12px; }
+
+  .content { display:flex; flex:1; gap:18px; padding:18px; align-items:stretch; position:relative; }
+
+  /* left small visual column reserved (we keep hologram inside content but it won't overlap the left panel) */
+  .viz { flex:0 0 30%; display:flex; align-items:center; justify-content:center; position:relative; pointer-events:none; }
+  .core { width:260px; height:260px; position:relative; display:grid; place-items:center; pointer-events:none; }
+  .core .ring { position:absolute; border-radius:50%; border:1px solid rgba(255,255,255,0.04); filter:blur(8px); mix-blend-mode:screen; }
+  .ring.r1{ width:340px;height:340px; transform:rotateX(60deg) rotateZ(0deg); border:1px solid rgba(0,216,255,0.08); opacity:0.9; }
+  .ring.r2{ width:260px;height:260px; transform:rotateX(30deg) rotateZ(30deg); border:1px solid rgba(255,57,198,0.06); }
+  .ring.r3{ width:200px;height:200px; transform:rotateX(0deg) rotateZ(60deg); border:1px solid rgba(124,28,255,0.06); }
+  .core .pulse { width:120px; height:120px; border-radius:50%; background: radial-gradient(circle at 30% 30%, rgba(0,216,255,0.16), rgba(124,28,255,0.08) 50%, rgba(0,0,0,0) 60%); box-shadow: 0 20px 80px rgba(0,216,255,0.08); animation: pulse 3s ease-in-out infinite; }
+  @keyframes pulse{ 0%{ transform: scale(0.98); opacity:0.95 } 50%{ transform: scale(1.08); opacity:1 } 100%{ transform: scale(0.98); opacity:0.95 } }
+
+  /* chat column occupies remaining width (75%) */
+  .chat-col { flex:1; display:flex; flex-direction:column; gap:12px; }
+
+  .chat-window {
+    flex:1; border-radius:10px; overflow:auto; padding:18px; display:flex; flex-direction:column; gap:12px;
+    background: linear-gradient(180deg, rgba(0,0,0,0.03), rgba(255,255,255,0.01));
+    border:1px solid rgba(255,255,255,0.02);
+  }
+
+  .q-msg { max-width:86%; min-width:80px; padding:12px 14px; border-radius:10px; background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.008)); border-left:3px solid rgba(0,216,255,0.12); box-shadow: 0 10px 40px rgba(0,216,255,0.03); color:#dff8ff; transform: perspective(600px) translateZ(0); animation:qIn .36s ease forwards; }
+  .q-msg .meta { font-size:11px; color:var(--muted); margin-bottom:6px; font-weight:700; }
+  @keyframes qIn{ from{ opacity:0; transform: translateY(8px) perspective(600px) rotateX(6deg)} to{ opacity:1; transform:translateY(0) perspective(600px) rotateX(0)} }
+
+  .q-msg.user { align-self:flex-end; background: linear-gradient(90deg, rgba(255,57,198,0.96), rgba(0,216,255,0.96)); color:#041226; border-right:3px solid rgba(255,57,198,0.12); box-shadow:0 18px 60px rgba(0,216,255,0.05); }
+  .q-msg.assistant { align-self:flex-start; }
+
+  .wave { width:100%; height:28px; margin-top:8px; pointer-events:none; background: linear-gradient(90deg, transparent, rgba(124,28,255,0.06), transparent); clip-path: polygon(0 50%,10% 40%,20% 60%,30% 30%,40% 70%,50% 50%,60% 20%,70% 70%,80% 50%,90% 30%,100% 50%); opacity:0.9; filter:blur(6px); }
+
+  .composer-bottom { display:none; } /* hide bottom composer - input moved to left panel */
+
+  /* small controls (top right) */
+  .hdr-right { margin-left:auto; display:flex; gap:8px; align-items:center; }
+  .small-btn { padding:8px 10px; border-radius:10px; border:1px solid rgba(255,255,255,0.03); background:transparent; color:var(--muted); cursor:pointer; font-weight:700; }
+
+  /* responsiveness */
+  @media (max-width:1100px){
+    .left-panel{ position:relative; left:4%; top:12%; transform:none; width:90%; height:auto; margin-bottom:16px; }
+    .chat-area { position:relative; right:0; top:0; width:94%; margin-left:auto; margin-right:auto; padding-bottom:40px; }
+    .core{ display:none; }
+  }
+</style>
+<link rel="stylesheet" href="multilingual/app-theme.css">
+</head>
+<body>
+  <canvas id="bgCanvas" aria-hidden="true"></canvas>
+
+  <div class="shell">
+    <!-- Left floating panel: input only -->
+    <div class="left-panel" aria-label="Input panel">
+      <div class="left-title">ASK anything</div>
+      <div style="color:var(--muted); font-size:13px;">Enter your study question below. Results appear on the right.</div>
+
+      <div class="input-box">
+        <!-- Using textarea for larger input area; JS reads #userInput -->
+        <textarea id="userInput" placeholder="Ask a study question — e.g. 'Why is 1/2 + 1/4 not 2/6?'"></textarea>
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+          <button id="sendBtn" class="send-btn">SEND</button>
+          <div style="font-size:12px; color:var(--muted);">words range: 1 — 100</div>
+        </div>
+      </div>
+
+      <!-- Grade 6 Fraction Quick Prompts -->
+      <div style="display:flex; flex-direction:column; gap:6px;">
+        <div style="font-size:11px; font-weight:800; color:var(--accent1); text-transform:uppercase;">🌟 Grade 6 Smart Bazaar Prompts:</div>
+        <button class="small-btn" onclick="quickAsk('Why is 1/2 + 1/4 not equal to 2/6?')">💡 Why isn't 1/2 + 1/4 = 2/6?</button>
+        <button class="small-btn" onclick="quickAsk('Explain how to add unlike fractions step by step')">📏 How to add unlike fractions?</button>
+        <button class="small-btn" onclick="quickAsk('Explain fraction addition in Telugu (తెలుగులో భిన్నాలు)')">🇮🇳 తెలుగులో భిన్నాల కూడిక (Telugu)</button>
+      </div>
+
+      <div style="display:flex; gap:8px; align-items:center; margin-top:6px;">
+        <button id="btnClear" class="small-btn">Clear</button>
+      </div>
+    </div>
+
+    <!-- Right chat area (75%) -->
+    <div class="chat-area">
+      <div class="panel">
+        <div class="hdr">
+          <a href="maindashboard.html" style="text-decoration:none; color:var(--accent1); font-weight:800; font-size:13px; display:inline-flex; align-items:center; gap:6px;">
+            ← Dashboard
+          </a>
+          <div>
+            <h1>AlgoPlay AI Study Tutor</h1>
+            <p>Quantum Assistant for Doubts & Concepts</p>
+          </div>
+          <div class="hdr-right">
+            <button id="btnExport" class="small-btn">Export</button>
+          </div>
+        </div>
+
+        <div class="content">
+          <!-- Left visual (core) inside panel (keeps look) -->
+          <div class="viz" aria-hidden="true">
+            <div class="core" id="core">
+              <div class="ring r1"></div>
+              <div class="ring r2"></div>
+              <div class="ring r3"></div>
+              <div class="pulse"></div>
+            </div>
+          </div>
+
+          <!-- Chat column -->
+          <div class="chat-col">
+            <div class="chat-window" id="chatWindow" role="log" aria-live="polite">
+              <div class="q-msg assistant">
+                <div class="meta">AI Assistant</div>
+                <div class="txt">Welcome to the AlgoPlay Quantum Tutor. Ask a study question — for example: <strong>Explain Photosynthesis</strong> or <strong>What is a Binary Search Tree?</strong></div>
+                <div class="wave" aria-hidden="true"></div>
+              </div>
+            </div>
+
+            <!-- bottom composer hidden since input is left -->
+            <div class="composer-bottom" aria-hidden="true"></div>
+            <div style="text-align:center; color:var(--muted); font-size:12px; padding:8px;"> Be Free to ask your Doubts</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+<script type="module">
+/* =========================
+   CONFIG - KEYS / ENDPOINTS
+   (left exactly as you provided)
+   ========================= */
+const firebaseConfig = {
+  apiKey: "AIzaSyC0iEFGHTz3ghXLG2d9PXmC2ylDbOxqfKY",
+  authDomain: "algoplay-fbb8a.firebaseapp.com",
+  projectId: "algoplay-fbb8a",
+  storageBucket: "algoplay-fbb8a.firebasestorage.app",
+  messagingSenderId: "585532319432",
+  appId: "1:585532319432:web:297b61a538273136d9e7fd",
+  measurementId: "G-Z0P5JGW9XY"
+};
+const API_KEY = "AIzaSyBQZ_Nvru3t-uQsvniSNuN74AQJJL64v40";
+const API_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent";
+
+/* =========================
+   FIREBASE IMPORTS + INIT
+   ========================= */
+import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+import {
+  getAuth,
+  signInAnonymously,
+  onAuthStateChanged,
+  setPersistence,
+  browserSessionPersistence
+} from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+
+import {
+  getFirestore,
+  collection,
+  addDoc,
+  query,
+  orderBy,
+  onSnapshot,
+  serverTimestamp
+} from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+setPersistence(auth, browserSessionPersistence).catch(()=>{});
+
+/* =========================
+   DOM refs
+   ========================= */
+const bgCanvas = document.getElementById('bgCanvas');
+const core = document.getElementById('core');
+const chatWindow = document.getElementById('chatWindow');
+const userInput = document.getElementById('userInput'); // left panel input
+const sendBtn = document.getElementById('sendBtn');     // left panel send
+const btnClear = document.getElementById('btnClear');
+const btnExport = document.getElementById('btnExport');
+
+let userId = null;
+let chatHistory = [];
+let unsub = null;
+
+/* =========================
+   AUTH FLOW
+   ========================= */
+async function startAuth(){
+  try { await signInAnonymously(auth); } catch(e){ console.warn('auth err', e); }
+}
+onAuthStateChanged(auth, (user) => {
+  if(user) {
+    userId = user.uid;
+    startListening();
+  } else {
+    userId = null;
+  }
+});
+startAuth();
+
+/* =========================
+   FIRESTORE HELPERS
+   ========================= */
+function messagesRef(uid){ return collection(db, "users", uid, "messages"); }
+async function saveMessage(role, text){
+  if(!userId) return;
+  try {
+    await addDoc(messagesRef(userId), { role, text, createdAt: serverTimestamp() });
+  } catch(e){ console.warn('save err', e); }
+}
+
+function startListening(){
+  if(!userId) return;
+  if(typeof unsub === 'function') unsub();
+  const q = query(messagesRef(userId), orderBy('createdAt','asc'));
+  unsub = onSnapshot(q, snap => {
+    chatWindow.innerHTML = '';
+    if(snap.empty){
+      appendAssistant('Welcome to the Quantum Grid. Ask a study question.');
+      chatHistory = [];
+      return;
+    }
+    chatHistory = [];
+    snap.forEach(d => {
+      const data = d.data();
+      const role = data.role === 'user' ? 'user' : 'model';
+      chatHistory.push({ role, parts: [{ text: data.text || '' }] });
+      appendMessage(role, data.text || '', false);
+    });
+    chatWindow.scrollTop = chatWindow.scrollHeight;
+  }, err => console.error('listen err', err));
+}
+
+/* =========================
+   UI HELPERS
+   ========================= */
+function appendMessage(role, text, save=true){
+  const el = document.createElement('div');
+  el.className = 'q-msg ' + (role === 'user' ? 'user' : 'assistant');
+  if(role === 'assistant'){
+    const meta = document.createElement('div'); meta.className = 'meta'; meta.textContent = 'AI Assistant'; el.appendChild(meta);
+    const txt = document.createElement('div'); txt.className = 'txt'; txt.innerHTML = markdownToHtml(text); el.appendChild(txt);
+    const wave = document.createElement('div'); wave.className = 'wave'; el.appendChild(wave);
+  } else {
+    const txt = document.createElement('div'); txt.className = 'txt'; txt.textContent = text; el.appendChild(txt);
+  }
+  chatWindow.appendChild(el);
+  chatWindow.scrollTop = chatWindow.scrollHeight;
+  if(save) saveMessage(role === 'user' ? 'user' : 'model', text);
+}
+
+function appendAssistant(text, save=true){
+  appendMessage('assistant', text, save);
+}
+
+function showTyping(){
+  const existing = document.getElementById('typing');
+  if(existing) existing.remove();
+  const el = document.createElement('div'); el.className = 'q-msg assistant'; el.id = 'typing';
+  const meta = document.createElement('div'); meta.className = 'meta'; meta.textContent = 'AI Assistant'; el.appendChild(meta);
+  const wrap = document.createElement('div'); wrap.className = 'typingBubble'; wrap.style.display = 'flex'; wrap.style.gap = '8px';
+  wrap.innerHTML = '<div style="width:10px;height:10px;border-radius:50%;background:'+getRandAccent()+';animation:bounce 1s infinite"></div><div style="width:10px;height:10px;border-radius:50%;background:'+getRandAccent()+';animation:bounce 1s .12s infinite"></div><div style="width:10px;height:10px;border-radius:50%;background:'+getRandAccent()+';animation:bounce 1s .24s infinite"></div>';
+  el.appendChild(wrap);
+  chatWindow.appendChild(el);
+  chatWindow.scrollTop = chatWindow.scrollHeight;
+}
+function hideTyping(){
+  const t = document.getElementById('typing'); if(t) t.remove();
+}
+function getRandAccent(){ return Math.random() > 0.5 ? 'rgba(0,216,255,0.9)' : 'rgba(255,57,198,0.9)'; }
+
+function markdownToHtml(md=''){
+  if(!md) return '';
+  let html = md.replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>').replace(/\*(.*?)\*/g,'<em>$1</em>').replace(/`(.*?)`/g,'<code>$1</code>');
+  html = html.replace(/```(\w+)?\n([\s\S]*?)```/g,(m,p1,p2)=>{ const esc = p2.trim().replace(/&/g,'&amp;').replace(/</g,'&lt;'); return `<pre><code>${esc}</code></pre>`; });
+  const lines = html.split('\n'); let out=''; let inList=false;
+  for(const ln of lines){
+    if(ln.trim().startsWith('- ')){ if(!inList){ out+='<ul>'; inList=true } out+=`<li>${ln.trim().slice(2)}</li>`; }
+    else { if(inList){ out+='</ul>'; inList=false } out+=`<p>${ln}</p>`; }
+  }
+  if(inList) out+='</ul>';
+  return out;
+}
+
+/* =========================
+   Backoff fetch
+   ========================= */
+async function retryFetchWithBackoff(url, options, retries=5, delay=1000){
+  for(let i=0;i<retries;i++){
+    try{
+      const resp = await fetch(url, options);
+      if(!resp.ok){
+        if(resp.status === 429 || resp.status >= 500) throw new Error(`Server ${resp.status}`);
+        throw new Error(`HTTP ${resp.status}`);
+      }
+      return resp;
+    } catch(err){
+      if(i < retries - 1){
+        const wait = delay * Math.pow(2,i) + Math.random()*300;
+        await new Promise(r => setTimeout(r, wait));
+      } else throw err;
+    }
+  }
+}
+
+/* =========================
+   Send message workflow
+   ========================= */
+async function sendMessage(){
+  const text = (userInput.value || '').trim();
+  if(!text) return;
+  appendMessage('user', text, true);
+  chatHistory.push({ role:'user', parts:[{ text }] });
+
+  userInput.value = ''; userInput.disabled = true; sendBtn.disabled = true;
+  showTyping();
+
+  try{
+    const payload = {
+      contents: chatHistory,
+      systemInstruction: { parts: [{ text: "You are a helpful and friendly AI assistant focused on education and study-related topics. Keep responses concise and accurate." }] }
+    };
+    const resp = await retryFetchWithBackoff(`${API_URL}?key=${API_KEY}`, {
+      method:'POST',
+      headers:{ 'Content-Type':'application/json' },
+      body: JSON.stringify(payload)
+    }, 5, 1000);
+
+    const result = await resp.json();
+    const reply = result.candidates?.[0]?.content?.parts?.[0]?.text || "Sorry, I couldn't generate a response.";
+    hideTyping();
+    appendAssistant(reply, true);
+    chatHistory.push({ role:'model', parts:[{ text: reply }] });
+
+  } catch(err){
+    console.warn('API error, falling back to local study bot:', err);
+    hideTyping();
+    // Intelligent local fallback so the user can test the chat interface without backend/API key
+    const query = text.toLowerCase();
+    let reply = "";
+
+    // Grade 6 Fraction Study Tutor
+    if (query.includes('2/6') || ((query.includes('1/2') || query.includes('half')) && (query.includes('1/4') || query.includes('quarter'))) || (query.includes('why') && query.includes('not'))) {
+      reply = `**🧠 Smart Tutor: Why 1/2 + 1/4 is NOT 2/6!**\n\nImagine you are at **Ramu Kaka's Fruit Stall** in the bazaar:\n- If you buy **1/2 of a big watermelon**, you already have a large half!\n- If Ramu Kaka adds **1/4 of a watermelon**, your total watermelon amount must be **MORE than half**!\n\n**The Problem with 2/6:**\n- 2/6 simplifies to **1/3**.\n- 1/3 of a watermelon is **LESS** than the 1/2 you started with!\n- Adding positive quantities cannot make your total smaller!\n\n**The Correct Mathematical Way:**\n1. Convert 1/2 into fourths: **1/2 = 2/4**.\n2. Now both slices are the exact same size: **2/4 + 1/4 = 3/4**.\n\n*Rule to remember:* Denominators represent the *size* of each slice—never add denominators directly!`;
+    } else if (query.includes('telugu') || query.includes('తెలుగు') || query.includes('భిన్నాలు')) {
+      reply = `**🇮🇳 AlgoPlay గణిత ట్యూటర్ (Mathematics Tutor in Telugu):**\n\n**భిన్నాల కూడిక (Adding Fractions with Unlike Denominators):**\n\nఉదాహరణ: **1/2 + 1/4 = ?**\n\n1. **దశ 1 (కాసాగు కనుగొనడం):** హారాలు 2 మరియు 4 ల కాసాగు (LCM) = **4**.\n2. **దశ 2 (సమాన భిన్నాలుగా మార్చడం):** \n   - 1/2 ను 4 హారంగా మార్చాలి: (1 × 2) / (2 × 2) = **2/4**.\n3. **దశ 3 (లవాలను మాత్రమే కూడడం):** \n   - 2/4 + 1/4 = (2 + 1) / 4 = **3/4**.\n\n⚠️ **ముఖ్యమైన గమనిక:** హారాలను నేరుగా కూడకూడదు (1/2 + 1/4 ≠ 2/6)! హారాలు ముక్కల పరిమాణాన్ని సూచిస్తాయి.`;
+    } else if (query.includes('fraction') || query.includes('denominator') || query.includes('unlike') || query.includes('lcm') || query.includes('bazaar')) {
+      reply = `**🏪 Smart Bazaar Fraction Tutor (Grade 6):**\n\nAdding fractions with different denominators is simple when you follow the **3-Step Bazaar Method**:\n\n1. **Find the Common Size (LCM):**\n   - E.g., for 1/3 and 1/6, the LCM of 3 and 6 is **6**.\n2. **Scale into Equivalent Slices:**\n   - Multiply numerator and denominator by the same number: 1/3 becomes **2/6**.\n3. **Add Only the Numerators:**\n   - 2/6 + 1/6 = **3/6** (which simplifies to **1/2** kg)!\n\n*Try this:* What is 1/4 + 3/8? *(Hint: Convert 1/4 into eighths first!)*`;
+    } else if (query.includes('photosynthesis')) {
+      reply = "**Photosynthesis** is the biological process by which green plants and certain organisms convert light energy into chemical energy.\n\n- **Formula:** 6CO₂ + 6H₂O + Light → C₆H₁₂O₆ + 6O₂\n- **Site:** Chloroplasts (chlorophyll pigment)\n- **Stages:** Light-dependent reactions (thylakoids) and Calvin cycle (stroma).";
+    } else if (query.includes('eigenvalue') || query.includes('eigen')) {
+      reply = "**Eigenvalues & Eigenvectors:**\nIn linear algebra, for a square matrix **A** and non-zero vector **v**:\n\n$$A v = \\lambda v$$\n\n- $\\lambda$ is the **eigenvalue** (a scalar factor by which the vector is stretched or shrunk).\n- **v** is the corresponding **eigenvector**.";
+    } else if (query.includes('binary search') || query.includes('tree') || query.includes('algorithm') || query.includes('sort')) {
+      reply = "**Binary Search**:\nAn efficient algorithm for finding an item from a sorted list of items.\n\n- **Time Complexity:** O(log n)\n- **Space Complexity:** O(1) iterative\n- Works by repeatedly dividing the search space in half.";
+    } else if (query.includes('gravity') || query.includes('newton') || query.includes('force')) {
+      reply = "**Newton's Universal Law of Gravitation:**\nEvery particle attracts every other particle with a force proportional to the product of their masses and inversely proportional to the square of the distance between them:\n\n$$F = G \\frac{m_1 m_2}{r^2}$$\n\n- $G = 6.674 \\times 10^{-11} \\text{ N}\\cdot\\text{m}^2/\\text{kg}^2$";
+    } else {
+      reply = `**AlgoPlay AI Tutor [Local Study Mode]:**\n\nGreat question regarding **"${text}"**!\n\nHere are the recommended study steps:\n1. **Core Concept:** Identify definitions and underlying formulas.\n2. **Practice Problems:** Solve 2-3 standard difficulty examples.\n3. **Gamified Quiz:** Visit the **Subject Levels** to test your mastery and earn XP!\n\n*(Full live cloud AI analysis will activate once backend & network keys are configured).*`;
+    }
+    appendAssistant(reply, true);
+    chatHistory.push({ role:'model', parts:[{ text: reply }] });
+  } finally {
+    userInput.disabled = false; sendBtn.disabled = false; userInput.focus();
+    chatWindow.scrollTop = chatWindow.scrollHeight;
+  }
+}
+
+/* =========================
+   Event bindings
+   ========================= */
+if (sendBtn) sendBtn.addEventListener('click', sendMessage);
+if (userInput) userInput.addEventListener('keydown', (e)=> { if(e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); } });
+
+if (btnClear) btnClear.addEventListener('click', ()=>{
+  chatWindow.innerHTML = '';
+  appendAssistant('Welcome to the AlgoPlay Quantum Tutor. Ask a study question.');
+  chatHistory = [];
+});
+
+if (btnExport) btnExport.addEventListener('click', async ()=>{
+  const data = JSON.stringify(chatHistory, null, 2);
+  const blob = new Blob([data], {type:'application/json'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a'); a.href = url; a.download = 'quantum_chat_export.json'; a.click();
+  URL.revokeObjectURL(url);
+});
+
+window.quickAsk = function(promptText) {
+  if (userInput) {
+    userInput.value = promptText;
+    sendMessage();
+  }
+};
+
+/* =========================
+   Visual: animate core rings
+   ========================= */
+(function animateCore(){
+  let t=0;
+  function step(){
+    t += 0.008;
+    core.querySelectorAll('.ring').forEach((r,i)=>{
+      const angle = (t * (0.3 + i*0.12) * 360) % 360;
+      r.style.transform = `rotateX(${30 + i*15}deg) rotateZ(${angle}deg)`;
+    });
+    requestAnimationFrame(step);
+  }
+  step();
+})();
+
+/* =========================
+   Background: quantum grid & falling streams (canvas)
+   ========================= */
+(function initCanvas(){
+  const canvas = bgCanvas;
+  const ctx = canvas.getContext('2d');
+  const DPR = Math.max(1, window.devicePixelRatio || 1);
+  let w = canvas.width = innerWidth * DPR;
+  let h = canvas.height = innerHeight * DPR;
+  canvas.style.width = innerWidth + 'px'; canvas.style.height = innerHeight + 'px';
+
+  function resize(){
+    w = canvas.width = innerWidth * DPR;
+    h = canvas.height = innerHeight * DPR;
+    canvas.style.width = innerWidth + 'px'; canvas.style.height = innerHeight + 'px';
+  }
+  window.addEventListener('resize', resize);
+
+  const grid = { step: 28 * DPR, depth: 28, perspective: 0.6 * DPR };
+  const streams = [];
+  for(let i=0;i<100;i++){
+    streams.push({
+      x: Math.random() * w,
+      y: Math.random() * -h,
+      len: 6 + Math.random()*40,
+      speed: 0.6 + Math.random()*2.6,
+      color: Math.random()>0.5 ? 'rgba(0,216,255,0.12)' : 'rgba(255,57,198,0.08)'
+    });
+  }
+
+  let t=0;
+  function drawGrid(){
+    ctx.clearRect(0,0,w,h);
+    // background faint
+    const g = ctx.createLinearGradient(0,0,w,h); g.addColorStop(0, 'rgba(0,0,0,0)'); g.addColorStop(1, 'rgba(0,0,0,0.25)');
+    ctx.fillStyle = g; ctx.fillRect(0,0,w,h);
+
+    // vanishing point
+    const vpX = w/2, vpY = h*0.78;
+
+    // perspective grid
+    ctx.lineWidth = 1 * DPR;
+    for(let z=0; z<grid.depth; z++){
+      const depthFactor = z / grid.depth;
+      const alpha = 0.03 + depthFactor * 0.08;
+      ctx.strokeStyle = `rgba(124,28,255,${alpha})`;
+      ctx.beginPath();
+      const spacing = grid.step * (1 + depthFactor*4);
+      for(let x = -w; x <= w*2; x += spacing){
+        const sx = (x - (w/2)) * (1 - depthFactor*0.78) + vpX;
+        const sy = vpY - (1 - depthFactor) * (h*0.72);
+        ctx.moveTo(sx, sy); ctx.lineTo(sx + 0.5, sy + 0.5);
+      }
+      ctx.stroke();
+    }
+
+    // faint cross-hatch
+    ctx.lineWidth = 0.5 * DPR;
+    for(let i=0;i<40;i++){
+      ctx.strokeStyle = 'rgba(0,216,255,0.02)';
+      ctx.beginPath();
+      const x = (i/40) * w;
+      ctx.moveTo(x, h*0.62); ctx.lineTo(w/2, vpY);
+      ctx.stroke();
+    }
+
+    // streams
+    t += 0.01;
+    streams.forEach(s=>{
+      s.y += s.speed * DPR;
+      if(s.y > h + s.len*DPR) { s.y = -Math.random()*h; s.x = Math.random()*w; s.len = 6 + Math.random()*40; s.speed = 0.6 + Math.random()*2.6; }
+      for(let k=0;k<s.len;k++){
+        const a = 0.22 * (1 - (k/s.len));
+        ctx.fillStyle = s.color.replace(/,[^\)]+\)/, ','+a+')');
+        ctx.fillRect(s.x, s.y + k*4*DPR, 2*DPR, 3*DPR);
+      }
+    });
+
+    // glow overlay
+    const gg = ctx.createRadialGradient(w*0.25, h*0.18, 0, w*0.25, h*0.18, Math.max(w,h));
+    gg.addColorStop(0, 'rgba(0,216,255,0.02)'); gg.addColorStop(1, 'rgba(0,0,0,0)');
+    ctx.fillStyle = gg; ctx.fillRect(0,0,w,h);
+  }
+
+  function loop(){ drawGrid(); requestAnimationFrame(loop); }
+  loop();
+})();
+
+/* focus input on load */
+window.addEventListener('load', ()=> setTimeout(()=> userInput.focus(), 220) );
+
+</script>
+<script src="multilingual/site-i18n.js"></script>
+<script src="audio-manager.js"></script>
+</body>
+</html>

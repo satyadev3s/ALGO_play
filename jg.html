@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AlgoPlay</title>
+
+<!-- Bootstrap CSS -->
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+
+<!-- Google Font -->
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;800&display=swap" rel="stylesheet">
+
+<style>
+    body {
+        margin: 0;
+        font-family: "Poppins", sans-serif;
+
+        /* ⭐ Background Image + Dark Overlay */
+        background:
+            linear-gradient(rgba(10, 14, 19, 0.8), rgba(10, 14, 19, 0.9)),
+            url("https://images.unsplash.com/photo-1519389950473-47ba0277781c?auto=format&fit=crop&w=1600&q=80");
+
+        background-size: cover;
+        background-position: center;
+        background-attachment: fixed;
+        color: white;
+        overflow-x: hidden;
+    }
+
+    /* Title */
+    .brand-title {
+        text-align: center;
+        padding-top: 25px;
+        font-size: 3rem;
+        font-weight: 800;
+        text-shadow: 0 0 12px black;
+    }
+
+    .brand-subtitle {
+        text-align: center;
+        font-size: 1.1rem;
+        opacity: 0.8;
+        margin-bottom: 20px;
+    }
+
+    /* Main Flex Layout */
+    .main-flex {
+        display: flex;
+        width: 100%;
+        padding: 20px 40px;
+        gap: 30px;
+    }
+
+    /* Carousel */
+    .carousel-container {
+        flex: 2;
+        height: 55vh;
+        border-radius: 16px;
+        overflow: hidden;
+        position: relative;
+    }
+
+    .carousel-item img {
+        width: 100%;
+        height: 55vh;
+        object-fit: cover;
+        transition: transform 0.6s ease, filter 0.4s ease;
+        filter: brightness(0.9);
+    }
+
+    .carousel-item:hover img {
+        transform: scale(1.12);
+        filter: brightness(1.05);
+    }
+
+    .carousel-item::after {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(to top, rgba(0,0,0,0.6), transparent);
+        z-index: 2;
+    }
+
+    .carousel-caption {
+        bottom: 20px;
+        z-index: 10;
+    }
+
+    .carousel-caption h5 {
+        font-size: 1.4rem;
+        font-weight: 600;
+        text-shadow: 0 0 10px black;
+    }
+
+    /* Auth Buttons Panel */
+    .auth-panel {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        gap: 20px;
+        padding-right: 30px;
+    }
+
+    .btn-auth {
+        padding: 15px;
+        border-radius: 40px;
+        border: none;
+        font-size: 1.2rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: 0.3s;
+        width: 80%;
+        margin: 0 auto;
+    }
+
+    .btn-login {
+        background: #00ff99;
+        color: #003322;
+        box-shadow: 0 0 15px rgba(0,255,153,0.5);
+    }
+
+    .btn-signup {
+        background: #ffffff;
+        color: #000;
+        box-shadow: 0 0 15px rgba(255,255,255,0.6);
+    }
+
+    .btn-auth:hover {
+        transform: scale(1.08);
+    }
+
+    /* Bottom Quote */
+    .bottom-quote {
+        text-align: center;
+        margin-top: 40px;
+        margin-bottom: 40px;
+        font-size: 1.3rem;
+        font-weight: 500;
+        text-shadow: 0 0 10px black;
+        opacity: 0.9;
+    }
+</style>
+<link rel="stylesheet" href="multilingual/app-theme.css">
+</head>
+
+<body>
+
+<!-- HEADER -->
+<h1 class="brand-title">ALGO PLAY</h1>
+<p class="brand-subtitle">Master algorithms through interactive learning</p>
+
+<!-- MAIN CONTENT -->
+<div class="main-flex">
+
+    
+    <div class="carousel-container">
+        <div id="eduCarousel" class="carousel slide carousel-fade" data-bs-ride="carousel" data-bs-interval="4500">
+
+            
+            <div class="carousel-indicators">
+                <button type="button" data-bs-target="#eduCarousel" data-bs-slide-to="0" class="active"></button>
+                <button type="button" data-bs-target="#eduCarousel" data-bs-slide-to="1"></button>
+                <button type="button" data-bs-target="#eduCarousel" data-bs-slide-to="2"></button>
+            </div>
+
+           
+            <div class="carousel-inner">
+
+               <div class="carousel-item active" data-bs-interval="4000">
+    <img src="https://images.unsplash.com/photo-1503676260728-1c00da094a0b?auto=format&fit=crop&w=1500&q=80" class="d-block w-100">
+    <div class="carousel-caption">
+        <h5>"Dream big. Start small. Learn always."</h5>
+    </div>
+</div>
+
+<div class="carousel-item" data-bs-interval="4000">
+    <img src="https://images.unsplash.com/photo-1498075702571-ecb018f3752d?auto=format&fit=crop&w=1500&q=80" class="d-block w-100">
+    <div class="carousel-caption">
+        <h5>"Innovation begins with curiosity."</h5>
+    </div>
+</div>
+
+<div class="carousel-item" data-bs-interval="4000">
+    <img src="https://images.unsplash.com/photo-1513258496099-48168024aec0?auto=format&fit=crop&w=1500&q=80" class="d-block w-100">
+    <div class="carousel-caption">
+        <h5>"Your learning journey starts here."</h5>
+    </div>
+</div>
+
+<div class="carousel-item" data-bs-interval="4000">
+    <img src="https://images.unsplash.com/photo-1523580494863-6f3031224c94?auto=format&fit=crop&w=1500&q=80" class="d-block w-100">
+    <div class="carousel-caption">
+        <h5>"Create. Explore. Grow."</h5>
+    </div>
+</div>
+
+
+            </div>
+
+            
+            <button class="carousel-control-prev" type="button" data-bs-target="#eduCarousel" data-bs-slide="prev">
+                <span class="carousel-control-prev-icon"></span>
+            </button>
+            <button class="carousel-control-next" type="button" data-bs-target="#eduCarousel" data-bs-slide="next">
+                <span class="carousel-control-next-icon"></span>
+            </button>
+
+        </div>
+    </div>
+
+    
+   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+
+<div class="auth-panel text-center">
+    <a href="hh.html">
+    <button class="btn-auth btn-login">
+        <i class="bi bi-box-arrow-in-right"></i> Login
+    </button>
+    </a>
+<a href="hh.html">
+    <button class="btn-auth btn-signup">
+        <i class="bi bi-person-plus"></i> Sign Up
+    </button>
+</a>
+
+    <p class="text-center opacity-75 mt-2">Join 1,00,000+ learners worldwide</p>
+</div>
+
+
+</div>
+
+
+<p class="bottom-quote">
+    "Unlock your potential. Learn, grow, and transform with AlgoPlay."
+</p>
+
+<!-- BOOTSTRAP JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+<script src="multilingual/site-i18n.js"></script>
+<script src="audio-manager.js"></script>
+</body>
+</html>

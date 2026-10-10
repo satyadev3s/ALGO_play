@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Science Quiz – Step by Step</title>
+<style>
+  :root{
+    --bg:#0f172a; --card:#111827; --muted:#94a3b8; --text:#e5e7eb;
+    --primary:#22d3ee; --correct:#22c55e; --wrong:#ef4444;
+  }
+  *{box-sizing:border-box}
+  body{
+    margin:0; min-height:100vh; display:grid; place-items:center;
+    background:radial-gradient(1200px 600px at 70% -10%, #1f2937 0%, var(--bg) 55%, #020617 100%);
+    color:var(--text); font-family:system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; padding:24px;
+  }
+  .card{ width:min(980px,96vw); background:linear-gradient(180deg, rgba(255,255,255,.05), rgba(255,255,255,.02));
+    border:1px solid rgba(255,255,255,.08); border-radius:20px; overflow:hidden; box-shadow:0 20px 80px rgba(0,0,0,.35);}
+  header{ padding:18px 22px; display:flex; align-items:center; gap:12px; justify-content:space-between;
+    border-bottom:1px solid rgba(255,255,255,.06); background:rgba(2,6,23,.55); backdrop-filter: blur(6px);}
+  header .title{display:flex; align-items:center; gap:12px}
+  header .dot{width:10px; height:10px; border-radius:50%; background:var(--primary); box-shadow:0 0 16px var(--primary)}
+  header h1{font-size:18px; margin:0}
+  header .step{font-size:14px; color:var(--muted)}
+  .wrap{display:grid; grid-template-columns:1.1fr .9fr; gap:22px; padding:20px}
+  @media (max-width:860px){ .wrap{grid-template-columns:1fr} }
+
+  .image-box{ position:relative; border:1px solid rgba(255,255,255,.08); border-radius:16px; overflow:hidden;
+    background:#0b1220; min-height:300px; display:flex; align-items:center; justify-content:center;}
+  .image-box img{display:block; width:100%; height:auto}
+  .pin{ position:absolute; width:18px; height:18px; border-radius:50%;
+    background:var(--primary); box-shadow:0 0 20px rgba(42, 230, 9, 0.8), 0 0 0 6px rgba(7, 223, 47, 0.2);
+    transform:translate(-50%,-50%); animation:pulse 1.2s infinite; cursor:help;}
+  .pin[data-label]:after{  position:absolute; left:50%; top:-12px; transform:translate(-50%,-100%);
+    font-size:12px; color:#0b1220; background:var(--primary); padding:3px 8px; border-radius:999px; white-space:nowrap; font-weight:600;}
+  @keyframes pulse{ 0%{box-shadow:0 0 0 6px rgba(13, 233, 130, 0.2)} 50%{box-shadow:0 0 0 12px rgba(7, 213, 58, 0.1)} 100%{box-shadow:0 0 0 6px rgba(34,211,238,.20)} }
+
+  .qa{ border:1px solid rgba(255,255,255,.08); border-radius:16px; padding:18px; background:#0b1220;}
+  .q{font-size:18px; margin:0 0 14px;}
+  .options{display:grid; gap:10px; margin:12px 0}
+  .opt{ display:flex; align-items:center; gap:12px; padding:12px 14px; border:1px solid rgba(255,255,255,.1);
+    border-radius:12px; cursor:pointer; user-select:none; transition:.18s ease;
+    background:linear-gradient(180deg, rgba(255,255,255,.03), rgba(255,255,255,.01));}
+  .opt:hover{transform:translateY(-2px)}
+  .opt input{accent-color:var(--primary); width:18px; height:18px}
+  .opt.correct{outline:2px solid var(--correct); border-color:rgba(34,197,94,.35)}
+  .opt.wrong{outline:2px solid var(--wrong); border-color:rgba(239,68,68,.35)}
+  .actions{display:flex; gap:10px; margin-top:10px}
+  button{ border:none; padding:12px 14px; border-radius:12px; font-weight:600; cursor:pointer;
+    background:var(--primary); color:#00212a; box-shadow:0 10px 18px rgba(34,211,238,.25);}
+  button.secondary{background:#1f2937; color:var(--text); box-shadow:none; border:1px solid rgba(255,255,255,.08)}
+  .muted{color:var(--muted); font-size:14px; margin-top:8px}
+  .explain{margin-top:8px; font-size:15px; line-height:1.4; display:none}
+  .explain.show{display:block}
+</style>
+<link rel="stylesheet" href="multilingual/app-theme.css">
+</head>
+<body>
+  <main class="card" role="main">
+    <header>
+      <div class="title">
+        <span class="dot"></span>
+        <h1>Science Quiz – Step by Step</h1>
+      </div>
+      <div class="step" id="stepText">Question 1 of 2</div>
+    </header>
+
+    <section class="wrap" id="panel">
+      <figure class="image-box" id="imageBox"></figure>
+
+      <div class="qa" id="quiz">
+        <p class="q" id="questionText"></p>
+        <div class="options" id="options"></div>
+
+        <div class="actions">
+          <button class="secondary" id="backBtn">Back</button>
+          <button id="checkBtn">Check Answer</button>
+          <button id="nextBtn" disabled>Next</button>
+        </div>
+
+        <p id="status" class="muted"></p>
+        <p id="explain" class="explain"></p>
+      </div>
+    </section>
+
+    <section class="result" id="result" style="display:none;text-align:center;">
+      <h2>🎉 All Done!</h2>
+      <p id="scoreText"></p> 
+      <button id="gameBtn">Finished</button>
+    </section>
+  </main>
+
+<script>
+const QUIZ = [
+  {
+    prompt: "Which anatomical structure of the heart is marked?",
+    type: "image",
+    image: { src: "heart.jpg", pin: { top: "12%", left: "51%", label: "Aorta" } },
+    options: [ "Aorta", "Left ventricle", "Right atrium", "Pulmonary vein" ],
+    correctIndex: 0,
+    explanation: "The aorta is the main artery carrying oxygen-rich blood from the left ventricle to the body."
+  },
+  {
+    prompt: "A student mixes baking soda and vinegar in a flask with a balloon on top. The balloon inflates. Which gas is formed?",
+    type: "text",
+    options: [ "Oxygen (O₂)", "Carbon dioxide (CO₂)", "Hydrogen (H₂)", "Nitrogen (N₂)" ],
+    correctIndex: 1,
+    explanation: "The reaction releases carbon dioxide gas, which inflates the balloon."
+  }
+];
+
+let index = 0;
+let answers = Array(QUIZ.length).fill(null);
+let correctness = Array(QUIZ.length).fill(null);
+let checked = Array(QUIZ.length).fill(false);
+
+const stepText = document.getElementById("stepText");
+const imageBox = document.getElementById("imageBox");
+const questionText = document.getElementById("questionText");
+const optionsBox = document.getElementById("options");
+const status = document.getElementById("status");
+const explain = document.getElementById("explain");
+const backBtn = document.getElementById("backBtn");
+const checkBtn = document.getElementById("checkBtn");
+const nextBtn = document.getElementById("nextBtn");
+const panel = document.getElementById("panel");
+const result = document.getElementById("result");
+const scoreText = document.getElementById("scoreText");
+const gameBtn = document.getElementById("gameBtn");
+
+function render(){
+  stepText.textContent = `Question ${index + 1} of ${QUIZ.length}`;
+  const q = QUIZ[index];
+  questionText.innerHTML = `<strong>Q.</strong> ${q.prompt}`;
+  imageBox.innerHTML = "";
+  if(q.type==="image"){
+    const img = document.createElement("img");
+    img.src = q.image.src;
+    imageBox.appendChild(img);
+    const pin = document.createElement("div");
+    pin.className = "pin";
+    pin.style.top = q.image.pin.top;
+    pin.style.left = q.image.pin.left;
+    pin.dataset.label = q.image.pin.label;
+    imageBox.appendChild(pin);
+    imageBox.style.display = "";
+  } else imageBox.style.display = "none";
+
+  optionsBox.innerHTML = "";
+  q.options.forEach((text,i)=>{
+    const label=document.createElement("label");
+    label.className="opt";
+    const input=document.createElement("input");
+    input.type="radio"; input.name="opt"; input.value=i;
+    if(answers[index]===i) input.checked=true;
+    const span=document.createElement("span");
+    span.className="label"; span.innerHTML=`<strong>${String.fromCharCode(65+i)}.</strong> ${text}`;
+    label.append(input,span);
+    label.addEventListener("click",()=>{clearStyles();answers[index]=i;});
+    optionsBox.appendChild(label);
+  });
+  if(checked[index]) applyFeedback(correctness[index]);
+  else clearStyles();
+  updateButtons();
+}
+function clearStyles(){
+  document.querySelectorAll(".opt").forEach(o=>o.classList.remove("correct","wrong"));
+  status.textContent=""; explain.textContent=""; explain.classList.remove("show");
+}
+function applyFeedback(isCorrect){
+  const opts=[...document.querySelectorAll(".opt")];
+  const chosen=answers[index];
+  opts.forEach((o,i)=>{
+    if(i===chosen) o.classList.add(isCorrect?"correct":"wrong");
+    if(!isCorrect && i===QUIZ[index].correctIndex) o.classList.add("correct");
+  });
+  status.textContent=isCorrect?"✅ Correct!":`❌ Wrong. Correct answer: ${String.fromCharCode(65+QUIZ[index].correctIndex)}.`;
+  explain.textContent=QUIZ[index].explanation;
+  explain.classList.add("show");
+}
+function getSelected(){
+  const r=[...document.querySelectorAll('input[name="opt"]')].find(r=>r.checked);
+  return r?Number(r.value):null;
+}
+function updateButtons(){
+  nextBtn.disabled=!checked[index];
+}
+
+checkBtn.addEventListener("click",()=>{
+  const sel=getSelected();
+  if(sel===null){status.textContent="Please select an option.";return;}
+  answers[index]=sel;
+  const correct=sel===QUIZ[index].correctIndex;
+  correctness[index]=correct; checked[index]=true;
+  clearStyles(); applyFeedback(correct); updateButtons();
+  nextBtn.textContent=(index===QUIZ.length-1)?"Finish":"Next";
+});
+
+nextBtn.addEventListener("click",()=>{
+  if(index<QUIZ.length-1){index++; render();}
+  else showResult();
+});
+
+backBtn.addEventListener("click",()=>{
+  if(index===0){
+    window.location.href="videogame1.html"; // 🟢 Go to videogame.html
+  }else{
+    index--; render();
+  }
+});
+
+function showResult(){
+  const score=correctness.filter(v=>v).length;
+  const total=QUIZ.length;
+  panel.style.display="none";
+  result.style.display="block";
+  scoreText.textContent=`Your Score: ${score} / ${total}`;
+}
+
+gameBtn.addEventListener("click",()=>{
+  window.location.href="heartvideo.html"; // 🟢 Go to student log after finishing
+});
+
+render();
+</script>
+<script src="multilingual/site-i18n.js"></script>
+<script src="audio-manager.js"></script>
+</body>
+</html>

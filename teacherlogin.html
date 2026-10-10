@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Algoplay | Teacher Login</title>
+
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap');
+
+* {
+    box-sizing: border-box;
+    font-family: 'Poppins', sans-serif;
+}
+
+body {
+    margin: 0;
+    height: 100vh;
+    background: radial-gradient(circle at top left, #6366f1, transparent 50%),
+                radial-gradient(circle at bottom right, #ec4899, transparent 50%),
+                #020617;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: #fff;
+}
+
+/* CARD */
+.card {
+    width: 420px;
+    padding: 36px;
+    border-radius: 22px;
+    background: rgba(15, 23, 42, 0.88);
+    backdrop-filter: blur(14px);
+    border: 1px solid rgba(255,255,255,0.15);
+    box-shadow: 0 30px 80px rgba(0,0,0,0.65);
+}
+
+/* HEADER */
+.card h2 {
+    text-align: center;
+    font-size: 30px;
+    margin-bottom: 6px;
+}
+
+.card p {
+    text-align: center;
+    font-size: 13px;
+    opacity: 0.8;
+    margin-bottom: 28px;
+}
+
+/* INPUT */
+.group {
+    margin-bottom: 16px;
+}
+
+.group label {
+    font-size: 11px;
+    opacity: 0.7;
+}
+
+.group input {
+    width: 100%;
+    margin-top: 6px;
+    padding: 12px;
+    border-radius: 10px;
+    border: 1px solid rgba(129,140,248,0.5);
+    background: rgba(15,23,42,0.95);
+    color: white;
+    outline: none;
+    transition: 0.2s;
+}
+
+.group input:focus {
+    border-color: #7dd3fc;
+    box-shadow: 0 0 0 1px rgba(56,189,248,.6);
+}
+
+/* BUTTON */
+.btn {
+    width: 100%;
+    padding: 13px;
+    margin-top: 22px;
+    border-radius: 999px;
+    border: none;
+    background: linear-gradient(135deg,#22d3ee,#6366f1,#ec4899);
+    color: white;
+    font-weight: 600;
+    cursor: pointer;
+    transition: 0.25s;
+}
+
+.btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 0 30px rgba(99,102,241,0.6);
+}
+
+.btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+/* FOOTER */
+.footer {
+    margin-top: 18px;
+    font-size: 12px;
+    text-align: center;
+}
+
+.footer a {
+    color: #7dd3fc;
+    text-decoration: none;
+}
+</style>
+<link rel="stylesheet" href="multilingual/app-theme.css">
+</head>
+
+<body>
+
+<div class="card">
+    <h2>Teacher Login</h2>
+    <p>Access your Algoplay educator dashboard</p>
+
+    <div class="group">
+        <label for="email">Email Address</label>
+        <input id="email" type="email" autocomplete="email" placeholder="Enter your email">
+    </div>
+
+    <div class="group">
+        <label for="password">Password</label>
+        <input id="password" type="password" autocomplete="current-password" placeholder="Enter your password">
+    </div>
+
+    <button class="btn" id="loginBtn">Login</button>
+    <button class="btn" id="demoTeacherBtn" type="button" style="margin-top:10px;background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);">🚀 Quick Demo Teacher Login</button>
+
+    <div class="footer">
+        Don’t have an account?
+        <a href="teachersignup.html">Create one</a>
+    </div>
+    <div class="footer" style="margin-top:8px;">
+        Are you a student?
+        <a href="Loginpage.html">Student Login</a>
+    </div>
+</div>
+
+<script>
+function completeTeacherLogin(id, name, email, school) {
+    sessionStorage.setItem("logged_in_id", id);
+    sessionStorage.setItem("logged_in_name", name);
+    sessionStorage.setItem("logged_in_email", email);
+    sessionStorage.setItem("logged_in_school", school);
+    window.location.href = "teacherdash.html";
+}
+
+document.getElementById("demoTeacherBtn").addEventListener("click", () => {
+    completeTeacherLogin(1, "Prof. Sharma", "teacher@school.edu", "AlgoPlay Academy");
+});
+
+document.getElementById("loginBtn").addEventListener("click", loginTeacher);
+
+function loginTeacher() {
+    const email = document.getElementById("email").value.trim();
+    const password = document.getElementById("password").value.trim();
+    const btn = document.getElementById("loginBtn");
+
+    if (!email || !password) {
+        alert("Please enter email and password");
+        return;
+    }
+
+    btn.disabled = true;
+    btn.textContent = "Logging in...";
+
+    fetch("/TeacherLogin", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password })
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.teacher) {
+            completeTeacherLogin(data.teacher.id, data.teacher.name, data.teacher.email, data.teacher.school);
+        } else {
+            alert(data.error || "Login failed");
+        }
+    })
+    .catch(err => {
+        console.warn("Backend offline, checking local storage teacher accounts...", err);
+
+        const registered = JSON.parse(localStorage.getItem("algoplay_teachers") || "[]");
+        const found = registered.find(t => t.email.toLowerCase() === email.toLowerCase() && t.password === password);
+
+        if (found) {
+            completeTeacherLogin(found.id || 1, found.name, found.email, found.schoolname);
+        } else {
+            // Allow login in offline review mode
+            const nameFromEmail = email.split('@')[0];
+            const formattedName = nameFromEmail.charAt(0).toUpperCase() + nameFromEmail.slice(1);
+            completeTeacherLogin(1, "Prof. " + formattedName, email, "AlgoPlay Academy");
+        }
+    })
+    .finally(() => {
+        btn.disabled = false;
+        btn.textContent = "Login";
+    });
+}
+</script>
+
+
+
+<script src="multilingual/site-i18n.js"></script>
+<script src="audio-manager.js"></script>
+</body>
+</html>

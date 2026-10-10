@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AlgoPlay – English Levels</title>
+<style>
+    :root {
+        --primary: #ec4899;
+        --primary-light: #f472b6;
+        --bg: #0f172a;
+        --card: rgba(255, 255, 255, 0.06);
+        --text: #f8fafc;
+        --muted: #94a3b8;
+    }
+
+    * { box-sizing: border-box; font-family: 'Segoe UI', Roboto, sans-serif; }
+
+    body {
+        background: radial-gradient(circle at top, #1e1b4b, #0f172a);
+        color: var(--text);
+        padding: 30px;
+        margin: 0;
+        min-height: 100vh;
+    }
+
+    .container {
+        max-width: 600px;
+        margin: auto;
+    }
+
+    .nav-bar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 25px;
+    }
+
+    .back-btn {
+        background: rgba(255, 255, 255, 0.1);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        color: #fff;
+        padding: 8px 16px;
+        border-radius: 10px;
+        cursor: pointer;
+        font-weight: 600;
+        text-decoration: none;
+        transition: 0.2s;
+    }
+    .back-btn:hover { background: rgba(255, 255, 255, 0.2); }
+
+    h2 {
+        text-align: center;
+        font-size: 28px;
+        font-weight: 800;
+        margin-bottom: 24px;
+        background: linear-gradient(90deg, #f472b6, #c084fc);
+        -webkit-background-clip: text;
+        color: transparent;
+    }
+
+    .level-card {
+        background: var(--card);
+        padding: 18px 24px;
+        border-radius: 16px;
+        margin-bottom: 16px;
+        box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        border: 1px solid rgba(255,255,255,0.08);
+        border-left: 6px solid var(--primary);
+        transition: 0.3s ease-in-out;
+        backdrop-filter: blur(10px);
+    }
+    .level-card:hover { transform: translateY(-2px); border-color: rgba(244,114,182,0.4); }
+
+    .level-title {
+        font-size: 17px;
+        font-weight: 700;
+        color: var(--text);
+    }
+
+    .level-sub {
+        font-size: 12px;
+        color: var(--muted);
+        margin-top: 3px;
+    }
+
+    .icon-box {
+        background: rgba(236, 72, 153, 0.2);
+        color: #f472b6;
+        border-radius: 10px;
+        padding: 10px;
+        margin-right: 14px;
+        font-size: 20px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .left {
+        display: flex;
+        align-items: center;
+    }
+
+    button.start-btn {
+        padding: 9px 20px;
+        background: linear-gradient(135deg, var(--primary), #a855f7);
+        color: white;
+        border: none;
+        border-radius: 10px;
+        font-size: 14px;
+        font-weight: 700;
+        cursor: pointer;
+        transition: 0.2s;
+    }
+
+    button.start-btn:hover {
+        transform: scale(1.05);
+        box-shadow: 0 0 15px rgba(236, 72, 153, 0.5);
+    }
+
+    button.start-btn:disabled {
+        background: rgba(255,255,255,0.1);
+        color: #64748b;
+        cursor: not-allowed;
+        box-shadow: none;
+        transform: none;
+    }
+</style>
+<link rel="stylesheet" href="multilingual/app-theme.css">
+</head>
+<body>
+
+<div class="container">
+    <div class="nav-bar">
+        <a href="english.html" class="back-btn">← Chapters</a>
+        <a href="maindashboard.html" class="back-btn">🏠 Dashboard</a>
+    </div>
+
+    <h2>📖 English Practice Levels</h2>
+    <div id="levels"></div>
+</div>
+
+<script>
+    const totalLevels = 8;
+    const levelNames = [
+        "Vocabulary & Synonyms",
+        "Grammar: Tenses & Voice",
+        "Reading Comprehension",
+        "Parts of Speech Mastery",
+        "Idioms & Phrases",
+        "Sentence Correction",
+        "Prose Interpretation",
+        "Creative Writing Challenge"
+    ];
+
+    let unlockedUntil = parseInt(localStorage.getItem('unlockedEnglishLevel')) || 1;
+    const icons = ["📘", "📗", "📙", "🎯", "🚀", "✨", "⚡", "💡"];
+
+    function loadLevels() {
+        const levelContainer = document.getElementById("levels");
+        levelContainer.innerHTML = "";
+
+        for (let i = 1; i <= totalLevels; i++) {
+            const locked = i > unlockedUntil;
+
+            levelContainer.innerHTML += `
+                <div class="level-card" id="level-${i}">
+                    <div class="left">
+                        <div class="icon-box">${icons[i-1]}</div>
+                        <div>
+                            <div class="level-title">Level ${i}: ${levelNames[i-1]}</div>
+                            <div class="level-sub">${locked ? 'Locked • Complete previous levels' : 'Ready to play • +25 XP'}</div>
+                        </div>
+                    </div>
+
+                    <button class="start-btn" onclick="handleClick(${i})" ${locked ? 'disabled' : ''}>
+                        ${locked ? "Locked" : "Start"}
+                    </button>
+                </div>
+            `;
+        }
+    }
+
+    function handleClick(level) {
+        if (level > unlockedUntil) {
+            alert("Please complete previous levels first!");
+            return;
+        }
+
+        // Demo level completion
+        const next = level + 1;
+        if (next > unlockedUntil && next <= totalLevels) {
+            unlockedUntil = next;
+            localStorage.setItem('unlockedEnglishLevel', unlockedUntil);
+        }
+
+        // Add XP to profile
+        try {
+            const profile = JSON.parse(localStorage.getItem('algoplay_profile')) || { xp: 120, coins: 45, level: 1 };
+            profile.xp += 25;
+            profile.coins += 10;
+            localStorage.setItem('algoplay_profile', JSON.stringify(profile));
+        } catch(e) {}
+
+        alert(`🎉 Excellent work completing Level ${level}!\nYou earned +25 XP and +10 Coins!`);
+        loadLevels();
+    }
+
+    loadLevels();
+</script>
+
+<script src="multilingual/site-i18n.js"></script>
+<script src="audio-manager.js"></script>
+</body>
+</html>

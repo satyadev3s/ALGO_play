@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Drink Water – AlgoPlay</title>
+
+<style>
+    body {
+        background: linear-gradient(to bottom right, #003b7e, #0066cc);
+        font-family: "Poppins", sans-serif;
+        color: white;
+        text-align: center;
+        margin: 0;
+        padding: 0;
+        overflow: hidden;
+    }
+
+    .container {
+        width: 90%;
+        max-width: 550px;
+        margin: 60px auto;
+    }
+
+    .title {
+        font-size: 36px;
+        font-weight: 700;
+    }
+
+    .subtitle {
+        font-size: 17px;
+        opacity: 0.9;
+        margin-top: -5px;
+        margin-bottom: 25px;
+    }
+
+    .card {
+        background: white;
+        color: #003b7e;
+        padding: 25px;
+        border-radius: 20px;
+        box-shadow: 0 5px 20px rgba(0,0,0,0.25);
+    }
+
+    .water-btn {
+        background: #8c6bff;
+        color: white;
+        padding: 14px 25px;
+        font-size: 20px;
+        border: none;
+        border-radius: 15px;
+        cursor: pointer;
+        font-weight: 600;
+        margin-top: 20px;
+    }
+
+    #status {
+        margin-top: 15px;
+        font-weight: 600;
+        font-size: 18px;
+    }
+
+    /* Timer */
+    #timerBox {
+        margin-top: 25px;
+        font-size: 20px;
+        font-weight: 700;
+    }
+
+    /* Continue Button */
+    .continue-btn {
+        background: #d0ff00;
+        color: #003b7e;
+        padding: 14px 25px;
+        font-size: 20px;
+        border: none;
+        border-radius: 15px;
+        cursor: pointer;
+        font-weight: 600;
+        width: 100%;
+        margin-top: 30px;
+        display: none; /* Hidden until timer finishes */
+    }
+
+    /* Water Drop Animation */
+    .drop {
+        position: fixed;
+        top: -20px;
+        width: 12px;
+        height: 12px;
+        background: #6cd7ff;
+        border-radius: 50%;
+        opacity: 0.8;
+        animation: fall 3s linear infinite;
+    }
+
+    @keyframes fall {
+        0% { transform: translateY(0); }
+        100% { transform: translateY(110vh); }
+    }
+</style>
+
+<link rel="stylesheet" href="multilingual/app-theme.css">
+</head>
+<body>
+
+<!-- Animated water drops -->
+<script>
+// create falling drops
+for (let i = 0; i < 20; i++) {
+    let drop = document.createElement("div");
+    drop.classList.add("drop");
+    drop.style.left = Math.random() * 100 + "vw";
+    drop.style.animationDuration = (2 + Math.random() * 2) + "s";
+    drop.style.opacity = Math.random();
+    document.body.appendChild(drop);
+}
+</script>
+
+<div class="container">
+
+    <h1 class="title">💧 Drink Water</h1>
+    <p class="subtitle">A small sip boosts your brain and focus.</p>
+
+    <div class="card">
+        <h2>Hydration Break</h2>
+        <p>Take a short sip of water.</p>
+
+        <button class="water-btn" onclick="drinkWater()">I Drank Water ✔</button>
+        <p id="status"></p>
+
+        <div id="timerBox">Continuing in <span id="timer">10</span>s...</div>
+    </div>
+
+    <button class="continue-btn" id="continueBtn" onclick="continueGame()">
+        Continue →
+    </button>
+
+</div>
+
+<script>
+/* ================================
+   Water Button Action
+================================ */
+function drinkWater() {
+    document.getElementById("status").innerText =
+        "Great! You're now hydrated 💧";
+
+    // Vibrate on mobile
+    if (navigator.vibrate) navigator.vibrate(200);
+}
+
+/* ================================
+   Countdown Timer Before Continue
+================================ */
+let timeLeft = 10;
+const timerEl = document.getElementById("timer");
+
+let timer = setInterval(() => {
+    timeLeft--;
+    timerEl.innerText = timeLeft;
+
+    if (timeLeft <= 0) {
+        clearInterval(timer);
+        document.getElementById("continueBtn").style.display = "block";
+        document.getElementById("timerBox").style.display = "none";
+    }
+}, 1000);
+
+/* ================================
+   Continue to next page
+================================ */
+function continueGame() {
+    // change this to your game page
+    window.location.href = "techlevel.html";
+}
+</script>
+
+<script src="multilingual/site-i18n.js"></script>
+<script src="audio-manager.js"></script>
+</body>
+</html>
