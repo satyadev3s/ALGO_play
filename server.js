@@ -99,6 +99,22 @@ app.use('/uploads', express.static(UPLOAD_DIR, {
   }
 }));
 app.use(express.static(__dirname));
+app.use(express.static(process.cwd()));
+
+// Explicit root route handler to ensure "/" always serves index.html
+app.get('/', (req, res) => {
+  const possiblePaths = [
+    path.join(__dirname, 'index.html'),
+    path.join(process.cwd(), 'index.html'),
+    path.resolve('index.html')
+  ];
+  for (const p of possiblePaths) {
+    if (fs.existsSync(p)) {
+      return res.sendFile(p);
+    }
+  }
+  res.redirect('/index.html');
+});
 
 function encodeTokenPart(value) {
   return Buffer.from(JSON.stringify(value)).toString('base64url');
