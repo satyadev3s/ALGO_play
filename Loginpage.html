@@ -262,7 +262,18 @@ function completeLogin(id, name, school, token) {
     window.location.href = "maindashboard.html";
 }
 
-document.getElementById("loginBtn").addEventListener("click", async () => {
+const loginBtn = document.getElementById("loginBtn");
+const passwordInput = document.getElementById("password");
+
+if (passwordInput && loginBtn) {
+    passwordInput.addEventListener("keydown", (e) => {
+        if (e.key === "Enter") {
+            loginBtn.click();
+        }
+    });
+}
+
+loginBtn.addEventListener("click", async () => {
     const username = document.getElementById("username").value.trim();
     const password = document.getElementById("password").value.trim();
 
@@ -270,6 +281,9 @@ document.getElementById("loginBtn").addEventListener("click", async () => {
         alert("Please fill all fields");
         return;
     }
+
+    loginBtn.disabled = true;
+    loginBtn.textContent = "Logging in...";
 
     try{
         const res = await fetch("/Login",{
@@ -301,9 +315,12 @@ document.getElementById("loginBtn").addEventListener("click", async () => {
         if (found) {
             completeLogin(found.id || 101, found.name, found.schoolname);
         } else {
-            // Allow login in offline review mode
-            completeLogin(101, username, "AlgoPlay School");
+            // Wrong credentials entered - strictly reject access
+            alert("Invalid username or password. Please verify your credentials.");
         }
+    } finally {
+        loginBtn.disabled = false;
+        loginBtn.textContent = "Login";
     }
 });
 </script>

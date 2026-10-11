@@ -213,16 +213,45 @@ const memoryStore = {
 };
 
 // Connect to MongoDB
+const safeMongoUri = String(MONGODB_URI || '').replace(/:([^:@]{1,})@/, ':****@');
+
+async function ensureDb() {
+  if (mongoose.connection.readyState === 1) {
+    isMongoConnected = true;
+    return true;
+  }
+  if (mongoose.connection.readyState === 2) {
+    try {
+      await mongoose.connection.asPromise();
+      isMongoConnected = (mongoose.connection.readyState === 1);
+      return isMongoConnected;
+    } catch {
+      isMongoConnected = false;
+      return false;
+    }
+  }
+  try {
+    await mongoose.connect(MONGODB_URI, {
+      serverSelectionTimeoutMS: 3000
+    });
+    isMongoConnected = (mongoose.connection.readyState === 1);
+    return isMongoConnected;
+  } catch (err) {
+    isMongoConnected = false;
+    return false;
+  }
+}
+
 mongoose.connect(MONGODB_URI, {
-  serverSelectionTimeoutMS: 2500
+  serverSelectionTimeoutMS: 3000
 })
 .then(() => {
   isMongoConnected = true;
-  console.log('✅ Connected to MongoDB successfully at:', MONGODB_URI);
+  console.log('✅ Connected to MongoDB successfully at:', safeMongoUri);
 })
 .catch((err) => {
   isMongoConnected = false;
-  console.warn('⚠️ MongoDB connection could not be established:', err.message);
+  console.warn('⚠️ MongoDB initial connection notice:', err.message);
   console.warn('ℹ️ Running in resilient fallback mode with in-memory persistence.');
 });
 
@@ -268,16 +297,22 @@ app.post('/Signup', async (req, res) => {
       return res.status(400).json({ error: 'Missing required signup fields' });
     }
 
+    await ensureDb();
+
+    const cleanName = String(name).trim();
+
     if (isMongoConnected) {
-      const existing = await Student.findOne({ name });
+      const existing = await Student.findOne({
+        name: { $regex: new RegExp(`^${cleanName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}$`, 'i') }
+      });
       if (existing) {
         return res.status(400).json({ error: 'Username already exists' });
       }
       const student = new Student({
-        name,
+        name: cleanName,
         age: Number(age),
-        schoolname,
-        classofstudy,
+        schoolname: String(schoolname).trim(),
+        classofstudy: String(classofstudy).trim(),
         password,
         score: 0,
         xp: 120
@@ -291,14 +326,15 @@ app.post('/Signup', async (req, res) => {
       });
     } else {
       // Memory fallback
-      const existing = memoryStore.students.find(s => s.name === name);
+      const cleanLower = cleanName.toLowerCase();
+      const existing = memoryStore.students.find(s => s.name.toLowerCase() === cleanLower);
       if (existing) return res.status(400).json({ error: 'Username already exists' });
       const newStudent = {
         id: String(Date.now()),
-        name,
+        name: cleanName,
         age: Number(age),
-        schoolname,
-        classofstudy,
+        schoolname: String(schoolname).trim(),
+        classofstudy: String(classofstudy).trim(),
         password,
         score: 0,
         xp: 120
@@ -323,8 +359,14 @@ app.post('/Login', async (req, res) => {
       return res.status(400).json({ error: 'Identifier and password required' });
     }
 
+    await ensureDb();
+
+    const cleanIdentifier = String(identifier).trim();
+
     if (isMongoConnected) {
-      const student = await Student.findOne({ name: identifier });
+      const student = await Student.findOne({
+        name: { $regex: new RegExp(`^${cleanIdentifier.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}$`, 'i') }
+      });
       if (!student) {
         return res.status(401).json({ error: 'Invalid credentials' });
       }
@@ -341,23 +383,13 @@ app.post('/Login', async (req, res) => {
         token: createStudentToken(clientStudent)
       });
     } else {
-      const student = memoryStore.students.find(s => s.name === identifier && s.password === password);
+      const cleanLower = cleanIdentifier.toLowerCase();
+      const student = memoryStore.students.find(s => 
+        (s.name.toLowerCase() === cleanLower || s.id === cleanIdentifier) && 
+        s.password === password
+      );
       if (!student) {
-        // Create demo student for smooth demo preview if not found
-        const demoStudent = {
-          id: '101',
-          name: identifier,
-          age: 12,
-          schoolname: 'AlgoPlay Academy',
-          classofstudy: 'Grade 6',
-          score: 45,
-          xp: 120
-        };
-        return res.json({
-          message: 'Login successful (Demo Mode)',
-          student: demoStudent,
-          token: createStudentToken(demoStudent)
-        });
+        return res.status(401).json({ error: 'Invalid credentials' });
       }
       return res.json({ message: 'Login successful', student, token: createStudentToken(student) });
     }
@@ -864,16 +896,31 @@ app.post('/TeacherSignup', async (req, res) => {
       return res.status(400).json({ error: 'Missing required teacher fields' });
     }
 
+    await ensureDb();
+
+    const cleanEmail = String(email).trim().toLowerCase();
+
     if (isMongoConnected) {
-      const existing = await Teacher.findOne({ email });
+      const existing = await Teacher.findOne({ email: cleanEmail });
       if (existing) return res.status(400).json({ error: 'Email already exists' });
-      const teacher = new Teacher({ name, email, schoolname, password });
+      const teacher = new Teacher({
+        name: String(name).trim(),
+        email: cleanEmail,
+        schoolname: String(schoolname).trim(),
+        password
+      });
       await teacher.save();
       return res.status(201).json({ message: 'Signup successful', teacher: teacher.toClient() });
     } else {
-      const existing = memoryStore.teachers.find(t => t.email === email);
+      const existing = memoryStore.teachers.find(t => t.email.toLowerCase() === cleanEmail);
       if (existing) return res.status(400).json({ error: 'Email already exists' });
-      const newTeacher = { id: String(Date.now()), name, email, schoolname, password };
+      const newTeacher = {
+        id: String(Date.now()),
+        name: String(name).trim(),
+        email: cleanEmail,
+        schoolname: String(schoolname).trim(),
+        password
+      };
       memoryStore.teachers.push(newTeacher);
       return res.status(201).json({ message: 'Signup successful', teacher: newTeacher });
     }
@@ -886,8 +933,16 @@ app.post('/TeacherSignup', async (req, res) => {
 app.post('/TeacherLogin', async (req, res) => {
   try {
     const { email, password } = req.body;
+    if (!email || !password) {
+      return res.status(400).json({ error: 'Email and password required' });
+    }
+
+    await ensureDb();
+
+    const cleanEmail = String(email).trim().toLowerCase();
+
     if (isMongoConnected) {
-      const teacher = await Teacher.findOne({ email });
+      const teacher = await Teacher.findOne({ email: cleanEmail });
       if (!teacher) {
         return res.status(401).json({ error: 'Invalid credentials' });
       }
@@ -899,12 +954,13 @@ app.post('/TeacherLogin', async (req, res) => {
       await teacher.save();
       return res.json({ message: 'Login successful', teacher: teacher.toClient() });
     } else {
-      const teacher = memoryStore.teachers.find(t => t.email === email && t.password === password) || {
-        id: '1',
-        name: 'Prof. Sharma',
-        email: email || 'teacher@algoplay.org',
-        schoolname: 'AlgoPlay Demonstration School'
-      };
+      const teacher = memoryStore.teachers.find(t => 
+        t.email.toLowerCase() === cleanEmail && 
+        t.password === password
+      );
+      if (!teacher) {
+        return res.status(401).json({ error: 'Invalid credentials' });
+      }
       return res.json({ message: 'Login successful', teacher });
     }
   } catch (err) {

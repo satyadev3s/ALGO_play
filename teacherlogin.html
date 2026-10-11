@@ -153,6 +153,15 @@ function completeTeacherLogin(id, name, email, school) {
     window.location.href = "teacherdash.html";
 }
 
+const passwordInput = document.getElementById("password");
+if (passwordInput) {
+    passwordInput.addEventListener("keydown", (e) => {
+        if (e.key === "Enter") {
+            loginTeacher();
+        }
+    });
+}
+
 document.getElementById("loginBtn").addEventListener("click", loginTeacher);
 
 function loginTeacher() {
@@ -178,7 +187,7 @@ function loginTeacher() {
         if (data.teacher) {
             completeTeacherLogin(data.teacher.id, data.teacher.name, data.teacher.email, data.teacher.school);
         } else {
-            alert(data.error || "Login failed");
+            alert(data.error || "Invalid email or password");
         }
     })
     .catch(err => {
@@ -190,10 +199,10 @@ function loginTeacher() {
         if (found) {
             completeTeacherLogin(found.id || 1, found.name, found.email, found.schoolname);
         } else {
-            // Allow login in offline review mode
-            const nameFromEmail = email.split('@')[0];
-            const formattedName = nameFromEmail.charAt(0).toUpperCase() + nameFromEmail.slice(1);
-            completeTeacherLogin(1, "Prof. " + formattedName, email, "AlgoPlay Academy");
+            // Reject invalid credentials strictly
+
+
+            alert("Invalid email or password. Please verify your credentials.");
         }
     })
     .finally(() => {
