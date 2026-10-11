@@ -327,6 +327,22 @@ body {
   color: #04111d;
 }
 
+.btn-delete {
+  padding: 8px 12px;
+  border-radius: 10px;
+  background: rgba(244, 63, 94, 0.12);
+  border: 1px solid rgba(244, 63, 94, 0.35);
+  color: #fda4af;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.btn-delete:hover {
+  background: rgba(244, 63, 94, 0.24);
+}
+
 @media(max-width: 880px) {
   .workspace-grid { grid-template-columns: 1fr; }
 }
@@ -353,8 +369,6 @@ body {
     <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
       <a href="teacherdash.html" class="back-btn">← Teacher Dashboard</a>
       <a href="giveexam.html" class="back-btn">📝 Exam Builder</a>
-      <a href="Loginpage.html" class="back-btn" style="background: rgba(34, 211, 238, 0.15); border-color: rgba(34, 211, 238, 0.4); color: #38bdf8;">🎓 Student Login</a>
-      <a href="maindashboard.html" class="back-btn" style="background: rgba(99, 102, 241, 0.15); border-color: rgba(99, 102, 241, 0.4); color: #a5b4fc;">🎒 Student Dashboard</a>
     </div>
   </header>
 
@@ -440,6 +454,7 @@ body {
 <script>
 const teacherName = sessionStorage.getItem("logged_in_name") || "Prof. Sharma";
 const teacherSchool = sessionStorage.getItem("logged_in_school") || "AlgoPlay Academy";
+const teacherToken = sessionStorage.getItem("algoplay_teacher_token") || "";
 document.getElementById("teacherWelcome").innerText = `Logged in as ${teacherName} • ${teacherSchool}`;
 
 const fileInput = document.getElementById("fileUpload");
@@ -521,13 +536,42 @@ function renderAssignments(list) {
         <a href="${item.url || '#'}" download class="btn-download">
           ⬇️ Download
         </a>
+        ${item.id && teacherToken ? `
+          <button type="button" class="btn-delete" data-assignment-id="${item.id}">
+            Delete for everyone
+          </button>
+        ` : ''}
       </div>
     </div>
   `;
   }).join("");
+
+  container.querySelectorAll('.btn-delete').forEach(button => {
+    button.addEventListener('click', () => deleteAssignmentForEveryone(button.dataset.assignmentId, button));
+  });
 }
 
 loadAssignments();
+
+async function deleteAssignmentForEveryone(assignmentId, button) {
+  if (!assignmentId || !teacherToken) return;
+  if (!confirm('Permanently delete this assignment and its uploaded file for all students?')) return;
+
+  button.disabled = true;
+  try {
+    const response = await fetch(`/assignments/${encodeURIComponent(assignmentId)}`, {
+      method: 'DELETE',
+      headers: { Authorization: `Bearer ${teacherToken}` }
+    });
+    const result = await response.json();
+    if (!response.ok) throw new Error(result.error || 'Could not delete this assignment.');
+    showStatus(result.message || 'Assignment deleted for everyone.', 'success');
+    loadAssignments();
+  } catch (error) {
+    button.disabled = false;
+    showStatus(error.message || 'Could not delete this assignment.', 'error');
+  }
+}
 
 // Submit Assignment
 async function assignWork() {

@@ -120,11 +120,11 @@ function encodeTokenPart(value) {
   return Buffer.from(JSON.stringify(value)).toString('base64url');
 }
 
-function createStudentToken(student) {
+function createAuthToken(user, role) {
   const payload = {
-    sub: String(student.id || student._id),
-    name: student.name,
-    role: 'student',
+    sub: String(user.id || user._id),
+    name: user.name,
+    role,
     exp: Date.now() + (8 * 60 * 60 * 1000)
   };
   const encodedPayload = encodeTokenPart(payload);
@@ -132,29 +132,55 @@ function createStudentToken(student) {
   return `${encodedPayload}.${signature}`;
 }
 
+function createStudentToken(student) {
+  return createAuthToken(student, 'student');
+}
+
+function createTeacherToken(teacher) {
+  return createAuthToken(teacher, 'teacher');
+}
+
+function verifyAuthToken(token) {
+  if (!token || !token.includes('.')) return null;
+  const [encodedPayload, signature] = token.split('.');
+  if (!encodedPayload || !signature) return null;
+
+  try {
+    const expectedSignature = crypto.createHmac('sha256', AUTH_SECRET)
+      .update(encodedPayload)
+      .digest('base64url');
+    const suppliedBuffer = Buffer.from(signature);
+    const expectedBuffer = Buffer.from(expectedSignature);
+    if (suppliedBuffer.length !== expectedBuffer.length ||
+        !crypto.timingSafeEqual(suppliedBuffer, expectedBuffer)) {
+      return null;
+    }
+    const payload = JSON.parse(Buffer.from(encodedPayload, 'base64url').toString('utf8'));
+    return payload.sub && payload.role && payload.exp >= Date.now() ? payload : null;
+  } catch {
+    return null;
+  }
+}
+
+function requireRole(role) {
+  return (req, res, next) => {
+    const header = req.get('authorization') || '';
+    const token = header.startsWith('Bearer ') ? header.slice(7) : '';
+    const payload = verifyAuthToken(token);
+    if (!payload) return res.status(401).json({ error: 'A valid login is required.' });
+    if (payload.role !== role) return res.status(403).json({ error: 'You are not allowed to perform this action.' });
+    req.user = payload;
+    next();
+  };
+}
+
 function readStudentToken(req, res, next) {
   const header = req.get('authorization') || '';
   const token = header.startsWith('Bearer ') ? header.slice(7) : '';
-
-  if (token && token.includes('.')) {
-    const [encodedPayload, signature] = token.split('.');
-    if (encodedPayload && signature) {
-      try {
-        const expectedSignature = crypto.createHmac('sha256', AUTH_SECRET)
-          .update(encodedPayload)
-          .digest('base64url');
-        const suppliedBuffer = Buffer.from(signature);
-        const expectedBuffer = Buffer.from(expectedSignature);
-        if (suppliedBuffer.length === expectedBuffer.length &&
-            crypto.timingSafeEqual(suppliedBuffer, expectedBuffer)) {
-          const payload = JSON.parse(Buffer.from(encodedPayload, 'base64url').toString('utf8'));
-          if (payload.role === 'student' && payload.sub && payload.exp >= Date.now()) {
-            req.student = payload;
-            return next();
-          }
-        }
-      } catch {}
-    }
+  const payload = verifyAuthToken(token);
+  if (payload && payload.role === 'student') {
+    req.student = payload;
+    return next();
   }
 
   // Graceful guest fallback so any visitor or student can use the AI tutor
@@ -952,7 +978,11 @@ app.post('/TeacherLogin', async (req, res) => {
       }
       teacher.last_login = new Date();
       await teacher.save();
-      return res.json({ message: 'Login successful', teacher: teacher.toClient() });
+      return res.json({
+        message: 'Login successful',
+        teacher: teacher.toClient(),
+        token: createTeacherToken(teacher)
+      });
     } else {
       const teacher = memoryStore.teachers.find(t => 
         t.email.toLowerCase() === cleanEmail && 
@@ -961,7 +991,11 @@ app.post('/TeacherLogin', async (req, res) => {
       if (!teacher) {
         return res.status(401).json({ error: 'Invalid credentials' });
       }
-      return res.json({ message: 'Login successful', teacher });
+      return res.json({
+        message: 'Login successful',
+        teacher,
+        token: createTeacherToken(teacher)
+      });
     }
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -2057,15 +2091,91 @@ app.post('/assign_work', (req, res, next) => {
 // Get All Assignments
 app.get('/assignments', async (req, res) => {
   try {
+    const header = req.get('authorization') || '';
+    const token = header.startsWith('Bearer ') ? header.slice(7) : '';
+    const student = verifyAuthToken(token);
+    const studentId = student && student.role === 'student' ? student.sub : null;
+
     if (isMongoConnected) {
       const works = await Assignment.find().sort({ timestamp: -1 });
       if (works.length > 0) {
-        return res.json(works.map(w => w.toClient()));
+        return res.json(works
+          .filter(work => !studentId || !(work.hidden_by_students || []).includes(studentId))
+          .map(work => work.toClient()));
       }
     }
-    res.json(memoryStore.assignments);
+    res.json(memoryStore.assignments.filter(assignment =>
+      !studentId || !(assignment.hidden_by_students || []).includes(studentId)
+    ));
   } catch (err) {
     res.status(500).json({ error: err.message });
+  }
+});
+
+// Hide an assignment for the signed-in student only.
+app.post('/assignments/:id/hide', requireRole('student'), async (req, res) => {
+  try {
+    const assignmentId = String(req.params.id);
+    if (isMongoConnected && mongoose.Types.ObjectId.isValid(assignmentId)) {
+      const assignment = await Assignment.findByIdAndUpdate(
+        assignmentId,
+        { $addToSet: { hidden_by_students: req.user.sub } },
+        { new: true }
+      );
+      if (!assignment) return res.status(404).json({ error: 'Assignment not found.' });
+      return res.json({ success: true, message: 'Assignment hidden for this student.' });
+    }
+
+    const assignment = memoryStore.assignments.find(item => String(item.id) === assignmentId);
+    if (!assignment) return res.status(404).json({ error: 'Assignment not found.' });
+    if (!assignment.hidden_by_students) assignment.hidden_by_students = [];
+    if (!assignment.hidden_by_students.includes(req.user.sub)) {
+      assignment.hidden_by_students.push(req.user.sub);
+    }
+    return res.json({ success: true, message: 'Assignment hidden for this student.' });
+  } catch (err) {
+    return res.status(500).json({ error: err.message });
+  }
+});
+
+async function removeAssignmentFile(filename) {
+  if (!filename || path.basename(filename) !== filename) {
+    throw new Error('Assignment file path is invalid.');
+  }
+  const filePath = path.resolve(UPLOAD_DIR, filename);
+  if (path.dirname(filePath) !== path.resolve(UPLOAD_DIR)) {
+    throw new Error('Assignment file path is invalid.');
+  }
+  try {
+    await fs.promises.unlink(filePath);
+  } catch (err) {
+    if (err.code !== 'ENOENT') throw err;
+  }
+}
+
+// Permanently delete an assignment and its uploaded file for everyone.
+app.delete('/assignments/:id', requireRole('teacher'), async (req, res) => {
+  try {
+    const assignmentId = String(req.params.id);
+    if (isMongoConnected && mongoose.Types.ObjectId.isValid(assignmentId)) {
+      const assignment = await Assignment.findById(assignmentId);
+      if (!assignment) return res.status(404).json({ error: 'Assignment not found.' });
+      await removeAssignmentFile(assignment.filename);
+      await assignment.deleteOne();
+      return res.json({ success: true, message: 'Assignment deleted for everyone.' });
+    }
+
+    const assignmentIndex = memoryStore.assignments.findIndex(item => String(item.id) === assignmentId);
+    if (assignmentIndex < 0) return res.status(404).json({ error: 'Assignment not found.' });
+    const assignment = memoryStore.assignments[assignmentIndex];
+    const storedFilename = assignment.url
+      ? path.basename(new URL(assignment.url, 'http://localhost').pathname)
+      : null;
+    if (storedFilename) await removeAssignmentFile(storedFilename);
+    memoryStore.assignments.splice(assignmentIndex, 1);
+    return res.json({ success: true, message: 'Assignment deleted for everyone.' });
+  } catch (err) {
+    return res.status(500).json({ error: err.message });
   }
 });
 

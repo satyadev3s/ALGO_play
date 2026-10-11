@@ -134,6 +134,28 @@ body{
     background:rgba(129,140,248,.2);
 }
 
+.back-dashboard{
+    position:fixed;
+    top:16px;
+    left:16px;
+    z-index:10;
+    display:inline-flex;
+    align-items:center;
+    min-height:36px;
+    padding:7px 12px;
+    border:1px solid rgba(255,255,255,.25);
+    border-radius:9px;
+    background:linear-gradient(135deg,#22d3ee,#6366f1,#ec4899);
+    color:#fff;
+    font-size:12px;
+    font-weight:600;
+    text-decoration:none;
+    box-shadow:0 5px 14px rgba(99,102,241,.3);
+    transition:transform .2s,filter .2s;
+}
+
+.back-dashboard:hover{transform:translateY(-1px);filter:brightness(1.1)}
+
 /* RIGHT */
 .right{
     width:50%;
@@ -190,6 +212,8 @@ body{
 </head>
 
 <body>
+
+<a class="back-dashboard" href="index.html">← Back to Dashboard</a>
 
 <div class="wrapper">
 
@@ -317,7 +341,6 @@ document.getElementById("signupBtn").addEventListener("click", async () => {
 });
 </script>
 
-<script src="multilingual/site-i18n.js"></script>
 <script src="audio-manager.js"></script>
 </body>
 </html>

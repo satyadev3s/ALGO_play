@@ -1,0 +1,60 @@
+[
+  {
+    "_id": "6aca0c6d9769c1bbf3b54c6d",
+    "subject": "Mathematics",
+    "filename": "1791626349699_1sxlla.jpeg",
+    "teacher_name": "Prof. Sharma",
+    "timestamp": "2026-10-10T09:59:09.930Z",
+    "__v": 0
+  },
+  {
+    "_id": "6aca15cd403bae2822f794bc",
+    "title": "Photo-1.jpeg",
+    "subject": "English",
+    "filename": "1791628749739_abvtw5.jpeg",
+    "original_name": "Photo-1.jpeg",
+    "teacher_name": "Prof. Sharma",
+    "timestamp": "2026-10-10T10:39:09.887Z",
+    "__v": 0
+  },
+  {
+    "_id": "6aca90404240487db797858b",
+    "title": "computer basics",
+    "subject": "Technology",
+    "filename": "1791660096284_77r1p2.pdf",
+    "original_name": "Experiment 1-13.pdf",
+    "teacher_name": "Prof. Sharma",
+    "timestamp": "2026-10-10T19:21:36.464Z",
+    "__v": 0
+  },
+  {
+    "_id": "6aca90644240487db7978593",
+    "title": "human",
+    "subject": "Biology",
+    "filename": "1791660132708_klsvpx.jpeg",
+    "original_name": "Photo-1.jpeg",
+    "teacher_name": "Prof. Sharma",
+    "timestamp": "2026-10-10T19:22:12.778Z",
+    "__v": 0
+  },
+  {
+    "_id": "6acaa9eb7be43dce8d076777",
+    "title": "SIH 2D2026 (14).pdf",
+    "subject": "English",
+    "filename": "1791666667495_q1eitr.pdf",
+    "original_name": "SIH 2D2026 (14).pdf",
+    "teacher_name": "madhuri_s",
+    "timestamp": "2026-10-10T21:11:07.526Z",
+    "__v": 0
+  },
+  {
+    "_id": "6acab86e7be43dce8d076873",
+    "title": "medium",
+    "subject": "Mathematics",
+    "filename": "1791670382446_e22yvg.pdf",
+    "original_name": "ESE SANTHOSH.pdf",
+    "teacher_name": "madhu_sri",
+    "timestamp": "2026-10-10T22:13:02.483Z",
+    "__v": 0
+  }
+]

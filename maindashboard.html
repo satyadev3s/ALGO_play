@@ -236,21 +236,43 @@ html, body {
   }
     // Load Student Info
     const studentName = sessionStorage.getItem('student_name') || localStorage.getItem('student_name') || "Explorer";
+    const studentId = sessionStorage.getItem('student_id') || localStorage.getItem('student_id') || '';
+    const assignmentIdentity = studentId || (studentName !== "Explorer" ? studentName.trim().toLowerCase() : '');
+    const hiddenAssignmentsKey = assignmentIdentity
+      ? `algoplay_hidden_assignments_${encodeURIComponent(assignmentIdentity)}`
+      : '';
     const studentSchool = sessionStorage.getItem('profileSchool') || "AlgoPlay Academy";
     const studentNameEl = document.getElementById('studentName');
     if (studentNameEl) studentNameEl.innerText = studentName;
+    let currentAssignmentTasks = [];
+
+    function getHiddenAssignmentIds() {
+      if (!hiddenAssignmentsKey) return [];
+      try {
+        const saved = JSON.parse(localStorage.getItem(hiddenAssignmentsKey) || '[]');
+        return Array.isArray(saved) ? saved.map(String) : [];
+      } catch (error) {
+        console.error('Could not read this student’s hidden assignments.', error);
+        return [];
+      }
+    }
 
     function renderAssignmentsList(tasks) {
       const list = document.getElementById('assignmentList');
       if (!list) return;
+      currentAssignmentTasks = Array.isArray(tasks) ? tasks : [];
+      const hiddenIds = new Set(getHiddenAssignmentIds());
+      const visibleTasks = currentAssignmentTasks.filter(task =>
+        !task.id || !hiddenIds.has(String(task.id))
+      );
       list.innerHTML = "";
 
-      if (!tasks || tasks.length === 0) {
+      if (visibleTasks.length === 0) {
           list.innerHTML = "<p style='color:#94a3b8;font-size:14px;'>No assignments posted yet.</p>";
           return;
       }
 
-      tasks.forEach(task => {
+      visibleTasks.forEach(task => {
           const title = task.title || task.filename || `${task.subject} Worksheet`;
           const downloadUrl = task.url && task.url !== '#' ? task.url : null;
           const isVideo = /\.mp4$/i.test(task.filename || task.url || '');
@@ -290,7 +312,11 @@ html, body {
     }
 
     // Fetch Assignments
-    fetch("/assignments")
+    const studentToken = sessionStorage.getItem('algoplay_student_token') ||
+      localStorage.getItem('algoplay_student_token');
+    fetch("/assignments", {
+      headers: studentToken ? { Authorization: `Bearer ${studentToken}` } : {}
+    })
       .then(res => res.json())
       .then(data => {
         renderAssignmentsList(data);
@@ -424,15 +450,18 @@ const store = {
     { id: 'biology', label: 'Biology', icon: '🧬', meta: 'Human Body & Life' }
   ],
   games: [
-    { id: 'g1', title: 'Mario Math Runner', sub: 'Mathematics • Speed Arcade', icon: '🍄', url: 'game2.html', xp: 50, tag: 'Arcade Runner' },
-    { id: 'g2', title: 'Smart Bazaar: Market Quest', sub: 'Fractions • Visual Trade', icon: '🏪', url: 'fraction_mission.html', xp: 75, tag: 'Market Sim' },
-    { id: 'g3', title: 'Continuous Chase Quiz', sub: 'Logic • Speed Challenge', icon: '🏃‍♂️', url: 'newgame.html', xp: 45, tag: 'Action Quiz' },
     { id: 'g4', title: 'Physics Engine Lab', sub: 'Physics • Interactive Simulator', icon: '🪐', url: 'phyg1.html', xp: 60, tag: 'Physics Lab' },
+    { id: 'g9', title: 'SUTRA Math Cannon', sub: 'Mathematics • Bubble Shooter', icon: '🎯', url: 'math_bubble_shoot.html', xp: 65, tag: 'Math Shooter' },
+    { id: 'g10', title: "A Raindrop's Journey", sub: 'Geography • Water Cycle Adventure', icon: '💧', url: 'raindrop-journey%20(1).html', xp: 60, tag: 'Water Cycle' },
+    { id: 'g11', title: 'Racing Physics Challenge', sub: 'Physics • Speed, Time & Distance', icon: '🏎️', url: 'phy_drive.html', xp: 60, tag: 'Physics Race' },
+    { id: 'g12', title: 'SUTRA Quest: Snakes & Ladders', sub: 'Multiplayer • Curriculum Quiz Board', icon: '🎲', url: 'sutra_quest.html', xp: 60, tag: 'Board Game' },
+    { id: 'g1', title: 'Mario Math Runner', sub: 'Mathematics • Speed Arcade', icon: '🍄', url: 'game2.html', xp: 50, tag: 'Arcade Runner' },
+    { id: 'g3', title: 'Continuous Chase Quiz', sub: 'Logic • Speed Challenge', icon: '🏃‍♂️', url: 'newgame.html', xp: 45, tag: 'Action Quiz' },
     { id: 'g5', title: 'Chemistry Lab Reactions', sub: 'Chemistry • Atom & Matter Lab', icon: '🧪', url: 'cheg1.html', xp: 55, tag: 'Reaction Lab' },
     { id: 'g6', title: 'Anatomy Pin Explorer', sub: 'Biology • Visual Step-by-Step', icon: '🧬', url: 'sciencegame.html', xp: 40, tag: 'Visual Explorer' },
     { id: 'g7', title: 'Interactive Video Arena', sub: 'STEM • Video Challenge', icon: '🎬', url: 'videogame1.html', xp: 50, tag: 'Video Quest' },
     { id: 'g8', title: 'Subject Arcade Hub', sub: 'All Subjects • Multi-Game Arcade', icon: '🎮', url: 'gameboard.html', xp: 60, tag: 'Arcade Hub' },
-    { id: 'g9', title: 'SUTRA Math Cannon', sub: 'Mathematics • Bubble Shooter', icon: '🎯', url: 'math_bubble_shoot.html', xp: 65, tag: 'Math Shooter' }
+    { id: 'g2', title: 'Smart Bazaar Quest', sub: 'Fractions • Visual Trade', icon: '🏪', url: 'fraction_mission.html', xp: 75, tag: 'Market Sim' }
   ]
 };
 

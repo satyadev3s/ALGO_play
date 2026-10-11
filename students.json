@@ -1,0 +1,73 @@
+[
+  {
+    "_id": "6aca017bd6259d34b34f9bd5",
+    "name": "teststudent_1791623545828",
+    "age": 12,
+    "schoolname": "Greenwood High",
+    "classofstudy": "Grade 6",
+    "password": "password123",
+    "score": 0,
+    "xp": 120,
+    "createdAt": "2026-10-10T09:12:27.615Z",
+    "__v": 0
+  },
+  {
+    "_id": "6aca21425837b8e19b0870a6",
+    "name": "Aarav Sharma",
+    "__v": 0,
+    "createdAt": "2026-10-10T11:28:02.545Z",
+    "score": 240,
+    "xp": 550
+  },
+  {
+    "_id": "6aca35152e50ef29473d3aa2",
+    "name": "srinu",
+    "age": 12,
+    "schoolname": "viigi",
+    "classofstudy": "6",
+    "password": "123123",
+    "score": 0,
+    "xp": 120,
+    "createdAt": "2026-10-10T12:52:37.334Z",
+    "__v": 0
+  },
+  {
+    "_id": "6aca3a781a606872a35b6403",
+    "name": "sanku_srinu",
+    "age": 12,
+    "schoolname": "vignan's institute of information technology",
+    "classofstudy": "7",
+    "password": "Srinu@123",
+    "score": 60,
+    "xp": 150,
+    "createdAt": "2026-10-10T13:15:36.739Z",
+    "__v": 0,
+    "last_login": "2026-10-10T21:09:03.026Z"
+  },
+  {
+    "_id": "6acaaa0f7be43dce8d07677c",
+    "name": "nandu",
+    "age": 12,
+    "schoolname": "vignan's institute of information technology",
+    "classofstudy": "6",
+    "password": "$2a$10$Pea4H0OvOj60aOy2TXkk/e7rniLzWR24zjg/xrivktWMqMrp17V36",
+    "score": 1,
+    "xp": 135,
+    "createdAt": "2026-10-10T21:11:43.016Z",
+    "__v": 0,
+    "last_login": "2026-10-10T22:17:48.130Z"
+  },
+  {
+    "_id": "6acab9e07be43dce8d0768ca",
+    "name": "purna_chandra",
+    "age": 12,
+    "schoolname": "vignan's institute of information technology",
+    "classofstudy": "7",
+    "password": "$2a$10$X19PBCzS3BSjFagoGEeT/.z8FMzh0OVN7.y9MTDYv4viw9awUfMhW",
+    "score": 0,
+    "xp": 120,
+    "createdAt": "2026-10-10T22:19:12.185Z",
+    "__v": 0,
+    "last_login": "2026-10-10T22:46:29.958Z"
+  }
+]

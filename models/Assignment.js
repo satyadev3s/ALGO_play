@@ -6,6 +6,7 @@ const assignmentSchema = new mongoose.Schema({
   filename: { type: String, required: true },
   original_name: { type: String, trim: true },
   teacher_name: { type: String, required: true, trim: true },
+  hidden_by_students: { type: [String], default: [] },
   timestamp: { type: Date, default: Date.now }
 });
 

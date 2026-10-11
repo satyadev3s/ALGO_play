@@ -15,7 +15,7 @@
 
 body {
     margin: 0;
-    height: 100vh;
+    min-height: 100vh;
     background: radial-gradient(circle at top left, #6366f1, transparent 50%),
                 radial-gradient(circle at bottom right, #ec4899, transparent 50%),
                 #020617;
@@ -25,15 +25,138 @@ body {
     color: #fff;
 }
 
+.back-dashboard {
+    position: fixed;
+    top: 20px;
+    left: 20px;
+    z-index: 10;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 44px;
+    padding: 10px 18px;
+    border: 1px solid rgba(255,255,255,0.25);
+    border-radius: 12px;
+    background: linear-gradient(135deg,#22d3ee,#6366f1,#ec4899);
+    color: #fff;
+    font-size: 13px;
+    font-weight: 600;
+    text-decoration: none;
+    backdrop-filter: blur(10px);
+    box-shadow: 0 8px 24px rgba(99,102,241,0.35);
+    transition: transform .2s, filter .2s;
+}
+
+.back-dashboard:hover {
+    transform: translateY(-2px);
+    filter: brightness(1.1);
+}
+
 /* CARD */
 .card {
-    width: 420px;
-    padding: 36px;
-    border-radius: 22px;
-    background: rgba(15, 23, 42, 0.88);
-    backdrop-filter: blur(14px);
-    border: 1px solid rgba(255,255,255,0.15);
-    box-shadow: 0 30px 80px rgba(0,0,0,0.65);
+    width: 950px;
+    max-width: 95%;
+    height: 550px;
+    display: flex;
+    overflow: hidden;
+    border-radius: 24px;
+    background: linear-gradient(135deg,rgba(18,18,39,.94),rgba(26,20,61,.96));
+    backdrop-filter: blur(18px);
+    border: 1px solid rgba(155,126,255,.5);
+    box-shadow: 0 30px 80px rgba(0,0,0,.65);
+}
+
+.card-content {
+    width: 45%;
+    padding: 50px 45px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    background: rgba(7,6,24,.92);
+}
+
+.teacher-welcome {
+    width: 55%;
+    padding: 50px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    background: rgba(15,23,42,.85);
+}
+
+.welcome-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    width: fit-content;
+    padding: 6px 12px;
+    border: 1px solid rgba(129,140,248,.8);
+    border-radius: 999px;
+    color: #e0e7ff;
+    font-size: 11px;
+}
+
+.welcome-badge span:first-child {
+    color: #34d399;
+}
+
+.teacher-welcome h1 {
+    margin: 20px 0 4px;
+    font-size: 36px;
+    line-height: 1.15;
+}
+
+.teacher-welcome h3 {
+    margin: 4px 0 10px;
+    color: #a5b4fc;
+    font-size: 20px;
+}
+
+.card .teacher-welcome p {
+    max-width: 360px;
+    margin: 0;
+    text-align: left;
+    line-height: 1.6;
+}
+
+.welcome-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 20px;
+}
+
+.welcome-tags span {
+    padding: 6px 11px;
+    border: 1px solid rgba(148,163,255,.5);
+    border-radius: 999px;
+    color: #e0e7ff;
+    font-size: 11px;
+}
+
+@media(max-width:800px) {
+    body {
+        align-items: flex-start;
+        padding: 72px 16px 24px;
+    }
+
+    .card {
+        width: 100%;
+        max-width: 560px;
+        height: auto;
+        margin: auto;
+        flex-direction: column;
+    }
+
+    .card-content,
+    .teacher-welcome {
+        width: 100%;
+        padding: 32px 28px;
+    }
+
+    .teacher-welcome h1 {
+        font-size: 30px;
+    }
 }
 
 /* HEADER */
@@ -118,7 +241,10 @@ body {
 
 <body>
 
+<a class="back-dashboard" href="index.html">← Back to Dashboard</a>
+
 <div class="card">
+  <div class="card-content">
     <h2>Teacher Login</h2>
     <p>Access your Algoplay educator dashboard</p>
 
@@ -142,14 +268,27 @@ body {
         Are you a student?
         <a href="Loginpage.html">Student Login</a>
     </div>
+  </div>
+  <section class="teacher-welcome">
+    <div class="welcome-badge"><span>●</span> Educator Portal</div>
+    <h1>Empower every learner.</h1>
+    <h3>Teach. Guide. Inspire.</h3>
+    <p>Bring your classroom together, share learning resources, and help students build confidence through interactive lessons and quizzes.</p>
+    <div class="welcome-tags">
+      <span>📚 Classroom Tools</span>
+      <span>📝 Smart Assessments</span>
+      <span>📊 Learning Insights</span>
+    </div>
+  </section>
 </div>
 
 <script>
-function completeTeacherLogin(id, name, email, school) {
+function completeTeacherLogin(id, name, email, school, token) {
     sessionStorage.setItem("logged_in_id", id);
     sessionStorage.setItem("logged_in_name", name);
     sessionStorage.setItem("logged_in_email", email);
     sessionStorage.setItem("logged_in_school", school);
+    if (token) sessionStorage.setItem("algoplay_teacher_token", token);
     window.location.href = "teacherdash.html";
 }
 
@@ -185,7 +324,13 @@ function loginTeacher() {
     .then(res => res.json())
     .then(data => {
         if (data.teacher) {
-            completeTeacherLogin(data.teacher.id, data.teacher.name, data.teacher.email, data.teacher.school);
+            completeTeacherLogin(
+                data.teacher.id,
+                data.teacher.name,
+                data.teacher.email,
+                data.teacher.schoolname || data.teacher.school,
+                data.token
+            );
         } else {
             alert(data.error || "Invalid email or password");
         }
@@ -214,7 +359,6 @@ function loginTeacher() {
 
 
 
-<script src="multilingual/site-i18n.js"></script>
 <script src="audio-manager.js"></script>
 </body>
 </html>

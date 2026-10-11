@@ -22,6 +22,30 @@ body{
     color:#fff;
 }
 
+.back-dashboard{
+    position:fixed;
+    top:20px;
+    left:20px;
+    z-index:10;
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    min-height:44px;
+    padding:10px 18px;
+    border:1px solid rgba(255,255,255,.25);
+    border-radius:12px;
+    background:linear-gradient(135deg,#22d3ee,#6366f1,#ec4899);
+    color:#fff;
+    font-size:13px;
+    font-weight:600;
+    text-decoration:none;
+    backdrop-filter:blur(10px);
+    box-shadow:0 8px 24px rgba(99,102,241,.35);
+    transition:transform .2s,filter .2s;
+}
+
+.back-dashboard:hover{transform:translateY(-2px);filter:brightness(1.1)}
+
 /* WRAPPER */
 .wrapper{
     width:950px;
@@ -141,6 +165,8 @@ body{
 </head>
 
 <body>
+
+<a class="back-dashboard" href="index.html">← Back to Dashboard</a>
 
 <div class="wrapper">
 
@@ -325,7 +351,6 @@ loginBtn.addEventListener("click", async () => {
 });
 </script>
 
-<script src="multilingual/site-i18n.js"></script>
 <script src="audio-manager.js"></script>
 </body>
 </html>

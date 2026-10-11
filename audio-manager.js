@@ -196,7 +196,8 @@
   function initialize() {
     injectStyles();
     addControls();
-    const track = document.body.dataset.audioMusic || inferMusicTrack();
+    const configuredTrack = document.body.dataset.audioMusic;
+    const track = configuredTrack === 'none' ? null : configuredTrack || inferMusicTrack();
     if (track) {
       document.addEventListener('pointerdown', function () {
         startGame(track);

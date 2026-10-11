@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Racing Physics Challenge | AlgoPlay</title>
+  <link rel="stylesheet" href="multilingual/app-theme.css">
+  <style>
+    :root{--race-bg:#070b17;--race-panel:rgba(15,23,42,.92);--race-red:#fb3d3d;--race-gold:#fbbf24;--race-muted:#a8b3c7}
+    *{box-sizing:border-box}
+    body{margin:0;min-height:100vh;background:radial-gradient(circle at 20% 0,#24314f 0,#070b17 48%,#03050b 100%);color:#f8fafc;font-family:system-ui,-apple-system,Segoe UI,sans-serif}
+    .race-shell{width:min(1180px,100%);margin:auto;padding:20px}
+    .race-nav{display:flex;justify-content:space-between;align-items:center;gap:16px;margin-bottom:18px}
+    .race-nav a{color:#cbd5e1;text-decoration:none;font-weight:700}
+    .race-nav a:hover{color:#fff}
+    .race-brand{color:var(--race-red);font-weight:900;letter-spacing:.08em;text-transform:uppercase}
+    .race-stage{position:relative;min-height:680px;overflow:hidden;border:1px solid rgba(148,163,184,.25);border-radius:24px;background:#020617;box-shadow:0 24px 80px rgba(0,0,0,.35)}
+    #raceVideo{width:100%;height:680px;display:block;object-fit:cover;background:#020617}
+    .video-shade{position:absolute;inset:0;background:linear-gradient(90deg,rgba(2,6,23,.82),rgba(2,6,23,.25) 55%,rgba(2,6,23,.7));pointer-events:none}
+    .race-hud{position:absolute;left:24px;right:24px;top:20px;display:grid;grid-template-columns:1fr auto auto;gap:12px;align-items:center;z-index:2}
+    .hud-pill{padding:9px 13px;border:1px solid rgba(255,255,255,.18);border-radius:999px;background:rgba(2,6,23,.7);font-size:13px;font-weight:800}
+    .hud-pill strong{color:var(--race-gold)}
+    .progress-track{height:8px;overflow:hidden;border-radius:8px;background:rgba(255,255,255,.16)}
+    #raceProgress{height:100%;width:0;background:linear-gradient(90deg,var(--race-red),var(--race-gold));transition:width .35s ease}
+    .race-intro,.question-panel,.results-panel{position:absolute;z-index:3;left:50%;top:50%;width:min(720px,calc(100% - 34px));transform:translate(-50%,-50%);padding:30px;border:1px solid rgba(255,255,255,.2);border-radius:22px;background:var(--race-panel);box-shadow:0 20px 70px rgba(0,0,0,.5);backdrop-filter:blur(10px)}
+    .question-panel,.results-panel{display:none}
+    .race-intro h1{margin:0 0 8px;font-size:clamp(28px,5vw,54px);line-height:1.03}
+    .race-intro p{color:#d1d9e7;font-size:17px;line-height:1.55}
+    .eyebrow{color:var(--race-gold);font-size:12px;font-weight:900;letter-spacing:.13em;text-transform:uppercase}
+    .race-button{border:0;border-radius:12px;padding:13px 19px;background:linear-gradient(135deg,#ef4444,#b91c1c);color:#fff;font-weight:900;cursor:pointer;box-shadow:0 8px 20px rgba(239,68,68,.25);transition:transform .18s,filter .18s}
+    .race-button:hover{transform:translateY(-2px);filter:brightness(1.12)}
+    .race-button.secondary{background:rgba(148,163,184,.18);box-shadow:none}
+    .race-button:disabled{opacity:.55;cursor:not-allowed;transform:none}
+    .question-title{font-size:clamp(21px,3vw,31px);line-height:1.25;margin:9px 0 20px}
+    .answers{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+    .answer{padding:15px;text-align:left;border:1px solid rgba(148,163,184,.35);border-radius:13px;background:rgba(30,41,59,.8);color:#f8fafc;font-size:15px;font-weight:750;cursor:pointer;transition:background .18s,transform .18s,border-color .18s}
+    .answer:hover{transform:translateY(-2px);border-color:#f87171;background:rgba(127,29,29,.65)}
+    .answer:disabled{cursor:default;transform:none}
+    .answer.correct{background:rgba(22,101,52,.85);border-color:#4ade80}
+    .answer.wrong{background:rgba(127,29,29,.85);border-color:#f87171}
+    #feedback{min-height:48px;margin:16px 0 0;color:#dbeafe;line-height:1.45}
+    #feedback.good{color:#86efac}#feedback.bad{color:#fca5a5}
+    .question-meta{display:flex;justify-content:space-between;color:var(--race-muted);font-size:13px;font-weight:700}
+    .panel-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:15px}
+    .review{display:none;margin-top:20px;max-height:330px;overflow:auto}
+    .review-item{padding:14px 0;border-top:1px solid rgba(148,163,184,.22);line-height:1.45}
+    .review-item strong{color:#fbbf24}.review-item .wrong-answer{color:#fca5a5}.review-item .right-answer{color:#86efac}
+    #assetError{display:none;margin:12px 0;padding:12px;border-radius:10px;background:#451a03;color:#fed7aa}
+    @media(max-width:650px){.race-shell{padding:10px}.race-stage{min-height:680px}.race-hud{left:12px;right:12px;grid-template-columns:1fr 1fr}.race-hud .progress-track{grid-column:1/-1;grid-row:2}.race-hud .hud-pill:last-child{justify-self:end}.answers{grid-template-columns:1fr}.race-intro,.question-panel,.results-panel{padding:21px}.race-nav{font-size:13px}}
+  </style>
+</head>
+<body data-audio-music="music1">
+  <div class="race-shell">
+    <nav class="race-nav">
+      <a href="gameboard.html">← Gaming Browser</a>
+      <span class="race-brand">AlgoPlay Racing</span>
+    </nav>
+    <main class="race-stage" aria-live="polite">
+      <video id="raceVideo" preload="auto" playsinline>
+        <source src="drive_phy.mp4" type="video/mp4">
+      </video>
+      <div class="video-shade"></div>
+      <div class="race-hud">
+        <div class="progress-track" aria-label="Race progress"><div id="raceProgress"></div></div>
+        <div class="hud-pill">Checkpoint <strong id="checkpointText">1/3</strong></div>
+        <div class="hud-pill">Score <strong id="scoreText">0</strong>/900</div>
+      </div>
+
+      <section id="introPanel" class="race-intro">
+        <div class="eyebrow">Physics • Classes 6–10 • Progressive</div>
+        <h1>Racing Physics Challenge</h1>
+        <p>Race against time, solve Physics challenges, and earn points! The race pauses at three checkpoints for nine speed, time and distance questions.</p>
+        <div id="assetError">The racing video could not be loaded. Check that <strong>drive_phy.mp4</strong> is present, then reload the page.</div>
+        <button id="startButton" class="race-button">Start Race 🏁</button>
+      </section>
+
+      <section id="questionPanel" class="question-panel" aria-label="Physics checkpoint">
+        <div class="question-meta"><span id="checkpointLabel">Checkpoint 1 • Easy</span><span id="questionCounter">1/9</span></div>
+        <div class="progress-track" style="margin-top:10px"><div id="questionProgress" style="height:100%;width:0;background:var(--race-gold);transition:width .25s"></div></div>
+        <h2 id="questionText" class="question-title"></h2>
+        <div id="answers" class="answers"></div>
+        <div id="feedback" role="status"></div>
+        <div class="panel-actions"><button id="continueButton" class="race-button" hidden>Continue Race ▶</button></div>
+      </section>
+
+      <section id="resultsPanel" class="results-panel">
+        <div class="eyebrow">Race Finished</div>
+        <h2>RACING PHYSICS CHALLENGE — RACE COMPLETED!</h2>
+        <p id="resultSummary"></p>
+        <div class="panel-actions">
+          <button id="playAgainButton" class="race-button">Play Again</button>
+          <button id="reviewButton" class="race-button secondary">Review Answers</button>
+          <a class="race-button secondary" href="gameboard.html">Back to Gaming Browser</a>
+        </div>
+        <div id="review" class="review"></div>
+      </section>
+    </main>
+  </div>
+  <script src="multilingual/site-i18n.js"></script>
+  <script src="audio-manager.js"></script>
+  <script>
+    const questions = [
+      { checkpoint: 1, difficulty: 'Easy', text: 'A racer travels 120 km in 2 hours. What is the average speed?', options: ['40 km/h', '60 km/h', '120 km/h', '240 km/h'], answer: 1, explanation: 'Speed = distance ÷ time = 120 ÷ 2 = 60 km/h.', hint: 'Divide the distance by the time.' },
+      { checkpoint: 1, difficulty: 'Easy', text: 'A car moves at 50 km/h for 3 hours. How far does it travel?', options: ['53 km', '100 km', '150 km', '500 km'], answer: 2, explanation: 'Distance = speed × time = 50 × 3 = 150 km.', hint: 'Multiply speed by time.' },
+      { checkpoint: 1, difficulty: 'Easy', text: 'Which vehicle is faster: 72 km/h or 15 m/s?', options: ['72 km/h', '15 m/s', 'They are equal', 'Not enough information'], answer: 0, explanation: '15 m/s = 54 km/h, so 72 km/h is faster.', hint: 'Multiply m/s by 3.6 to convert to km/h.' },
+      { checkpoint: 2, difficulty: 'Medium', text: 'A runner covers 400 m in 50 seconds. What is the speed in m/s?', options: ['8 m/s', '20 m/s', '350 m/s', '450 m/s'], answer: 0, explanation: 'Speed = 400 ÷ 50 = 8 m/s.', hint: 'Use distance ÷ time.' },
+      { checkpoint: 2, difficulty: 'Medium', text: 'A bike travels at 36 km/h. What is this speed in m/s?', options: ['3.6 m/s', '10 m/s', '36 m/s', '129.6 m/s'], answer: 1, explanation: '36 ÷ 3.6 = 10 m/s.', hint: 'Divide km/h by 3.6.' },
+      { checkpoint: 2, difficulty: 'Medium', text: 'Car A travels 180 km in 3 hours. Car B travels 140 km in 2 hours. Which is faster?', options: ['Car A at 60 km/h', 'Car B at 70 km/h', 'Both are 60 km/h', 'Both are 70 km/h'], answer: 1, explanation: 'Car A = 60 km/h; Car B = 70 km/h, so Car B is faster.', hint: 'Find each average speed before comparing.' },
+      { checkpoint: 3, difficulty: 'Hard', text: 'A racer drives 90 km at 60 km/h, then 60 km at 30 km/h. What is the total travel time?', options: ['2 hours', '3 hours', '3.5 hours', '5 hours'], answer: 2, explanation: 'First time = 90 ÷ 60 = 1.5 hours; second time = 60 ÷ 30 = 2 hours; total = 3.5 hours.', hint: 'Calculate each section separately and add.' },
+      { checkpoint: 3, difficulty: 'Hard', text: 'A 2 km race is completed in 4 minutes. What is the average speed in km/h?', options: ['8 km/h', '15 km/h', '30 km/h', '120 km/h'], answer: 2, explanation: 'Four minutes is 1/15 of an hour, so speed = 2 ÷ (1/15) = 30 km/h.', hint: 'Convert minutes to hours first.' },
+      { checkpoint: 3, difficulty: 'Hard', text: 'A car increases from 40 km/h to 64 km/h. By what percentage did its speed increase?', options: ['24%', '40%', '60%', '104%'], answer: 2, explanation: 'The increase is 24 km/h. Percentage increase = 24 ÷ 40 × 100 = 60%.', hint: 'Use increase ÷ original × 100.' }
+    ];
+    const video = document.getElementById('raceVideo');
+    const intro = document.getElementById('introPanel');
+    const questionPanel = document.getElementById('questionPanel');
+    const resultsPanel = document.getElementById('resultsPanel');
+    const answers = document.getElementById('answers');
+    const feedback = document.getElementById('feedback');
+    const continueButton = document.getElementById('continueButton');
+    let questionIndex = 0, score = 0, correctCount = 0, attempts = 0, running = false;
+    let checkpointShown = [false, false, false], answerLog = [];
+
+    function effect(name) { if (window.AlgoPlayAudio) AlgoPlayAudio.effect(name); }
+    function updateHud() {
+      document.getElementById('scoreText').textContent = score;
+      document.getElementById('checkpointText').textContent = Math.min(3, Math.floor(questionIndex / 3) + 1) + '/3';
+      document.getElementById('raceProgress').style.width = (questionIndex / questions.length * 100) + '%';
+    }
+    function showQuestion() {
+      const q = questions[questionIndex];
+      attempts = 0;
+      questionPanel.style.display = 'block';
+      document.getElementById('checkpointLabel').textContent = 'Checkpoint ' + q.checkpoint + ' • ' + q.difficulty;
+      document.getElementById('questionCounter').textContent = (questionIndex + 1) + '/9';
+      document.getElementById('questionProgress').style.width = (questionIndex / questions.length * 100) + '%';
+      document.getElementById('questionText').textContent = q.text;
+      feedback.textContent = 'Choose the best answer. You have two attempts.';
+      feedback.className = '';
+      continueButton.hidden = true;
+      answers.innerHTML = '';
+      q.options.forEach((option, index) => {
+        const button = document.createElement('button');
+        button.className = 'answer';
+        button.type = 'button';
+        button.textContent = String.fromCharCode(65 + index) + '. ' + option;
+        button.addEventListener('click', () => answerQuestion(index, button));
+        answers.appendChild(button);
+      });
+      updateHud();
+    }
+    function answerQuestion(selected, button) {
+      const q = questions[questionIndex];
+      attempts += 1;
+      if (selected === q.answer) {
+        button.classList.add('correct');
+        [...answers.children].forEach(item => item.disabled = true);
+        const points = attempts === 1 ? 100 : 50;
+        score += points; correctCount += 1;
+        answerLog.push({ question: q.text, student: q.options[selected], correct: q.options[q.answer], explanation: q.explanation, result: 'Correct' });
+        feedback.textContent = 'Correct! +' + points + ' points. ' + q.explanation;
+        feedback.className = 'good';
+        effect('win');
+        continueButton.hidden = false;
+      } else if (attempts < 2) {
+        button.classList.add('wrong'); button.disabled = true;
+        feedback.textContent = 'Not quite. Try once more. Hint: ' + q.hint;
+        feedback.className = 'bad';
+      } else {
+        button.classList.add('wrong');
+        [...answers.children].forEach(item => item.disabled = true);
+        answerLog.push({ question: q.text, student: q.options[selected], correct: q.options[q.answer], explanation: q.explanation, result: 'Incorrect' });
+        feedback.textContent = 'The correct answer is ' + q.options[q.answer] + '. ' + q.explanation;
+        feedback.className = 'bad';
+        continueButton.hidden = false;
+      }
+      updateHud();
+    }
+    function resumeRace() {
+      questionPanel.style.display = 'none';
+      if (window.AlgoPlayAudio) AlgoPlayAudio.playMusic('music1');
+      const play = video.play();
+      if (play && play.catch) play.catch(() => {});
+      if (questionIndex >= questions.length) document.getElementById('raceProgress').style.width = '100%';
+    }
+    function checkpointForTime(time) {
+      if (time >= 20 && !checkpointShown[2]) return 2;
+      if (time >= 14 && !checkpointShown[1]) return 1;
+      if (time >= 7 && !checkpointShown[0]) return 0;
+      return -1;
+    }
+    video.addEventListener('timeupdate', () => {
+      if (!running) return;
+      const checkpoint = checkpointForTime(video.currentTime);
+      if (checkpoint < 0) return;
+      checkpointShown[checkpoint] = true;
+      video.pause();
+      questionIndex = checkpoint * 3;
+      if (window.AlgoPlayAudio) AlgoPlayAudio.stopMusic();
+      showQuestion();
+    });
+    video.addEventListener('ended', finishRace);
+    video.addEventListener('error', () => { document.getElementById('assetError').style.display = 'block'; document.getElementById('startButton').disabled = true; });
+    function startRace() {
+      if (window.AlgoPlayAudio) AlgoPlayAudio.startGame('music1');
+      intro.style.display = 'none'; resultsPanel.style.display = 'none'; running = true;
+      questionIndex = 0; score = 0; correctCount = 0; answerLog = []; checkpointShown = [false, false, false];
+      updateHud(); video.currentTime = 0;
+      const play = video.play(); if (play && play.catch) play.catch(() => {});
+    }
+    function finishRace() {
+      if (!running) return;
+      running = false; questionPanel.style.display = 'none'; resultsPanel.style.display = 'block';
+      if (window.AlgoPlayAudio) { AlgoPlayAudio.stopMusic(); AlgoPlayAudio.win('racing-physics-complete'); }
+      try {
+        const best = Number(localStorage.getItem('algoplay_racing_physics_best') || 0);
+        if (score > best) localStorage.setItem('algoplay_racing_physics_best', String(score));
+      } catch (error) {
+        console.warn('Unable to save the racing challenge best score.', error);
+      }
+      document.getElementById('resultSummary').textContent = 'Final score: ' + score + '/900 • Correct answers: ' + correctCount + '/9. ' + (score >= 750 ? 'Excellent racing physics!' : score >= 450 ? 'Strong race! Keep practicing your calculations.' : 'Keep training and try the race again.');
+      document.getElementById('raceProgress').style.width = '100%';
+    }
+    function renderReview() {
+      const review = document.getElementById('review');
+      review.style.display = review.style.display === 'block' ? 'none' : 'block';
+      review.innerHTML = '<h3>Answer Review</h3>' + answerLog.map((item, index) => '<div class="review-item"><strong>' + (index + 1) + '. ' + item.result + '</strong><br>' + item.question + '<br><span class="' + (item.result === 'Correct' ? 'right-answer' : 'wrong-answer') + '">Your answer: ' + item.student + '</span><br><span class="right-answer">Correct answer: ' + item.correct + '</span><br>' + item.explanation + '</div>').join('');
+    }
+    document.getElementById('startButton').addEventListener('click', startRace);
+    continueButton.addEventListener('click', () => { questionIndex += 1; if (questionIndex % 3 === 0 || questionIndex >= questions.length) resumeRace(); else showQuestion(); });
+    document.getElementById('playAgainButton').addEventListener('click', startRace);
+    document.getElementById('reviewButton').addEventListener('click', renderReview);
+  </script>
+</body>
+</html>

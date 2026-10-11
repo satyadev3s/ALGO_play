@@ -160,6 +160,10 @@ header p{
 .chemistry { border-top: 4px solid #22c55e; }
 .biology { border-top: 4px solid #06b6d4; }
 .video { border-top: 4px solid #ec4899; }
+.water { border-top: 4px solid #38bdf8; }
+main.subjects > .card { order: 1; }
+main.subjects > .game-featured { order: 0; }
+main.subjects > .game-last { order: 2; }
 
 /* FOOTER */
 footer{
@@ -176,7 +180,7 @@ footer{
 
 <div class="top-nav">
   <a href="maindashboard.html" class="back-link">← Back to Dashboard</a>
-  <span style="font-size: 12px; color: #94a3b8; font-weight: 600;">⭐ 8 Active Game Modules</span>
+  <span style="font-size: 12px; color: #94a3b8; font-weight: 600;">⭐ 12 Active Game Modules</span>
 </div>
 
 <header>
@@ -197,7 +201,7 @@ footer{
   </div>
 
   <!-- Smart Bazaar -->
-  <div class="card fractions">
+  <div class="card fractions game-last">
     <div>
       <span class="badge" style="background: rgba(249, 115, 22, 0.2); color: #fdba74;">Math • Market Sim</span>
       <div class="icon">🏪</div>
@@ -219,7 +223,7 @@ footer{
   </div>
 
   <!-- Physics Lab -->
-  <div class="card physics">
+  <div class="card physics game-featured">
     <div>
       <span class="badge" style="background: rgba(168, 85, 247, 0.2); color: #d8b4fe;">Physics • Sandbox Sim</span>
       <div class="icon">🪐</div>
@@ -274,7 +278,7 @@ footer{
   </div>
 
   <!-- SUTRA Math Cannon -->
-  <div class="card math">
+  <div class="card math game-featured">
     <div>
       <span class="badge" style="background: rgba(99, 102, 241, 0.2); color: #a5b4fc;">Mathematics • Bubble Shooter</span>
       <div class="icon">🎯</div>
@@ -283,10 +287,43 @@ footer{
     </div>
     <button onclick="location.href='math_bubble_shoot.html'">Play Cannon →</button>
   </div>
+
+  <!-- Water Cycle Journey -->
+  <div class="card water game-featured">
+    <div>
+      <span class="badge" style="background: rgba(56, 189, 248, 0.2); color: #7dd3fc;">Geography • Water Cycle</span>
+      <div class="icon">💧</div>
+      <h2>A Raindrop's Journey</h2>
+      <p>Follow a raindrop through the water cycle and answer questions at every stage of its journey.</p>
+    </div>
+    <button onclick="location.href='raindrop-journey%20(1).html'">Start Journey →</button>
+  </div>
+
+  <!-- Racing Physics Challenge -->
+  <div class="card physics game-featured">
+    <div>
+      <span class="badge" style="background: rgba(168, 85, 247, 0.2); color: #d8b4fe;">Physics • Speed, Time &amp; Distance</span>
+      <div class="icon">🏎️</div>
+      <h2>Racing Physics Challenge</h2>
+      <p>Race through a driving video and solve nine physics questions at three checkpoints.</p>
+    </div>
+    <button onclick="location.href='phy_drive.html'">Start Race →</button>
+  </div>
+
+  <!-- SUTRA Quest Board Game -->
+  <div class="card math game-featured">
+    <div>
+      <span class="badge" style="background: rgba(16, 185, 129, 0.2); color: #6ee7b7;">Multiplayer • Curriculum Quiz Board</span>
+      <div class="icon">🎲</div>
+      <h2>SUTRA Quest: Snakes &amp; Ladders</h2>
+      <p>Answer curriculum questions, roll the dice, and race other players to the top of the board.</p>
+    </div>
+    <button onclick="location.href='sutra_quest.html'">Play SUTRA Quest →</button>
+  </div>
 </main>
 
 <footer>
-  ⭐ 9 High-Energy Educational Games • 🎯 Daily XP • 🏆 Coins &amp; Badges
+  ⭐ 12 High-Energy Educational Games • 🎯 Daily XP • 🏆 Coins &amp; Badges
 </footer>
 
 <script src="multilingual/site-i18n.js"></script>
